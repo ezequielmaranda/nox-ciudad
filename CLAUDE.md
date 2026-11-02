@@ -6,7 +6,7 @@ El usuario es data engineer con experiencia en monitoreo atmosférico: comunicac
 ## 1. Qué es
 
 TP integrador de **Análisis de Datos 1** (licenciatura en ciencia de datos, UdelaCiudad). Equipo de 4.
-Entrega: pipeline + EDA en Python + dashboard en **Power BI** + exposición con storytelling de 20 minutos.
+Entrega: pipeline + EDA en Python + dashboard (Looker Studio) + exposición con storytelling de 20 minutos.
 
 **Pregunta:** ¿qué le pasa al aire porteño cuando paran los colectivos (flota casi toda diésel)?
 **Hipótesis:** en días sin colectivos cae el NOx, y su proporción respecto del CO (la "firma diésel"),
@@ -35,7 +35,7 @@ explicar todo) e identificación de limitaciones. No se piden modelos de ML.
   **Fijado en `duckdb>=1.5.4,<2`:** DuckDB 2.0 cambió el formato de archivo y las herramientas 1.x
   (CLI 1.5.4, drivers de DataGrip/DBeaver) no pueden abrir una base creada con 2.0.
 - **dbt-duckdb** para bronze → silver → gold. Los tests de dbt son el capítulo de calidad de datos.
-- Gold se exporta a **Parquet** en `export/` para Power BI y para que el equipo haga EDA en Colab.
+- Gold se exporta a **Parquet** en `export/` (y CSV para Looker Studio en `export/looker/`) para que el equipo haga EDA en Colab.
 
 Medallón:
 - **raw** (`data/raw/`): archivos originales, inmutables.
@@ -161,7 +161,7 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    `gold_meteo_diario` (solo SMN diario: viento, temperatura y humedad promedio de las 2 estaciones,
    lluvia = máximo; llega hasta el último dato SMN, 2026-07-31) y **`gold_analitico`** (estación × día, 2950 filas): LA tabla del análisis.
    Test `eventos_coherentes_con_sube` (error): paros ≥ 50% de dosis, controles ≤ 5%.
-   Último build: PASS=56 WARN=2 ERROR=0.
+   Último build: PASS=58 WARN=2 ERROR=0.
    Gradiente para el EDA (actividad vs. NOx/CO media geométrica 8-16): hábil 0,97/114 · sábado 0,59/96 ·
    control 0,73/91 · feriado 0,38/81 · domingo 0,34/73 · sin colectivos 0,21/66.
    Feriados y fines de semana entran al EDA como gradiente, NO a la base de la regresión ni del placebo.
@@ -186,8 +186,11 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    P84-88 del viento de su mes). La dosis de `gold_sube_diario` es nula en sábados y domingos (antes daba 0).
    A revisar: Córdoba 19/02/2026 con NOx +66% y CO +110% sobre lo esperado.
    A revisar: Córdoba 23/05/2026 NOx 8-16 = 492 ppb con viento normal.
-6. Dashboard Power BI sobre los Parquet: guía en `powerbi/README.md` (modelo estrella, medidas DAX, 5 páginas)
-   y tema `powerbi/tema_nox.json`. Falta armarlo (Power BI Desktop, Windows).
+6. Dashboard en **Looker Studio** (decisión del equipo: gratis, en el navegador, edición colaborativa; la consigna
+   acepta Power BI, Looker Studio o Tableau). `run.py` exporta `export/looker/*.csv` (7 tablas planas, UTF-8,
+   encabezados ASCII). Guía en `dashboard/README.md`: fuentes, campos calculados, 5 páginas, colores y chequeo
+   contra los notebooks (La Boca: 94,7% días NO2 > guía, P99 ≈ 95 µg/m³, mediana NOx/CO ≈ 162). Falta armarlo.
+   `dim_calendario.grupo_dia` es el grupo de día único para EDA y dashboard.
 
 Reparto propuesto: Ezequiel → calidad del aire, ETL y análisis de eventos; compañero 1 → EDA SUBE y eventos;
 compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cada uno presenta su parte.

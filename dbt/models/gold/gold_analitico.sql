@@ -12,6 +12,7 @@ select
     cal.dia_semana,
     cal.nombre_dia,
     cal.tipo_dia,
+    cal.grupo_dia,
     cal.feriado,
     cal.es_dia_normal,
     cal.evento,

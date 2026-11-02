@@ -65,3 +65,14 @@ models:
           - accepted_values:
               arguments:
                 values: ["hábil", "sábado", "domingo", "feriado"]
+      - name: grupo_dia
+        description: >
+          Grupo para comparar días: Hábil normal (la referencia), Hábil baja actividad (hábil con colectivo,
+          tren o subte por debajo del 90% de lo habitual: vacaciones, fiestas, problemas en trenes o subte),
+          Sábado, Domingo, Feriado, Paro sin colectivos y Paro con colectivos (control).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Hábil normal", "Hábil baja actividad", "Sábado", "Domingo", "Feriado",
+                         "Paro sin colectivos", "Paro con colectivos"]

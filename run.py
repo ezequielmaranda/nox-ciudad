@@ -4,7 +4,9 @@ Uso (desde la raíz del proyecto):
     uv run python run.py              # dbt build + export (los datos crudos ya están en data/)
     uv run python run.py --extraer    # además vuelve a correr los scripts de extract/
     uv run python run.py --solo-export
-    uv run python run.py --analisis   # además ejecuta los notebooks y genera los resultados para Power BI
+    uv run python run.py --analisis   # además ejecuta los notebooks y genera los resultados del análisis
+
+Al final siempre deja export/looker/*.csv: tablas planas listas para subir a Looker Studio.
 
 dbt no es un orquestador: solo transforma lo que ya está en data/landing y data/raw.
 Este script encadena los pasos en orden y corta si alguno falla.
@@ -29,7 +31,7 @@ EXTRACT = [
     ["extract/smn_to_csv.py"],
 ]
 
-# Tablas que salen a Parquet para Power BI y el EDA en Colab.
+# Tablas que salen a Parquet para el dashboard y el EDA en Colab.
 TABLAS_EXPORT = [
     "gold.gold_analitico",      # estación × día: la tabla del análisis
     "gold.gold_aire_diario",
@@ -70,11 +72,68 @@ def analizar():
                cwd=RAIZ / "analysis")
 
 
+# Tablas planas para Looker Studio: una por fuente de datos, sin joins del lado del dashboard.
+# Looker Studio solo acepta CSV en UTF-8, coma como separador y encabezados con letras, números y "_".
+ESTACION_NOMBRE = """case estacion when 'CENTENARIO' then 'Centenario' when 'CORDOBA' then 'Córdoba'
+                     when 'LA BOCA' then 'La Boca' end as estacion_nombre"""
+LOOKER = {
+    "aire_diario": f"""
+        select {ESTACION_NOMBRE}, *,
+               -- 1 si ese día superó la guía OMS de 24 h, 0 si no, vacío si no hay dato:
+               -- en Looker, AVG(no2_sobre_guia_oms) da el % de días con dato sobre la guía.
+               case when no2_24h_ugm3 is null then null when no2_24h_ugm3 > 25 then 1 else 0 end
+                   as no2_sobre_guia_oms,
+               case when pm10_24h_ugm3 is null then null when pm10_24h_ugm3 > 45 then 1 else 0 end
+                   as pm10_sobre_guia_oms
+        from '{{e}}/gold_analitico.parquet'""",
+    "transporte_diario": """
+        select c.anio, c.mes, c.nombre_dia, c.tipo_dia, c.grupo_dia, c.feriado, c.evento, c.grupo_evento, s.*
+        from '{e}/gold_sube_diario.parquet' as s
+        join '{e}/dim_calendario.parquet' as c using (fecha)""",
+    "meteo_diario": """
+        select c.anio, c.mes, c.tipo_dia, c.grupo_dia, c.evento, c.grupo_evento, m.*
+        from '{e}/gold_meteo_diario.parquet' as m
+        join '{e}/dim_calendario.parquet' as c using (fecha)""",
+    "eventos": "select * from '{e}/eventos.parquet'",
+    "indice_tipo_dia": "select * from '{e}/indice_tipo_dia.parquet'",
+    "resultados_evento": f"""
+        select {ESTACION_NOMBRE},
+               strftime(fecha, '%d/%m/%y') || ' · ' || {ESTACION_NOMBRE.split(' as ')[0]} as etiqueta,
+               case grupo when 'sin_colectivos' then 'Paro sin colectivos'
+                          else 'Paro con colectivos' end as grupo_nombre,
+               * replace (cast(fecha as date) as fecha)
+        from '{{e}}/resultados_evento.parquet'""",
+    "resultados_grupo": """
+        select case grupo when 'sin_colectivos' then 'Paro sin colectivos'
+                          else 'Paro con colectivos' end as grupo_nombre, *,
+               -- con 5.000 sorteos, un valor p de 0 significa "menos de 1 en 5.000"
+               case when valor_p = 0 then '< 0,0002' else replace(printf('%.3f', valor_p), '.', ',') end
+                   as valor_p_texto
+        from '{e}/resultados_grupo.parquet'""",
+}
+
+
+def exportar_looker():
+    destino = EXPORT / "looker"
+    destino.mkdir(parents=True, exist_ok=True)
+    con = duckdb.connect()
+    print(f"\n>> CSV para Looker Studio en {destino}")
+    for nombre, sql in LOOKER.items():
+        try:
+            consulta = sql.format(e=EXPORT.as_posix())
+            con.execute(f"copy ({consulta}) to '{(destino / nombre).as_posix()}.csv' (header, delimiter ',')")
+            filas = con.execute(f"select count(*) from ({consulta})").fetchone()[0]
+            print(f"   {nombre + '.csv':28s} {filas:>7,} filas")
+        except duckdb.IOException:
+            print(f"   {nombre + '.csv':28s}  (falta el Parquet: correr con --analisis)")
+    con.close()
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--extraer", action="store_true", help="correr también los scripts de extract/")
     ap.add_argument("--solo-export", action="store_true", help="no correr dbt; solo exportar")
-    ap.add_argument("--analisis", action="store_true", help="ejecutar los notebooks (resultados para Power BI)")
+    ap.add_argument("--analisis", action="store_true", help="ejecutar los notebooks (resultados para el dashboard)")
     args = ap.parse_args()
 
     if args.extraer:
@@ -85,6 +144,7 @@ def main():
     exportar()
     if args.analisis:
         analizar()
+    exportar_looker()
     print("\nListo.")
 
 

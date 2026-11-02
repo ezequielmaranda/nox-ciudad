@@ -17,7 +17,7 @@ dbt/             landing -> bronze -> silver -> gold
   seeds/         tablas chicas versionadas (eventos.csv, feriados.csv)
   tests/         tests de coherencia física y de negocio
 analysis/        notebooks de EDA y consultas sueltas; leen gold
-export/          gold exportado a Parquet para Power BI y Colab
+export/          gold exportado a Parquet para Looker Studio y Colab
 ```
 
 ## Arquitectura medallón
@@ -46,7 +46,7 @@ uv sync                                   # instala todo según pyproject.toml /
 # SMN (manual): bajar el zip de datos diarios y descomprimirlo en data/raw/smn/ (ver Fuentes)
 uv run python run.py --extraer            # extract -> dbt build -> export/*.parquet
 uv run python run.py                      # lo mismo sin volver a descargar (lo más común)
-uv run python run.py --analisis           # además ejecuta los notebooks y deja los resultados para Power BI
+uv run python run.py --analisis           # además ejecuta los notebooks y deja los resultados para Looker Studio
 ```
 
 Por partes, si hace falta:
@@ -61,9 +61,10 @@ uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-di
 ```
 
 `export/` (fuera de git) queda con `gold_analitico.parquet` y el resto de gold: es lo que leen
-Power BI y los notebooks de EDA.
+Looker Studio y los notebooks de EDA.
 
-Dashboard: ver [`powerbi/README.md`](powerbi/README.md) (modelo, medidas DAX, páginas y tema de colores).
+Dashboard en **Looker Studio**: ver [`dashboard/README.md`](dashboard/README.md) (fuentes, campos calculados, páginas y colores).
+`run.py` deja siempre en `export/looker/` los CSV planos que se suben a Looker Studio.
 
 ## Notebooks (`analysis/`)
 

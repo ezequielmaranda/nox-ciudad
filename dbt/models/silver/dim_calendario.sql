@@ -23,6 +23,17 @@ select
         else 'hábil'
     end as tipo_dia,
     coalesce(actividad.es_dia_normal, false) as es_dia_normal,
+    -- Grupo de día para el EDA y el dashboard (el mismo criterio en todos lados):
+    -- los eventos primero, después hábil normal / de baja actividad, y el resto por tipo de día.
+    case
+        when eventos.grupo = 'sin_colectivos' then 'Paro sin colectivos'
+        when eventos.grupo = 'control' then 'Paro con colectivos'
+        when feriados.fecha is not null then 'Feriado'
+        when isodow(dias.fecha) = 6 then 'Sábado'
+        when isodow(dias.fecha) = 7 then 'Domingo'
+        when coalesce(actividad.es_dia_normal, false) then 'Hábil normal'
+        else 'Hábil baja actividad'
+    end as grupo_dia,
     eventos.evento,
     eventos.grupo as grupo_evento,
     eventos.pct_lineas_paradas_caba
