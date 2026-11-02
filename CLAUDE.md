@@ -60,7 +60,10 @@ data/            (fuera de git)
   landing/       aire_publico.csv (+ manifiesto), smn.csv
 extract/         aire_publico.py, sube_descarga.py, smn_to_csv.py
 dbt/             models/{bronze,silver,gold}, seeds/{eventos,feriados}.csv, tests/, macros/
-analysis/        consultas SQL sueltas; acá van los notebooks de EDA
+analysis/        notebooks 01-05 y consultas.sql (7 preguntas en SQL)
+docs/            modelo_datos.md (arquitectura, modelo, decisiones, diccionario generado con
+                 generar_diccionario.py) y proceso.md (fichas, problemas de calidad, tests, supuestos)
+dashboard/       guía de Looker Studio
 export/          Parquet de gold
 _to_delete/      el usuario lo borra a mano (venv viejo, etc.)
 ```

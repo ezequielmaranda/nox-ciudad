@@ -63,6 +63,10 @@ uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-di
 `export/` (fuera de git) queda con `gold_analitico.parquet` y el resto de gold: es lo que leen
 Looker Studio y los notebooks de EDA.
 
+Documentación: [`docs/modelo_datos.md`](docs/modelo_datos.md) (arquitectura, modelo, decisiones y diccionario),
+[`docs/proceso.md`](docs/proceso.md) (fichas de datasets, problemas de calidad y soluciones, tests) y
+[`analysis/consultas.sql`](analysis/consultas.sql) (preguntas respondidas con SQL).
+
 Dashboard en **Looker Studio**: ver [`dashboard/README.md`](dashboard/README.md) (fuentes, campos calculados, páginas y colores).
 `run.py` deja siempre en `export/looker/` los CSV planos que se suben a Looker Studio.
 
