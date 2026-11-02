@@ -1,0 +1,41 @@
+version: 2
+
+seeds:
+  - name: eventos
+    description: >
+      Los seis días de paro identificados en los datos de SUBE (2024-2026), con su grupo de diseño
+      y el porcentaje de líneas de colectivo que circulan por CABA que pararon ese día.
+    config:
+      column_types:
+        fecha: date
+        evento: varchar
+        grupo: varchar
+        pct_lineas_paradas_caba: integer
+        fuente_prensa: varchar
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: grupo
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["sin_colectivos", "control"]
+
+  - name: feriados
+    description: >
+      Feriados nacionales 2024-2026, incluidos los puentes turísticos.
+      Fuente: API pública ArgentinaDatos (https://api.argentinadatos.com/v1/feriados/<año>).
+      No incluye días no laborables optativos (p. ej. Jueves Santo): esos días los detecta SUBE.
+    config:
+      column_types:
+        fecha: date
+        tipo: varchar
+        nombre: varchar
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: tipo
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["inamovible", "trasladable", "puente"]

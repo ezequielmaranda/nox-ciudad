@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: bronze_aire
+    description: >
+      Informes mensuales públicos de calidad del aire (APrA), tal como los deja
+      extract/aire_publico.py en data/landing/aire_publico.csv. Todo como texto.
+      Grano: estación × fecha × contaminante × estadístico.
+    columns:
+      - name: estacion
+        description: CENTENARIO, CORDOBA o LA BOCA (según la página que enlaza el PDF).
+      - name: estadistico
+        description: "24h, 0-8, 8-16, 16-24, max_1h o min_1h."
+      - name: valor_crudo
+        description: Texto tal cual figura en el PDF (coma decimal, "s/d", "DND", "<4", etc.).
+      - name: archivo
+        description: PDF de origen.
+      - name: archivo_landing
+        description: CSV de landing del que se leyó la fila.
+      - name: fecha_carga
+        description: Momento de la carga a bronze.
+
+  - name: bronze_aire_manifiesto
+    description: >
+      Un registro por PDF procesado en la extracción, con su estado (ok, descartado, error) y avisos
+      (links cruzados, encabezados equivocados, tablas incompletas, celdas inválidas).

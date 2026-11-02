@@ -1,0 +1,9 @@
+# Perfil de conexión. La base queda en data/nox.duckdb (fuera de git).
+# NOX_RAIZ es la raíz del repo; por defecto se asume que dbt se corre desde la carpeta dbt/.
+nox_ciudad:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('NOX_RAIZ', '..') }}/data/nox.duckdb"
+      threads: 4

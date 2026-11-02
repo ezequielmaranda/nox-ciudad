@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: silver_aire
+    description: >
+      Calidad del aire tipada. Cada valor tiene un estado (valido, sin_dato, bajo_limite_deteccion,
+      invalido) y una marca de rango físico. No se eliminan filas.
+      Grano: estación × fecha × contaminante × estadístico.
+    columns:
+      - name: estacion
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["CENTENARIO", "CORDOBA", "LA BOCA"]
+      - name: fecha
+        data_tests: [not_null]
+      - name: contaminante
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["NO", "NO2", "NOx", "CO", "PM10"]
+      - name: estadistico
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["24h", "0-8", "8-16", "16-24", "max_1h", "min_1h"]
+      - name: estado_valor
+        description: valido | sin_dato ("s/d", "DND") | bajo_limite_deteccion ("<4") | invalido (texto no numérico).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["valido", "sin_dato", "bajo_limite_deteccion", "invalido"]
+      - name: valor
+        description: Valor numérico en la unidad original; nulo si el estado no es 'valido'.
+      - name: limite_deteccion
+        description: Para los valores "<4", el límite de detección (4).
+      - name: fuera_de_rango
+        description: Negativo o por encima de un máximo físicamente posible para el contaminante.
+      - name: nox_incoherente
+        description: >
+          En NO, NO2 y NOx: el mismo día y bloque no cumple NOx = NO + NO2 (tolerancia 2 ppb).
+          Se marcan los tres porque no se puede saber cuál está mal.
+      - name: fuera_de_max_min
+        description: El promedio (24 h o bloque de 8 h) cae fuera del mínimo y máximo horario del día.
+      - name: valor_masa
+        description: Concentración en masa (µg/m³, o mg/m³ para CO), para comparar con guías OMS.
+
+  - name: dim_calendario
+    description: >
+      Un registro por día de 2024 a 2026: día de la semana, tipo de día (hábil, sábado, domingo,
+      feriado) y evento de paro si lo hubo.
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: tipo_dia
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["hábil", "sábado", "domingo", "feriado"]

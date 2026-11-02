@@ -1,0 +1,15 @@
+[project]
+name = "nox-ciudad"
+version = "0.1.0"
+description = "TP Análisis de Datos 1: paros de colectivos y calidad del aire en CABA"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dbt-duckdb>=1.11.1",
+    "duckdb>=1.5.4,<2",
+    "pandas>=3.1.0",
+    "pdfminer-six>=20260107",
+    "pyarrow>=26.0.0",
+    "python-calamine>=0.9.0",
+    "requests>=2.34.2",
+]

@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Datos: nunca al repo (tamaño)
+data/
+*.duckdb
+*.duckdb.wal
+*.db
+export/
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+
+# Varios
+_to_delete/
+~$*
+_sacar_del_proyecto/
+dbt/.user.yml

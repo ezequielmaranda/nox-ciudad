@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: gold_meteo_diario
+    description: >
+      Meteorología de cada día (valor de ciudad). Viento, temperatura y humedad: promedio de las
+      observaciones horarias de 8 a 16 h de Aeroparque y Observatorio (Meteostat, solo observación).
+      Lluvia: máximo diario del SMN entre las dos estaciones; sin registro = sin lluvia (supuesto),
+      y nula después del último día con datos del SMN.
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: viento_816_dir_grados
+        description: Dirección media vectorial del viento (grados, 0 = norte).
+
+  - name: gold_analitico
+    description: >
+      Tabla del análisis: una fila por estación de monitoreo y día, con calidad del aire, actividad
+      del transporte, dosis de paro, meteorología, tipo de día, marca de día normal y evento.
+    columns:
+      - name: estacion
+        data_tests: [not_null]
+      - name: fecha
+        data_tests: [not_null]
+      - name: es_dia_normal
+        description: Hábil, no feriado y con actividad de transporte típica. Universo de la regresión.
