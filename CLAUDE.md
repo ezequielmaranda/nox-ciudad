@@ -206,10 +206,24 @@ compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cad
 
 ## 10. Antecedentes (para la diapositiva de contexto)
 
-- Bauernschuster, Hener y Rainer (2017), AEJ: Economic Policy: paros de transporte público en Alemania → +PM10 14%.
-- Basagaña, Querol y otros (2017), Science of the Total Environment: Barcelona, paros → NO2 +4%, NO +8% (metro hasta +48% NO).
-- González, Perdiguero y Sanz (2021), Transportation Research D: Barcelona; paros de colectivos sin efecto en NOx a nivel ciudad, CO +12%.
-- Krecl y otros (2020), Environmental Pollution: paro de camioneros en San Pablo 2018 → NOx −40 a −70%.
+- **Bauernschuster, Hener y Rainer (2017)**, *AEJ: Economic Policy* 9(1):1-37, doi:10.1257/pol.20150414.
+  Alemania, paros de transporte público. Pregunta: ¿los paros ponen en riesgo la salud y la seguridad?
+  Horas de auto +11-13%, choques +14%, heridos +20%, partículas (PM10) +14%, internaciones respiratorias de
+  niños chicos +11%. https://ideas.repec.org/a/aea/aejpol/v9y2017i1p1-37.html
+- **Basagaña, Querol y otros (2018)**, *Science of the Total Environment* (online sept. 2017). Barcelona,
+  208 días de paro 2005-2016. Todos los paros: NO2 +4%, NO hasta +8%; paros de metro: de +8% (PM10) a +48% (NO).
+  Mecanismo: la gente se pasa al auto. https://repositori.upf.edu/items/6f83549c-bd68-4b34-894c-a9cc83ffd38b
+- **González, Perdiguero y Sanz (2021)**, *Transportation Research Part D* 98:102952, doi:10.1016/j.trd.2021.102952.
+  Barcelona, 147 días de paro + 4 generales. Hipótesis explícita: un paro de transporte público aumenta la
+  contaminación. **Paros de colectivos, nivel ciudad: NOx sin efecto significativo, CO +11,9% (significativo)**;
+  en estaciones de tránsito: NOx +13%, CO +18%. Metro y tren suben los cuatro contaminantes.
+  https://ddd.uab.cat/pub/artpub/2021/249261/trares_a2021n102952iENG.pdf
+- **Krecl, Targino y otros (2020)**, *Environmental Pollution* 265:114883, doi:10.1016/j.envpol.2020.114883.
+  Carta sobre la caída del NOx en el confinamiento COVID de San Pablo; usa el **paro de camioneros de mayo 2018**
+  como segundo experimento natural: NOx −40 a −70%. https://pmc.ncbi.nlm.nih.gov/articles/PMC7259904
 - McDonald y otros (2013), ES&T: la nafta domina el CO; el diésel, una parte creciente del NOx.
-Contraste clave: en Europa los paros de transporte público aumentan la contaminación (más autos); acá el
-cociente NOx/CO baja cuando desaparece el diésel.
+
+Contraste clave: en Europa la hipótesis (y el resultado) es que los paros de transporte público **empeoran**
+el aire porque la gente se pasa al auto. En Barcelona, con paro de colectivos, el NOx no cambió y el CO subió 12%.
+En CABA (flota de colectivos casi toda diésel) el NOx baja y el CO no baja: el mismo mecanismo (más autos,
+CO estable o en suba) pero con el diésel saliendo de la calle.
