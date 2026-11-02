@@ -65,6 +65,9 @@ NOx/CO típico = EXP ( AVERAGEX ( FILTER ( gold_analitico, gold_analitico[nox_co
 
 Actividad colectivos = AVERAGE ( gold_sube_diario[actividad_colectivo_vs_habil] )
 
+-- La dosis de paro solo existe de lunes a viernes (fines de semana = vacío, no 0).
+Dosis de paro (%) = AVERAGE ( gold_sube_diario[pct_lineas_paradas_ponderado] )
+
 Desvío NOx/CO paros sin colectivos =
 CALCULATE ( MAX ( resultados_grupo[desvio_medio_pct] ),
             resultados_grupo[variable] = "NOx/CO", resultados_grupo[grupo] = "sin_colectivos" )

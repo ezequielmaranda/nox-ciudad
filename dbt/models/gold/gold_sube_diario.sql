@@ -88,10 +88,15 @@ select
     d.ratio_colectivo_caba,
     h.actividad_colectivo_vs_habil,
     d.lineas_evaluadas,
-    coalesce(d.pct_lineas_paradas, 0) as pct_lineas_paradas,
-    coalesce(d.pct_lineas_paradas_ponderado, 0) as pct_lineas_paradas_ponderado,
-    coalesce(d.pct_paradas_solo_caba, 0) as pct_paradas_solo_caba,
-    coalesce(d.pct_paradas_interjurisdiccionales, 0) as pct_paradas_interjurisdiccionales
+    -- La dosis solo se calcula en días de semana (la base son días hábiles normales del mismo día de la
+    -- semana). Sábados y domingos quedan nulos: no es "0% de líneas paradas", es "no se mide".
+    case when d.lineas_evaluadas is not null then coalesce(d.pct_lineas_paradas, 0) end as pct_lineas_paradas,
+    case when d.lineas_evaluadas is not null
+        then coalesce(d.pct_lineas_paradas_ponderado, 0) end as pct_lineas_paradas_ponderado,
+    case when d.lineas_evaluadas is not null
+        then coalesce(d.pct_paradas_solo_caba, 0) end as pct_paradas_solo_caba,
+    case when d.lineas_evaluadas is not null
+        then coalesce(d.pct_paradas_interjurisdiccionales, 0) end as pct_paradas_interjurisdiccionales
 from {{ ref('silver_sube_actividad_diaria') }} as a
 left join dosis as d using (fecha)
 left join vs_habil as h using (fecha)

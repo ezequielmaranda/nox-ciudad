@@ -6,3 +6,4 @@ from {{ ref('eventos') }} as e
 join {{ ref('gold_sube_diario') }} as s using (fecha)
 where (e.grupo = 'sin_colectivos' and s.pct_lineas_paradas_ponderado < 50)
    or (e.grupo = 'control' and s.pct_lineas_paradas_ponderado > 5)
+   or s.pct_lineas_paradas_ponderado is null  -- un evento tiene que caer en un día con dosis medible

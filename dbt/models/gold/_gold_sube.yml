@@ -17,4 +17,6 @@ models:
           Usos de colectivos de CABA / un día hábil normal típico (±4 semanas). Comparable entre
           tipos de día (domingo ~0,4; paro ~0,1). Eje X del gráfico de actividad vs. NOx/CO.
       - name: pct_lineas_paradas_ponderado
-        description: Porcentaje de líneas paradas, ponderado por sus usos habituales. Es la dosis del evento.
+        description: >
+          Porcentaje de líneas paradas, ponderado por sus usos habituales. Es la dosis del evento.
+          Nulo en sábados y domingos (no hay base de comparación).

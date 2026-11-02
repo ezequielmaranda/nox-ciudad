@@ -70,6 +70,8 @@ Dashboard: ver [`powerbi/README.md`](powerbi/README.md) (modelo, medidas DAX, p�
 | Notebook | Qué responde |
 |---|---|
 | `01_eda_aire.ipynb` | Cuántos datos hay, cómo se distribuyen, cumplimiento OMS, estacionalidad y ciclo semanal |
+| `02_eda_sube.ipynb` | Cuánta gente viaja, qué es un día normal, cuántas líneas pararon en cada paro y si falta algún paro |
+| `03_eda_meteo.ipynb` | Viento, temperatura y lluvia: calidad del dato, estacionalidad, colinealidad y el tiempo en cada evento |
 | `04_bivariado.ipynb` | Gradiente de actividad de colectivos contra NOx/CO, efecto del viento, eventos sin ajustar |
 | `05_eventos.ipynb` | Regresión en días normales + prueba placebo: ¿cada paro cambió el aire más de lo esperable? |
 

@@ -59,7 +59,8 @@ def exportar():
     con.close()
 
 
-NOTEBOOKS = ["01_eda_aire.ipynb", "04_bivariado.ipynb", "05_eventos.ipynb"]
+NOTEBOOKS = ["01_eda_aire.ipynb", "02_eda_sube.ipynb", "03_eda_meteo.ipynb", "04_bivariado.ipynb",
+             "05_eventos.ipynb"]
 
 
 def analizar():
