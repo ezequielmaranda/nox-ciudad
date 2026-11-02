@@ -4,6 +4,7 @@ Uso (desde la raíz del proyecto):
     uv run python run.py              # dbt build + export (los datos crudos ya están en data/)
     uv run python run.py --extraer    # además vuelve a correr los scripts de extract/
     uv run python run.py --solo-export
+    uv run python run.py --analisis   # además ejecuta los notebooks y genera los resultados para Power BI
 
 dbt no es un orquestador: solo transforma lo que ya está en data/landing y data/raw.
 Este script encadena los pasos en orden y corta si alguno falla.
@@ -58,10 +59,21 @@ def exportar():
     con.close()
 
 
+NOTEBOOKS = ["01_eda_aire.ipynb", "04_bivariado.ipynb", "05_eventos.ipynb"]
+
+
+def analizar():
+    """Ejecuta los notebooks en orden: 04 escribe indice_tipo_dia y 05 escribe resultados_evento/grupo."""
+    for nb in NOTEBOOKS:
+        correr([sys.executable, "-m", "jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", nb],
+               cwd=RAIZ / "analysis")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--extraer", action="store_true", help="correr también los scripts de extract/")
     ap.add_argument("--solo-export", action="store_true", help="no correr dbt; solo exportar")
+    ap.add_argument("--analisis", action="store_true", help="ejecutar los notebooks (resultados para Power BI)")
     args = ap.parse_args()
 
     if args.extraer:
@@ -70,6 +82,8 @@ def main():
     if not args.solo_export:
         correr(["dbt", "build", "--profiles-dir", "."], cwd=RAIZ / "dbt")
     exportar()
+    if args.analisis:
+        analizar()
     print("\nListo.")
 
 

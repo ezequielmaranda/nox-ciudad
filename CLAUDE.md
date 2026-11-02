@@ -174,9 +174,16 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    HECHO `01_eda_aire` (cobertura, descriptivas, log, OMS, estacionalidad, ciclo semanal, atípicos) y
    `04_bivariado` (gradiente por tipo de día con índice dentro de cada estación, actividad vs. NOx/CO,
    viento, eventos sin ajustar). Hallazgo clave: en paros sin colectivos NOx −32%, CO +16%, NOx/CO −43%
-   (domingo −36%). PENDIENTE: `02_eda_sube`, `03_eda_meteo`, `05_eventos` (regresión + placebo).
+   (domingo −36%). HECHO `05_eventos`: OLS en ~520 días normales (R² NOx/CO 0,50; validación cruzada 10
+   partes para los desvíos de días normales), percentil placebo por estación y placebo de grupo sorteando
+   días normales completos (5.000). Paros sin colectivos: NOx/CO −43% (p < 0,0002), NOx −28%, NO2 −23%,
+   CO +7% (normal), PM10 sin efecto; controles NOx/CO −10% (p 0,2). Robusto a sacar un paro (−36 a −56%) y
+   a usar 24 h (−44%). Escribe `export/resultados_evento.parquet` y `resultados_grupo.parquet`; el 04 escribe
+   `indice_tipo_dia.parquet`. `run.py --analisis` ejecuta los notebooks. PENDIENTE: `02_eda_sube`, `03_eda_meteo`.
+   A revisar: Córdoba 19/02/2026 con NOx +66% y CO +110% sobre lo esperado.
    A revisar: Córdoba 23/05/2026 NOx 8-16 = 492 ppb con viento normal.
-6. Dashboard Power BI sobre los Parquet.
+6. Dashboard Power BI sobre los Parquet: guía en `powerbi/README.md` (modelo estrella, medidas DAX, 5 páginas)
+   y tema `powerbi/tema_nox.json`. Falta armarlo (Power BI Desktop, Windows).
 
 Reparto propuesto: Ezequiel → calidad del aire, ETL y análisis de eventos; compañero 1 → EDA SUBE y eventos;
 compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cada uno presenta su parte.

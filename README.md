@@ -46,6 +46,7 @@ uv sync                                   # instala todo según pyproject.toml /
 # SMN (manual): bajar el zip de datos diarios y descomprimirlo en data/raw/smn/ (ver Fuentes)
 uv run python run.py --extraer            # extract -> dbt build -> export/*.parquet
 uv run python run.py                      # lo mismo sin volver a descargar (lo más común)
+uv run python run.py --analisis           # además ejecuta los notebooks y deja los resultados para Power BI
 ```
 
 Por partes, si hace falta:
@@ -62,12 +63,15 @@ uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-di
 `export/` (fuera de git) queda con `gold_analitico.parquet` y el resto de gold: es lo que leen
 Power BI y los notebooks de EDA.
 
+Dashboard: ver [`powerbi/README.md`](powerbi/README.md) (modelo, medidas DAX, páginas y tema de colores).
+
 ## Notebooks (`analysis/`)
 
 | Notebook | Qué responde |
 |---|---|
 | `01_eda_aire.ipynb` | Cuántos datos hay, cómo se distribuyen, cumplimiento OMS, estacionalidad y ciclo semanal |
 | `04_bivariado.ipynb` | Gradiente de actividad de colectivos contra NOx/CO, efecto del viento, eventos sin ajustar |
+| `05_eventos.ipynb` | Regresión en días normales + prueba placebo: ¿cada paro cambió el aire más de lo esperable? |
 
 Se abren con VS Code (extensión Jupyter, kernel del `.venv`) o con `uv run --with jupyterlab jupyter lab`, y leen `export/*.parquet`. En Colab: subir los `.parquet`
 de `export/` con el panel de archivos y correr el notebook tal cual.
