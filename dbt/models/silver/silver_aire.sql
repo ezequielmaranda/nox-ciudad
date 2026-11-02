@@ -75,6 +75,12 @@ select
     coalesce(contaminante in ('NO', 'NO2', 'NOx') and c.nox_incoherente, false) as nox_incoherente,
     coalesce(estadistico in ('24h', '0-8', '8-16', '16-24')
         and (valor > r.maximo_1h + 1 or valor < r.minimo_1h - 1), false) as fuera_de_max_min,
+    -- Cero sin respaldo: un promedio en 0 cuando el máximo horario del día es 0 o no existe.
+    -- Aparece en días vacíos de la planilla (29/02/2024: todo "s/d" salvo los bloques de NOx en 0,
+    -- típico de un promedio de celdas vacías) y en un analizador caído (Centenario 01/08/2026,
+    -- NO en 0 todo el día). Un 0 con máximo horario positivo se conserva (puede ser real de noche).
+    coalesce(estadistico in ('24h', '0-8', '8-16', '16-24') and valor = 0
+        and coalesce(r.maximo_1h, 0) = 0, false) as cero_sin_respaldo,
     -- Concentración en masa para comparar con las guías OMS (25 °C, 1 atm).
     -- NO2 y NOx (expresado como NO2): 1,88 µg/m³ por ppb; NO: 1,23 µg/m³ por ppb;
     -- CO: 1,145 mg/m³ por ppm; PM10 ya está en µg/m³.

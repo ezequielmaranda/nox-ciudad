@@ -30,7 +30,7 @@ explicar todo) e identificación de limitaciones. No se piden modelos de ML.
 ## 3. Stack y arquitectura
 
 - Python 3.13 con **uv** (`uv sync`, `uv run ...`). Dependencias: pandas, pyarrow, python-calamine,
-  requests, pdfminer.six, duckdb (fijado <2), dbt-duckdb. Faltan para EDA: matplotlib/seaborn, statsmodels.
+  requests, pdfminer.six, duckdb (fijado <2), dbt-duckdb, matplotlib, statsmodels; dev: ipykernel, nbconvert.
 - **DuckDB**, un solo archivo `data/nox.duckdb` con schemas `bronze`, `silver`, `gold`.
   **Fijado en `duckdb>=1.5.4,<2`:** DuckDB 2.0 cambió el formato de archivo y las herramientas 1.x
   (CLI 1.5.4, drivers de DataGrip/DBeaver) no pueden abrir una base creada con 2.0.
@@ -150,8 +150,9 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    (estación × día, bloque 8-16, NOx/CO, 24 h en µg/m³). Tests: claves únicas, accepted_values y tests de
    coherencia física en `tests/` (warn: 196 casos NOx ≠ NO+NO2 > 2 ppb; La Boca 29/02/2024 NOx 8-16 = 0
    con mínimo horario 15). PM10 "<4" no entra a gold (se podría imputar LD/2).
-   Flags de silver_aire: `nox_incoherente` (|NOx − (NO+NO2)| > 2) y `fuera_de_max_min` (bloque fuera del
-   rango horario del día); gold excluye esas filas y el test `gold_aire_nox_co_positivo` es error.
+   Flags de silver_aire: `nox_incoherente` (|NOx − (NO+NO2)| > 2), `fuera_de_max_min` (bloque fuera del
+   rango horario del día) y `cero_sin_respaldo` (promedio 0 con máximo horario 0 o faltante: 29/02/2024 y
+   Centenario 01/08/2026); gold excluye esas filas y el test `gold_aire_nox_co_positivo` es error.
 2. HECHO (SUBE y meteorología): `bronze_sube`, `bronze_smn`; `silver_sube`,
    `silver_colectivos_caba_linea_dia` (universo CABA, número de línea), `silver_sube_actividad_diaria`
    (`es_dia_normal`: hábil, no feriado y colectivo/tren/subte > 0,9 × mediana ±4 semanas; 564 días),
@@ -169,8 +170,12 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    Plan B si no se sostiene: comparar contra semanas vecinas excluyendo días ventosos o con lluvia.
 4. HECHO: `run.py` encadena extract (con `--extraer`) → `dbt build` → export a `export/*.parquet`
    (gold_analitico, gold_aire/sube/meteo_diario, dim_calendario, eventos). dbt no es un orquestador.
-5. Notebooks de EDA (descriptivas sobre formato largo con `groupby(['metrica','estacion'])`,
-   distribuciones, perfil por bloques de 8 h por tipo de día, dispersión actividad vs. NOx/CO, correlaciones, serie temporal con eventos, eventos).
+5. EDA en `analysis/` (notebooks que leen `export/*.parquet`, corren local o en Colab):
+   HECHO `01_eda_aire` (cobertura, descriptivas, log, OMS, estacionalidad, ciclo semanal, atípicos) y
+   `04_bivariado` (gradiente por tipo de día con índice dentro de cada estación, actividad vs. NOx/CO,
+   viento, eventos sin ajustar). Hallazgo clave: en paros sin colectivos NOx −32%, CO +16%, NOx/CO −43%
+   (domingo −36%). PENDIENTE: `02_eda_sube`, `03_eda_meteo`, `05_eventos` (regresión + placebo).
+   A revisar: Córdoba 23/05/2026 NOx 8-16 = 492 ppb con viento normal.
 6. Dashboard Power BI sobre los Parquet.
 
 Reparto propuesto: Ezequiel → calidad del aire, ETL y análisis de eventos; compañero 1 → EDA SUBE y eventos;

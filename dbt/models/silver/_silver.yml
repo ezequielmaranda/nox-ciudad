@@ -46,6 +46,10 @@ models:
           Se marcan los tres porque no se puede saber cuál está mal.
       - name: fuera_de_max_min
         description: El promedio (24 h o bloque de 8 h) cae fuera del mínimo y máximo horario del día.
+      - name: cero_sin_respaldo
+        description: >
+          Promedio en 0 cuando el máximo horario del día es 0 o falta: celda vacía de la planilla o
+          analizador caído. No es una medición real y no entra a gold.
       - name: valor_masa
         description: Concentración en masa (µg/m³, o mg/m³ para CO), para comparar con guías OMS.
 

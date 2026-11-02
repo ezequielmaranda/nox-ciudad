@@ -62,6 +62,16 @@ uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-di
 `export/` (fuera de git) queda con `gold_analitico.parquet` y el resto de gold: es lo que leen
 Power BI y los notebooks de EDA.
 
+## Notebooks (`analysis/`)
+
+| Notebook | Qué responde |
+|---|---|
+| `01_eda_aire.ipynb` | Cuántos datos hay, cómo se distribuyen, cumplimiento OMS, estacionalidad y ciclo semanal |
+| `04_bivariado.ipynb` | Gradiente de actividad de colectivos contra NOx/CO, efecto del viento, eventos sin ajustar |
+
+Se abren con VS Code (extensión Jupyter, kernel del `.venv`) o con `uv run --with jupyterlab jupyter lab`, y leen `export/*.parquet`. En Colab: subir los `.parquet`
+de `export/` con el panel de archivos y correr el notebook tal cual.
+
 ## Notas de datos
 
 - Calidad del aire: PDF mensuales públicos de la APrA, valores diarios y por bloques de 8 h.

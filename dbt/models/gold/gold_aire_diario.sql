@@ -1,7 +1,7 @@
 -- Gold: una fila por estación y día, con los valores que usa el análisis.
 -- Ventana diurna = bloque de 8 a 16 h (la que publica la APrA); también el promedio de 24 h.
 -- Solo entran valores válidos, dentro de rango y físicamente coherentes
--- (NOx = NO + NO2 y promedios entre el mínimo y el máximo horario).
+-- (NOx = NO + NO2, promedios entre el mínimo y el máximo horario y sin ceros sin respaldo).
 with v as (
     select estacion, fecha, contaminante, estadistico, valor
     from {{ ref('silver_aire') }}
@@ -9,6 +9,7 @@ with v as (
       and not fuera_de_rango
       and not nox_incoherente
       and not fuera_de_max_min
+      and not cero_sin_respaldo
 ),
 
 ancho as (
