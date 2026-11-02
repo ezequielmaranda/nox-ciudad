@@ -1,49 +1,39 @@
 -- Gold: meteorología de cada día para el análisis, una fila por día (valor de ciudad).
--- Viento y temperatura: promedio de las observaciones horarias de 8 a 16 h (horas 08 a 15, la misma
--- ventana que el bloque de calidad del aire), juntando Aeroparque y Observatorio.
--- Lluvia: máximo diario entre las dos estaciones del SMN. Un día sin registro de PRECIP se toma
--- como sin lluvia (supuesto a declarar: el SMN solo informa algunos días).
-with viento_816 as (
+-- Fuente única: registro diario del SMN, estaciones Aeroparque y Observatorio Central.
+--   Viento, temperatura y humedad: promedio de las dos estaciones (promedios de 24 h).
+--   Lluvia: máximo diario entre las dos estaciones. Un día sin registro de PRECIP se toma como
+--   sin lluvia (supuesto a declarar: el SMN solo informa algunos días).
+-- Se probó usar el promedio 8-16 h de observaciones horarias (Meteostat): la regresión y la prueba
+-- placebo dan prácticamente lo mismo, así que se eligió la fuente más simple y oficial.
+with smn as (
     select
         fecha,
-        avg(valor) filter (where metrica = 'wspd') as viento_816_kmh,
-        avg(valor) filter (where metrica = 'temp') as temp_816_c,
-        avg(valor) filter (where metrica = 'rhum') as humedad_816_pct,
-        count(*) filter (where metrica = 'wspd') as horas_con_viento,
-        -- Dirección media vectorial (no se puede promediar grados directamente: 350° y 10° dan 180°).
-        (degrees(atan2(avg(sin(radians(valor))) filter (where metrica = 'wdir'),
-                       avg(cos(radians(valor))) filter (where metrica = 'wdir'))) + 360) % 360
-            as viento_816_dir_grados
-    from {{ ref('silver_meteo_horaria') }}
-    where hora between 8 and 15
-    group by fecha
-),
-
-lluvia as (
-    select fecha, max(precipitacion_mm) as precipitacion_mm
+        avg(viento_medio_kmh) as viento_kmh,
+        max(viento_max_kmh) as viento_max_kmh,
+        avg(temp_media_c) as temp_c,
+        avg(humedad_pct) as humedad_pct,
+        max(precipitacion_mm) as precipitacion_mm,
+        count(viento_medio_kmh) as estaciones_con_viento
     from {{ ref('silver_smn_diario') }}
     group by fecha
 ),
 
--- Hasta qué fecha llegan los datos del SMN: después de esa fecha la lluvia es desconocida, no cero.
+-- Hasta qué fecha llegan los datos del SMN: después de esa fecha todo es desconocido, no cero.
 cobertura_smn as (
     select max(fecha) as ultima_fecha from {{ ref('silver_smn_diario') }}
 )
 
 select
     cal.fecha,
-    v.viento_816_kmh,
-    v.viento_816_dir_grados,
-    v.temp_816_c,
-    v.humedad_816_pct,
-    v.horas_con_viento,
-    case when cal.fecha <= cobertura_smn.ultima_fecha
-        then coalesce(l.precipitacion_mm, 0) end as precipitacion_mm,
-    l.precipitacion_mm is null as precipitacion_sin_registro,
-    case when cal.fecha <= cobertura_smn.ultima_fecha
-        then coalesce(l.precipitacion_mm, 0) >= 1 end as hubo_lluvia
+    s.viento_kmh,
+    s.viento_max_kmh,
+    s.temp_c,
+    s.humedad_pct,
+    s.estaciones_con_viento,
+    coalesce(s.precipitacion_mm, 0) as precipitacion_mm,
+    s.precipitacion_mm is null as precipitacion_sin_registro,
+    coalesce(s.precipitacion_mm, 0) >= 1 as hubo_lluvia
 from {{ ref('dim_calendario') }} as cal
 cross join cobertura_smn
-left join viento_816 as v using (fecha)
-left join lluvia as l using (fecha)
-where cal.fecha <= (select max(fecha) from {{ ref('silver_meteo_horaria') }})
+left join smn as s using (fecha)
+where cal.fecha <= cobertura_smn.ultima_fecha

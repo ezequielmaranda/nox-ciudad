@@ -39,10 +39,10 @@ select
     s.pct_lineas_paradas_ponderado,
 
     -- Meteorología
-    m.viento_816_kmh,
-    m.viento_816_dir_grados,
-    m.temp_816_c,
-    m.humedad_816_pct,
+    m.viento_kmh,
+    m.viento_max_kmh,
+    m.temp_c,
+    m.humedad_pct,
     m.precipitacion_mm,
     m.hubo_lluvia
 from {{ ref('gold_aire_diario') }} as a

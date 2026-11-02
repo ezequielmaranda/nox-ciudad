@@ -50,10 +50,9 @@ Medallón:
 data/            (fuera de git)
   raw/aire_publico/<ESTACION>/  PDF mensuales públicos (los baja extract/aire_publico.py)
   raw/smn/       smn_datos_meteorologicos_desde_2021.lst (TSV) + xlsx de metadatos
-  raw/meteostat/ <año>.parquet (todas las estaciones del mundo, ~1 GB c/u) + stations.db
   raw/sube/      dat-ab-usos-<año>.csv (los baja extract/sube_descarga.py)
-  landing/       aire_publico.csv (+ manifiesto), smn.csv, meteostat.csv
-extract/         aire_publico.py, sube_descarga.py, smn_to_csv.py, meteostat_to_csv.py
+  landing/       aire_publico.csv (+ manifiesto), smn.csv
+extract/         aire_publico.py, sube_descarga.py, smn_to_csv.py
 dbt/             models/{bronze,silver,gold}, seeds/{eventos,feriados}.csv, tests/, macros/
 analysis/        consultas SQL sueltas; acá van los notebooks de EDA
 export/          Parquet de gold
@@ -101,19 +100,19 @@ PROVINCIA, MUNICIPIO, CANTIDAD, DATO_PRELIMINAR`. Cubre 2024-01-01 a 2026-10-25 
   (±3 semanas, solo días normales, base > 2000 usos). % ponderado por usos de base.
   Limitación: SUBE mide pasajeros, no colectivos en calle ni km dentro de CABA.
 
-### Meteostat (`landing/meteostat.csv`)
-Columnas: `estacion, fecha_hora, metrica, valor, unidad, fuente, fuente_tipo, descrip`.
-Estaciones: AEROPARQUE AERO (87582) y BUENOS AIRES OBSERVATORIO (87585).
-- **Usar solo `fuente_tipo='observacion'`** (isd_lite, metar). Lo marcado `modelo` son **pronósticos**
-  (DWD MOSMIX, MET Norway), no reanálisis.
-- `prcp` es 100% modelo: no hay lluvia horaria observada → usar SMN diario.
-- Viento observado: ~98% en 2024, ~82% en 2025, ~49% en 2026. El Observatorio no tiene viento diurno el 2026-02-19.
+### Meteostat — DESCARTADO
+Se usó en una primera versión (viento y temperatura horarios). Comparado con el SMN diario sobre datos públicos:
+R² casi iguales (NOx/CO 0,50 vs 0,50; NOx 0,45 vs 0,46; NO2 0,55 vs 0,58), el viento correlaciona 0,81
+y los percentiles del placebo son prácticamente idénticos. Se sacó para tener una sola fuente oficial
+y no depender de 3 GB de parquet. Limitación a declarar: viento promedio de 24 h, no de la ventana 8-16 h.
 
 ### SMN diario (`landing/smn.csv`)
 Columnas: `estacion, fecha, metrica, valor, unidad`. 2021-01-01 a 2026-07-31. Aeroparque y Observatorio.
+Origen: repositorio institucional del SMN (repositorio.smn.gob.ar). PENDIENTE: enlace exacto y fecha de descarga.
+Es la ÚNICA fuente meteorológica del pipeline (viento, temperatura, humedad y lluvia).
 Métricas: HELIOF, HUM_REL, NUB_TOT, PRECIP, PRE_EST, TMAX, TMEDIA, TMIN, VEL_MED, VTO_MDIR, VTO_MVEL.
 - `PRECIP` solo tiene ~120 registros/año por estación (388 en cero): se asumió faltante = sin lluvia (**verificar**).
-- `VTO_MDIR` en decenas de grado (×10).
+- `VTO_MDIR` en decenas de grado (×10); es la dirección del viento máximo, no la dirección media.
 
 ### Días normales
 Día hábil normal = usos SUBE de colectivo, subte y tren > 0,9 × mediana del mismo día de semana (±4 semanas).
@@ -151,13 +150,13 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    con mínimo horario 15). PM10 "<4" no entra a gold (se podría imputar LD/2).
    Flags de silver_aire: `nox_incoherente` (|NOx − (NO+NO2)| > 2) y `fuera_de_max_min` (bloque fuera del
    rango horario del día); gold excluye esas filas y el test `gold_aire_nox_co_positivo` es error.
-2. HECHO (SUBE y meteorología): `bronze_sube`, `bronze_meteostat`, `bronze_smn`; `silver_sube`,
+2. HECHO (SUBE y meteorología): `bronze_sube`, `bronze_smn`; `silver_sube`,
    `silver_colectivos_caba_linea_dia` (universo CABA, número de línea), `silver_sube_actividad_diaria`
    (`es_dia_normal`: hábil, no feriado y colectivo/tren/subte > 0,9 × mediana ±4 semanas; 564 días),
-   `silver_meteo_horaria` (solo observaciones), `silver_smn_diario`; `gold_sube_diario` (dosis ponderada:
+   `silver_smn_diario`; `gold_sube_diario` (dosis ponderada:
    67/68/63/67 en los paros, 0 en controles; `actividad_colectivo_vs_habil` comparable entre tipos de día),
-   `gold_meteo_diario` (horas 8-15, dirección por media vectorial; lluvia = máximo SMN, nula después del
-   último dato SMN 2026-07-31) y **`gold_analitico`** (estación × día, 2950 filas): LA tabla del análisis.
+   `gold_meteo_diario` (solo SMN diario: viento, temperatura y humedad promedio de las 2 estaciones,
+   lluvia = máximo; llega hasta el último dato SMN, 2026-07-31) y **`gold_analitico`** (estación × día, 2950 filas): LA tabla del análisis.
    Test `eventos_coherentes_con_sube` (error): paros ≥ 50% de dosis, controles ≤ 5%.
    Último build: PASS=56 WARN=2 ERROR=0.
    Gradiente para el EDA (actividad vs. NOx/CO media geométrica 8-16): hábil 0,97/114 · sábado 0,59/96 ·
@@ -180,6 +179,7 @@ compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cad
 - Si los camioneros adhirieron a cada paro general.
 - Fecha real de los 150 colectivos a GNC de las líneas 65 y 151 (Grupo Metropol): ¿antes del 2026-02-19?
 - Si los días sin `PRECIP` en el SMN son realmente sin lluvia.
+- Enlace exacto y fecha de descarga del archivo del SMN (repositorio.smn.gob.ar).
 
 ## 10. Antecedentes (para la diapositiva de contexto)
 

@@ -3,15 +3,21 @@ version: 2
 models:
   - name: gold_meteo_diario
     description: >
-      Meteorología de cada día (valor de ciudad). Viento, temperatura y humedad: promedio de las
-      observaciones horarias de 8 a 16 h de Aeroparque y Observatorio (Meteostat, solo observación).
-      Lluvia: máximo diario del SMN entre las dos estaciones; sin registro = sin lluvia (supuesto),
-      y nula después del último día con datos del SMN.
+      Meteorología de cada día (valor de ciudad), solo del registro diario del SMN (Aeroparque y
+      Observatorio Central). Viento, temperatura y humedad: promedio de las dos estaciones.
+      Lluvia: máximo diario entre las dos; sin registro = sin lluvia (supuesto a declarar).
+      Llega hasta el último día con datos del SMN.
     columns:
       - name: fecha
         data_tests: [unique, not_null]
-      - name: viento_816_dir_grados
-        description: Dirección media vectorial del viento (grados, 0 = norte).
+      - name: viento_kmh
+        description: Velocidad media diaria del viento (km/h), promedio de las dos estaciones.
+        data_tests: [not_null]
+      - name: temp_c
+        description: Temperatura media diaria (°C), promedio de las dos estaciones.
+        data_tests: [not_null]
+      - name: hubo_lluvia
+        description: Precipitación de 1 mm o más en alguna de las dos estaciones.
 
   - name: gold_analitico
     description: >
