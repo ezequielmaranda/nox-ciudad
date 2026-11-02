@@ -178,7 +178,9 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    partes para los desvíos de días normales), percentil placebo por estación y placebo de grupo sorteando
    días normales completos (5.000). Paros sin colectivos: NOx/CO −43% (p < 0,0002), NOx −28%, NO2 −23%,
    CO +7% (normal), PM10 sin efecto; controles NOx/CO −10% (p 0,2). Robusto a sacar un paro (−36 a −56%) y
-   a usar 24 h (−44%). Escribe `export/resultados_evento.parquet` y `resultados_grupo.parquet`; el 04 escribe
+   a usar 24 h (−44%). Descomposición (mismos 8 casos): NOx −34%, CO +16% → ~73% de la caída del cociente
+   es menos NOx. Las conclusiones van primero con NOx/NO2 por separado; ojo: en controles el NOx también baja
+   (−21%, p 0,07), lo que distingue a los paros sin colectivos es la composición (NOx/CO). Escribe `export/resultados_evento.parquet` y `resultados_grupo.parquet`; el 04 escribe
    `indice_tipo_dia.parquet`. `run.py --analisis` ejecuta los notebooks. HECHO `02_eda_sube` (universo, demanda,
    día normal = 82% de los hábiles, dosis 63-68% en paros y 0% en controles, catálogo completo: fuera de los 4 paros
    solo Navidad/Año Nuevo y 07/03/2024 con 7%) y `03_eda_meteo` (64% de días sin registro de lluvia, totales
