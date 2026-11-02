@@ -165,7 +165,7 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    Gradiente para el EDA (actividad vs. NOx/CO media geométrica 8-16): hábil 0,97/114 · sábado 0,59/96 ·
    control 0,73/91 · feriado 0,38/81 · domingo 0,34/73 · sin colectivos 0,21/66.
    Feriados y fines de semana entran al EDA como gradiente, NO a la base de la regresión ni del placebo.
-3. Análisis en Python sobre `gold_analitico`: regresión OLS (días normales) + placebo para NOx/CO, NOx,
+3. HECHO en `analysis/05_eventos.ipynb` (ver punto 5). Análisis en Python sobre `gold_analitico`: regresión OLS (días normales) + placebo para NOx/CO, NOx,
    CO, NO2 y PM10 en el bloque 8-16; sensibilidad con promedios 24 h. Escribe `gold_resultados_evento`.
    Plan B si no se sostiene: comparar contra semanas vecinas excluyendo días ventosos o con lluvia.
 4. HECHO: `run.py` encadena extract (con `--extraer`) → `dbt build` → export a `export/*.parquet`
