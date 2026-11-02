@@ -100,3 +100,12 @@ de `export/` con el panel de archivos y correr el notebook tal cual.
 | Meteorología diaria (Aeroparque y Observatorio Central) | Servicio Meteorológico Nacional, Descarga de datos: https://www.smn.gob.ar/descarga-de-datos | Manual: aceptar términos y condiciones y bajar https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=datosdiarios20212026 (zip con el `.lst`) |
 | Feriados 2024-2026 | API ArgentinaDatos | seed `dbt/seeds/feriados.csv` |
 | Paros | Prensa + verificación con SUBE | seed `dbt/seeds/eventos.csv` |
+
+## Antecedentes
+
+| Estudio | Qué paró | Resultado |
+|---|---|---|
+| Bauernschuster, Hener y Rainer (2017), *AEJ: Economic Policy* 9(1):1-37. Alemania. [Link](https://ideas.repec.org/a/aea/aejpol/v9y2017i1p1-37.html) | Transporte público | Horas de auto +11-13%, PM10 +14% |
+| Basagaña, Querol y otros (2018), *Science of the Total Environment*. Barcelona. [Link](https://repositori.upf.edu/items/6f83549c-bd68-4b34-894c-a9cc83ffd38b) | Metro, tren y colectivo | NO2 +4%; con paro de metro, NO hasta +48% |
+| González, Perdiguero y Sanz (2021), *Transportation Research Part D* 98:102952. Barcelona. [Link](https://ddd.uab.cat/pub/artpub/2021/249261/trares_a2021n102952iENG.pdf) | Colectivos | A nivel ciudad: NOx sin efecto significativo, CO +11,9% |
+| Krecl, Targino y otros (2020), *Environmental Pollution* 265:114883. San Pablo. [Link](https://pmc.ncbi.nlm.nih.gov/articles/PMC7259904) | Camioneros (mayo 2018) | NOx entre −40 y −70% |

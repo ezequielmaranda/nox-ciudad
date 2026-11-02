@@ -220,7 +220,6 @@ compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cad
 
 ## 9. Pendientes de verificar
 
-- Fuente de prensa de los eventos 2024-04-11 y 2024-10-30 (en el seed dice "a completar").
 - Si los camioneros adhirieron a cada paro general.
 - Fecha real de los 150 colectivos a GNC de las líneas 65 y 151 (Grupo Metropol): ¿antes del 2026-02-19?
 - Si los días sin `PRECIP` en el SMN son realmente sin lluvia.
