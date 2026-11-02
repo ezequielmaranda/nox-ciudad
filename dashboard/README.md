@@ -60,6 +60,10 @@ Por eso el promedio da directamente el porcentaje de días con dato.
 
 ## 4. Páginas (siguen el orden de la exposición)
 
+**Pregunta:** ¿cambia la contaminación del aire en la Ciudad en los días de paro de colectivos, trenes o
+subte, y cómo queda frente a las guías de la OMS? **H1:** con paro de colectivos el NOx es menor que en días
+hábiles comparables. **H2:** con paro de trenes o subte (colectivos funcionando) el NOx no baja.
+
 Arriba de cada página, un **título con el mensaje** (no "Gráfico de NOx", sino "El NO2 supera la guía de la
 OMS casi todos los días"). Abajo, la fuente: "Fuente: APrA (GCBA), SUBE (Secretaría de Transporte), SMN".
 
@@ -78,24 +82,30 @@ OMS casi todos los días"). Abajo, la fuente: "Fuente: APrA (GCBA), SUBE (Secret
   2 de cada 3 colectivos.
 
 ### Página 3 · El gradiente
-- **Barras** (fuente `indice_tipo_dia`): dimensión `grupo`, desglose `variable`, métrica `MAX(indice)`.
-  Orden: `MAX(actividad)` descendente (de más a menos colectivos). **Línea de referencia** en 100.
-- Mensaje: cuanto menos colectivos, menor la firma diésel; en los paros el CO no baja.
+- **Barras** (fuente `indice_tipo_dia`, filtro `variable` en NOx y CO): dimensión `grupo`, desglose `variable`,
+  métrica `MAX(indice)`. Orden: `MAX(actividad)` descendente (de más a menos colectivos). **Línea de referencia**
+  en 100.
+- Mensaje: en los paros de colectivos baja el NOx y sube el CO; en el resto de los días bajan los dos.
 
-### Página 4 · El resultado
-- **Tarjetas** (fuente `resultados_grupo`, con filtro `variable = NOx/CO`): una con filtro
-  `grupo = sin_colectivos` mostrando `desvio_medio_pct` (−43%) y `valor_p_texto`; otra igual para
-  `grupo = control` (−10%).
-- **Barras horizontales** (fuente `resultados_evento`, filtro `variable = NOx/CO`): dimensión `etiqueta`,
-  métrica `MAX(desvio_pct)`, desglose `grupo_nombre`.
-- **Tabla** (misma fuente): `etiqueta`, `variable`, `desvio_pct`, `percentil_placebo`, con
-  **mapa de calor** en `percentil_placebo` (valores bajos = cambio raro para un día normal).
+### Página 4 · El resultado: las hipótesis
+- **Tarjetas** (fuente `resultados_grupo`, filtro `variable = NOx`): una con filtro `grupo = sin_colectivos`
+  (H1: −28%, `valor_p_texto` ≈ 0,002) y otra con `grupo = trenes_subte` (H2: −19%, p ≈ 0,05).
+- **Barras horizontales** (fuente `resultados_evento`, filtro `variable = NOx`): dimensión `etiqueta`, métrica
+  `MAX(desvio_pct)`, desglose `grupo_nombre`. Mensaje: con paro de colectivos el NOx cae más de lo esperable.
+- **Tabla** (misma fuente, `variable` en NOx, NO2 y CO): `etiqueta`, `variable`, `desvio_pct`,
+  `percentil_placebo`, con **mapa de calor** en `percentil_placebo` (valores bajos = caída rara para un día normal).
 
-### Página 5 · Cómo lo hicimos y qué no sabemos
+### Página 5 · ¿Y frente a la OMS?
+- **Gráfico combinado** (fuente `resultados_evento`, filtro `variable = NO2 24 h (µg/m³)`): dimensión `etiqueta`,
+  métricas `MAX(observado)` (barras) y `MAX(esperado)` (línea), **línea de referencia** en 25 (guía OMS de 24 h).
+- **Tarjeta:** casos de paro por debajo de la guía (2 de 10 en paros de colectivos).
+- Mensaje: aun sin colectivos, el NO2 casi siempre queda por encima de la guía de la OMS.
+
+### Página 6 · Cómo lo hicimos y qué no sabemos
 - Texto con el esquema: fuentes públicas → Python (extract) → DuckDB + dbt (bronze/silver/gold, tests de
   calidad) → notebooks (EDA, regresión, placebo) → Looker Studio.
-- Las 6 limitaciones del notebook `05_eventos` (pocos eventos, colectivos o camiones, SUBE mide pasajeros,
-  meteorología diaria, datos redondeados, estudio observacional).
+- Las limitaciones del notebook `05_eventos` (pocos eventos, colectivos o camiones, los paros bajan la actividad
+  en general, SUBE mide pasajeros, meteorología diaria, datos redondeados, sin PM2,5).
 
 ## 5. Colores
 
@@ -107,10 +117,10 @@ queda fijo en todo el informe, así que alcanza con hacerlo una vez:
 | Centenario | `#2a78d6` (azul) |
 | Córdoba | `#eb6834` (naranja) |
 | La Boca | `#1baf7a` (verde agua) |
-| Paro sin colectivos | `#6250d6` (violeta) |
-| Paro con colectivos | `#eda100` (amarillo) |
+| Paro de colectivos | `#6250d6` (violeta) |
+| Paro de trenes o subte | `#eda100` (amarillo) |
 | Resto de grupos de días | `#b9b8b2` (gris) |
-| NOx / CO / NOx/CO (página 3) | `#0b0b0b` / `#b9b8b2` / `#6250d6` |
+| NOx / CO (página 3) | `#0b0b0b` / `#b9b8b2` |
 
 Fondo `#fcfcfb`, texto `#0b0b0b`. Son los mismos colores de los notebooks: la estación o el grupo se
 reconocen igual en el informe y en la exposición.

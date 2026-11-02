@@ -99,13 +99,13 @@ LOOKER = {
     "resultados_evento": f"""
         select {ESTACION_NOMBRE},
                strftime(fecha, '%d/%m/%y') || ' · ' || {ESTACION_NOMBRE.split(' as ')[0]} as etiqueta,
-               case grupo when 'sin_colectivos' then 'Paro sin colectivos'
-                          else 'Paro con colectivos' end as grupo_nombre,
+               case grupo when 'sin_colectivos' then 'Paro de colectivos'
+                          else 'Paro de trenes o subte' end as grupo_nombre,
                * replace (cast(fecha as date) as fecha)
         from '{{e}}/resultados_evento.parquet'""",
     "resultados_grupo": """
-        select case grupo when 'sin_colectivos' then 'Paro sin colectivos'
-                          else 'Paro con colectivos' end as grupo_nombre, *,
+        select case grupo when 'sin_colectivos' then 'Paro de colectivos'
+                          else 'Paro de trenes o subte' end as grupo_nombre, *,
                -- con 5.000 sorteos, un valor p de 0 significa "menos de 1 en 5.000"
                case when valor_p = 0 then '< 0,0002' else replace(printf('%.3f', valor_p), '.', ',') end
                    as valor_p_texto

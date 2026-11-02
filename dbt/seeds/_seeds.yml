@@ -3,8 +3,9 @@ version: 2
 seeds:
   - name: eventos
     description: >
-      Los seis días de paro identificados en los datos de SUBE (2024-2026), con su grupo de diseño
-      y el porcentaje de líneas de colectivo que circulan por CABA que pararon ese día.
+      Los días de paro de transporte público de 2024-2026 confirmados en los datos de SUBE, en dos grupos:
+      sin_colectivos (paró más de la mitad de las líneas de colectivo) y trenes_subte (pararon trenes y/o subte
+      con los colectivos funcionando). Incluye el % de líneas de colectivo que circulan por CABA que pararon.
     config:
       column_types:
         fecha: date
@@ -19,7 +20,7 @@ seeds:
         data_tests:
           - accepted_values:
               arguments:
-                values: ["sin_colectivos", "control"]
+                values: ["sin_colectivos", "trenes_subte"]
 
   - name: feriados
     description: >

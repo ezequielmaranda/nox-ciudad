@@ -8,9 +8,15 @@ El usuario es data engineer con experiencia en monitoreo atmosférico: comunicac
 TP integrador de **Análisis de Datos 1** (licenciatura en ciencia de datos, UdelaCiudad). Equipo de 4.
 Entrega: pipeline + EDA en Python + dashboard (Looker Studio) + exposición con storytelling de 20 minutos.
 
-**Pregunta:** ¿qué le pasa al aire porteño cuando paran los colectivos (flota casi toda diésel)?
-**Hipótesis:** en días sin colectivos cae el NOx, y su proporción respecto del CO (la "firma diésel"),
-más que en días hábiles comparables y más que en paros donde los colectivos funcionan.
+**Pregunta:** ¿Cambia la contaminación del aire en la Ciudad en los días de paro de colectivos, trenes o subte,
+y cómo queda frente a las guías de la OMS?
+**H1:** En los días de paro de colectivos, el NOx es menor que en días hábiles comparables.
+**H2:** En los días de paro de trenes o subte (con colectivos funcionando), el NOx no baja, porque más gente usa
+el colectivo y el auto.
+Por qué no son obvias: en Europa los paros de transporte público empeoran el aire (ver sección 10); acá la flota
+de colectivos es casi toda diésel. Variables: NOx (hipótesis), NO2 (guía OMS), CO (mecanismo: autos a nafta).
+El cociente NOx/CO ("firma diésel") ya NO es el indicador principal: queda solo como verificación en el notebook 05.
+PM10 fuera del análisis de paros (no responde; depende de fuentes regionales); solo como contexto OMS en el 01.
 
 Criterios de la consigna que guían las decisiones: uso de SQL, limpieza y calidad de datos visible,
 flujo ETL básico, EDA en Python conectado a la hipótesis, coherencia problema-análisis-conclusiones,
@@ -129,10 +135,16 @@ Excluye feriados, puentes, vacaciones de invierno y paros sin necesidad de calen
 | 2025-05-06 | Paro UTA (con lluvia ~10 mm) | sin_colectivos | 63 |
 | 2024-05-09 | Paro general CGT | sin_colectivos | 68 |
 | 2026-02-19 | Paro general CGT | sin_colectivos | 67 |
-| 2025-04-10 | Paro general, colectivos funcionando (día muy ventoso) | control | 0 |
-| 2024-10-30 | Paro de trenes y subte | control | 0 |
+| 2024-02-21 | Paro de trenes (La Fraternidad) | trenes_subte | 0 |
+| 2024-10-30 | Paro de trenes y subte | trenes_subte | 0 |
+| 2025-04-10 | Paro general, colectivos funcionando (día muy ventoso) | trenes_subte | 0 |
 
-Descartados por no verse en SUBE: 2024-07-05, 2025-03-28. El 2024-01-24 fue un corte solo desde las 19 h.
+Grupos: `sin_colectivos` (etiqueta "Paro de colectivos") y `trenes_subte` ("Paro de trenes o subte"; antes se
+llamaba "control"). El test `eventos_coherentes_con_sube` exige dosis ≥ 50% en el primero y dosis ≤ 5% con tren
+o subte < 30% de sus viajes en el segundo.
+Descartados por no verse en SUBE: 2024-07-05, 2025-03-28. El 2024-01-24 fue un paro de medio día.
+Paros parciales de trenes no usados: 2024-05-30 (59% de viajes) y 2025-01-28 (45%). El subte no tuvo paros de
+día completo en el período (sus medidas son de algunas horas).
 
 ## 7. Método del análisis de eventos
 
@@ -157,10 +169,10 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    `silver_colectivos_caba_linea_dia` (universo CABA, número de línea), `silver_sube_actividad_diaria`
    (`es_dia_normal`: hábil, no feriado y colectivo/tren/subte > 0,9 × mediana ±4 semanas; 564 días),
    `silver_smn_diario`; `gold_sube_diario` (dosis ponderada:
-   67/68/63/67 en los paros, 0 en controles; `actividad_colectivo_vs_habil` comparable entre tipos de día),
+   67/68/63/67 en los paros de colectivos, 0 en los de trenes o subte; `actividad_colectivo_vs_habil` comparable entre tipos de día),
    `gold_meteo_diario` (solo SMN diario: viento, temperatura y humedad promedio de las 2 estaciones,
    lluvia = máximo; llega hasta el último dato SMN, 2026-07-31) y **`gold_analitico`** (estación × día, 2950 filas): LA tabla del análisis.
-   Test `eventos_coherentes_con_sube` (error): paros ≥ 50% de dosis, controles ≤ 5%.
+   Test `eventos_coherentes_con_sube` (error): ver sección 6.
    Último build: PASS=58 WARN=2 ERROR=0.
    Gradiente para el EDA (actividad vs. NOx/CO media geométrica 8-16): hábil 0,97/114 · sábado 0,59/96 ·
    control 0,73/91 · feriado 0,38/81 · domingo 0,34/73 · sin colectivos 0,21/66.
@@ -173,7 +185,8 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
 5. EDA en `analysis/` (notebooks que leen `export/*.parquet`, corren local o en Colab):
    HECHO `01_eda_aire` (cobertura, descriptivas, log, OMS, estacionalidad, ciclo semanal, atípicos) y
    `04_bivariado` (gradiente por tipo de día con índice dentro de cada estación, actividad vs. NOx/CO,
-   viento, eventos sin ajustar). Hallazgo clave: en paros sin colectivos NOx −32%, CO +16%, NOx/CO −43%
+   viento, eventos sin ajustar). [Lo que sigue hasta 'RESULTADOS CON LAS HIPÓTESIS NUEVAS' es la versión anterior,
+   con 'controles' = 2 días y el cociente como protagonista.] Hallazgo clave: en paros sin colectivos NOx −32%, CO +16%, NOx/CO −43%
    (domingo −36%). HECHO `05_eventos`: OLS en ~520 días normales (R² NOx/CO 0,50; validación cruzada 10
    partes para los desvíos de días normales), percentil placebo por estación y placebo de grupo sorteando
    días normales completos (5.000). Paros sin colectivos: NOx/CO −43% (p < 0,0002), NOx −28%, NO2 −23%,
@@ -186,11 +199,16 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    solo Navidad/Año Nuevo y 07/03/2024 con 7%) y `03_eda_meteo` (64% de días sin registro de lluvia, totales
    anuales ≈1.450-1.700 mm → supuesto razonable; VIF ≈ 1,1; eventos ventosos: 11/04/24, 19/02/26 y 10/04/25 en
    P84-88 del viento de su mes). La dosis de `gold_sube_diario` es nula en sábados y domingos (antes daba 0).
+   RESULTADOS CON LAS HIPÓTESIS NUEVAS (05_eventos, reestructurado): H1 se sostiene: NOx −28% (p ≈ 0,002),
+   NO2 −23% (p ≈ 0,007), CO +7% (normal); sin el 19/02/2026 queda −19% (p ≈ 0,05). H2 NO se sostiene: con paro de
+   trenes o subte el NOx también baja (−19%, p ≈ 0,05; NO2 −21%, p ≈ 0,03), junto con el CO (−10%); en ningún paro el
+   aire empeoró (contra Europa). Lo que separa los grupos es el CO: NOx relativo al CO −43% (p < 0,0002) contra −10%.
+   OMS: NO2 24 h en paros de colectivos, mediana 32 µg/m³ (esperado 39); 8 de 10 casos sobre la guía de 25.
    A revisar: Córdoba 19/02/2026 con NOx +66% y CO +110% sobre lo esperado.
    A revisar: Córdoba 23/05/2026 NOx 8-16 = 492 ppb con viento normal.
 6. Dashboard en **Looker Studio** (decisión del equipo: gratis, en el navegador, edición colaborativa; la consigna
    acepta Power BI, Looker Studio o Tableau). `run.py` exporta `export/looker/*.csv` (7 tablas planas, UTF-8,
-   encabezados ASCII). Guía en `dashboard/README.md`: fuentes, campos calculados, 5 páginas, colores y chequeo
+   encabezados ASCII). Guía en `dashboard/README.md`: fuentes, campos calculados, 6 páginas, colores y chequeo
    contra los notebooks (La Boca: 94,7% días NO2 > guía, P99 ≈ 95 µg/m³, mediana NOx/CO ≈ 162). Falta armarlo.
    `dim_calendario.grupo_dia` es el grupo de día único para EDA y dashboard.
 

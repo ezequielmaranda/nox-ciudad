@@ -26,8 +26,8 @@ select
     -- Grupo de día para el EDA y el dashboard (el mismo criterio en todos lados):
     -- los eventos primero, después hábil normal / de baja actividad, y el resto por tipo de día.
     case
-        when eventos.grupo = 'sin_colectivos' then 'Paro sin colectivos'
-        when eventos.grupo = 'control' then 'Paro con colectivos'
+        when eventos.grupo = 'sin_colectivos' then 'Paro de colectivos'
+        when eventos.grupo = 'trenes_subte' then 'Paro de trenes o subte'
         when feriados.fecha is not null then 'Feriado'
         when isodow(dias.fecha) = 6 then 'Sábado'
         when isodow(dias.fecha) = 7 then 'Domingo'
