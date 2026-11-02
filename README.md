@@ -46,6 +46,7 @@ uv sync
 uv add requests pdfminer.six
 uv run python extract/aire_publico.py
 uv run python extract/sube_descarga.py
+# SMN (manual): bajar el zip de datos diarios y descomprimirlo en data/raw/smn/ (ver Fuentes)
 uv run python extract/smn_to_csv.py
 uv add "duckdb>=1.5.4,<2" dbt-duckdb   # DuckDB 2.0 cambia el formato de archivo
 cd dbt
@@ -60,3 +61,13 @@ uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-di
 - Meteorología: solo el registro diario del SMN (Aeroparque y Observatorio). Se probó Meteostat horario
   (ventana 8-16 h) y los resultados no cambian, así que se descartó.
 - SMN diario: PRECIP falta en muchos días; VTO_MDIR está en decenas de grado.
+
+## Fuentes
+
+| Dato | Fuente | Cómo se obtiene |
+|---|---|---|
+| Calidad del aire (CO, NO, NO2, NOx, PM10) | Agencia de Protección Ambiental (APrA), informes mensuales por estación: https://buenosaires.gob.ar/calidad-del-aire | `extract/aire_publico.py` (descarga desde static.buenosaires.gob.ar) |
+| Usos SUBE por línea y día | Secretaría de Transporte, datos.transporte.gob.ar (dataset SUBE, `dat-ab-usos-<año>.csv`) | `extract/sube_descarga.py` |
+| Meteorología diaria (Aeroparque y Observatorio Central) | Servicio Meteorológico Nacional, Descarga de datos: https://www.smn.gob.ar/descarga-de-datos | Manual: aceptar términos y condiciones y bajar https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=datosdiarios20212026 (zip con el `.lst`) |
+| Feriados 2024-2026 | API ArgentinaDatos | seed `dbt/seeds/feriados.csv` |
+| Paros | Prensa + verificación con SUBE | seed `dbt/seeds/eventos.csv` |

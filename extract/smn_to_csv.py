@@ -1,5 +1,8 @@
 """Convierte los datos diarios del SMN a un único CSV en formato largo.
 
+Fuente: SMN, https://www.smn.gob.ar/descarga-de-datos (aceptar términos y condiciones).
+Zip: https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=datosdiarios20212026
+
 Entrada: <base>/smn_datos_meteorologicos_desde_2021.lst (TSV, una fila por
 estación y día, fecha DD/MM/AAAA, "S/D" = sin dato). Se conservan sólo las
 estaciones de ESTACIONES.

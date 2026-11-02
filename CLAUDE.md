@@ -108,7 +108,9 @@ y no depender de 3 GB de parquet. Limitación a declarar: viento promedio de 24 
 
 ### SMN diario (`landing/smn.csv`)
 Columnas: `estacion, fecha, metrica, valor, unidad`. 2021-01-01 a 2026-07-31. Aeroparque y Observatorio.
-Origen: repositorio institucional del SMN (repositorio.smn.gob.ar). PENDIENTE: enlace exacto y fecha de descarga.
+Origen: SMN, "Descarga de datos" (https://www.smn.gob.ar/descarga-de-datos), datos diarios 2021-2026.
+Hay que aceptar términos y condiciones; el enlace descarga un zip con el `.lst`: https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=datosdiarios20212026
+La descarga es manual (no hay script): el zip se descomprime en `data/raw/smn/`.
 Es la ÚNICA fuente meteorológica del pipeline (viento, temperatura, humedad y lluvia).
 Métricas: HELIOF, HUM_REL, NUB_TOT, PRECIP, PRE_EST, TMAX, TMEDIA, TMIN, VEL_MED, VTO_MDIR, VTO_MVEL.
 - `PRECIP` solo tiene ~120 registros/año por estación (388 en cero): se asumió faltante = sin lluvia (**verificar**).
@@ -179,7 +181,6 @@ compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cad
 - Si los camioneros adhirieron a cada paro general.
 - Fecha real de los 150 colectivos a GNC de las líneas 65 y 151 (Grupo Metropol): ¿antes del 2026-02-19?
 - Si los días sin `PRECIP` en el SMN son realmente sin lluvia.
-- Enlace exacto y fecha de descarga del archivo del SMN (repositorio.smn.gob.ar).
 
 ## 10. Antecedentes (para la diapositiva de contexto)
 
