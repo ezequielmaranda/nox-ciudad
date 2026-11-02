@@ -42,17 +42,25 @@ export/          gold exportado a Parquet para Power BI y Colab
 ## Cómo correrlo
 
 ```
-uv sync
-uv add requests pdfminer.six
-uv run python extract/aire_publico.py
-uv run python extract/sube_descarga.py
+uv sync                                   # instala todo según pyproject.toml / uv.lock
 # SMN (manual): bajar el zip de datos diarios y descomprimirlo en data/raw/smn/ (ver Fuentes)
-uv run python extract/smn_to_csv.py
-uv add "duckdb>=1.5.4,<2" dbt-duckdb   # DuckDB 2.0 cambia el formato de archivo
+uv run python run.py --extraer            # extract -> dbt build -> export/*.parquet
+uv run python run.py                      # lo mismo sin volver a descargar (lo más común)
+```
+
+Por partes, si hace falta:
+
+```
+uv run python extract/aire_publico.py     # PDF de la APrA -> data/landing/aire_publico.csv
+uv run python extract/sube_descarga.py    # CSV de SUBE -> data/raw/sube/
+uv run python extract/smn_to_csv.py       # .lst del SMN -> data/landing/smn.csv
 cd dbt
-uv run dbt build --profiles-dir .   # seeds + modelos + tests -> data/nox.duckdb
+uv run dbt build --profiles-dir .         # seeds + modelos + tests -> data/nox.duckdb
 uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-dir .   # documentación y linaje
 ```
+
+`export/` (fuera de git) queda con `gold_analitico.parquet` y el resto de gold: es lo que leen
+Power BI y los notebooks de EDA.
 
 ## Notas de datos
 

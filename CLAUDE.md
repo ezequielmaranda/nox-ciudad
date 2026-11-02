@@ -167,8 +167,9 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
 3. Análisis en Python sobre `gold_analitico`: regresión OLS (días normales) + placebo para NOx/CO, NOx,
    CO, NO2 y PM10 en el bloque 8-16; sensibilidad con promedios 24 h. Escribe `gold_resultados_evento`.
    Plan B si no se sostiene: comparar contra semanas vecinas excluyendo días ventosos o con lluvia.
-4. `run.py`: extract → `dbt build` → export a Parquet (dbt no es un orquestador, solo transforma).
-5. Export de gold a Parquet; notebooks de EDA (descriptivas sobre formato largo con `groupby(['metrica','estacion'])`,
+4. HECHO: `run.py` encadena extract (con `--extraer`) → `dbt build` → export a `export/*.parquet`
+   (gold_analitico, gold_aire/sube/meteo_diario, dim_calendario, eventos). dbt no es un orquestador.
+5. Notebooks de EDA (descriptivas sobre formato largo con `groupby(['metrica','estacion'])`,
    distribuciones, perfil por bloques de 8 h por tipo de día, dispersión actividad vs. NOx/CO, correlaciones, serie temporal con eventos, eventos).
 6. Dashboard Power BI sobre los Parquet.
 
