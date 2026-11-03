@@ -46,33 +46,29 @@ Se crean en la fuente de datos (**Agregar un campo**). Pocos y explicables en un
 
 | Fuente | Nombre | Fórmula | Qué es |
 |---|---|---|---|
-| aire_diario | `% días NO2 sobre guía OMS` | `AVG(no2_sobre_guia_oms)` (formato porcentaje) | % de días con dato que superaron 25 µg/m³ en 24 h |
-| aire_diario | `% días PM10 sobre guía OMS` | `AVG(pm10_sobre_guia_oms)` (formato porcentaje) | Ídem PM10 con 45 µg/m³ |
-| aire_diario | `NO2 percentil 99` | `PERCENTILE(no2_24h_ugm3, 99)` | El valor que usa la OMS para la guía de 24 h |
-| aire_diario | `NOx/CO típico` | `MEDIAN(nox_co_816)` | La firma diésel de un día típico |
+| aire_diario | `NOx típico` | `MEDIAN(nox_816_ppb)` | NOx de un día típico, bloque de 8 a 16 h |
+| aire_diario | `NOx/CO típico` | `MEDIAN(nox_co_816)` | NOx relativo al CO de un día típico |
 | transporte_diario | `Viajes (millones)` | `SUM(usos_colectivo_caba) / 1000000` | Viajes en colectivos que circulan por CABA |
 
-`no2_sobre_guia_oms` ya viene en el CSV: vale 1 si el día superó la guía, 0 si no y vacío si no hay dato.
-Por eso el promedio da directamente el porcentaje de días con dato.
-
 **Chequeo obligatorio** (si no coincide, algo está mal configurado), con el filtro en La Boca y todo el período:
-`% días NO2 sobre guía OMS` ≈ 94,7% · `NO2 percentil 99` ≈ 95 µg/m³ · `NOx/CO típico` ≈ 162.
+`NOx típico` ≈ 49 ppb · `NOx/CO típico` ≈ 162. En Centenario: `NOx típico` ≈ 29 ppb.
 
 ## 4. Páginas (siguen el orden de la exposición)
 
 **Pregunta:** ¿cambia la contaminación del aire en la Ciudad en los días de paro de colectivos, trenes o
-subte, y cómo queda frente a las guías de la OMS? **H1:** con paro de colectivos el NOx es menor que en días
+subte? **H1:** con paro de colectivos el NOx es menor que en días
 hábiles comparables. **H2:** con paro de trenes o subte (colectivos funcionando) el NOx no baja.
 
-Arriba de cada página, un **título con el mensaje** (no "Gráfico de NOx", sino "El NO2 supera la guía de la
-OMS casi todos los días"). Abajo, la fuente: "Fuente: APrA (GCBA), SUBE (Secretaría de Transporte), SMN".
+Arriba de cada página, un **título con el mensaje** (no "Gráfico de NOx", sino "El NOx casi se duplica en
+invierno"). Abajo, la fuente: "Fuente: APrA (GCBA), SUBE (Secretaría de Transporte), SMN".
 
-### Página 1 · El problema: el aire de la Ciudad
+### Página 1 · El aire de la Ciudad
 - **Controles:** lista desplegable `estacion_nombre`; control de período sobre `fecha`.
-- **Tarjetas de resultados:** `% días NO2 sobre guía OMS`, `NO2 percentil 99`, mediana de `no2_24h_ugm3`.
+- **Tarjetas de resultados:** `NOx típico`, mediana de `no2_816_ppb`, `NOx/CO típico`.
 - **Serie temporal:** dimensión `fecha` con granularidad **Año y mes**, desglose `estacion_nombre`,
   métrica `MEDIAN(nox_816_ppb)`. Mensaje: el NOx casi se duplica en invierno.
-- **Barras:** dimensión `estacion_nombre`, métrica `% días NO2 sobre guía OMS`.
+- **Barras:** dimensión `nombre_dia`, desglose `estacion_nombre`, métrica `MEDIAN(nox_816_ppb)`. Mensaje: el
+  domingo, con menos tránsito, el NOx cae a la mitad.
 
 ### Página 2 · El experimento natural: los paros
 - **Serie temporal** (fuente `transporte_diario`): `fecha` por día, métrica `Viajes (millones)`.
@@ -95,13 +91,7 @@ OMS casi todos los días"). Abajo, la fuente: "Fuente: APrA (GCBA), SUBE (Secret
 - **Tabla** (misma fuente, `variable` en NOx, NO2 y CO): `etiqueta`, `variable`, `desvio_pct`,
   `percentil_placebo`, con **mapa de calor** en `percentil_placebo` (valores bajos = caída rara para un día normal).
 
-### Página 5 · ¿Y frente a la OMS?
-- **Gráfico combinado** (fuente `resultados_evento`, filtro `variable = NO2 24 h (µg/m³)`): dimensión `etiqueta`,
-  métricas `MAX(observado)` (barras) y `MAX(esperado)` (línea), **línea de referencia** en 25 (guía OMS de 24 h).
-- **Tarjeta:** casos de paro por debajo de la guía (2 de 10 en paros de colectivos).
-- Mensaje: aun sin colectivos, el NO2 casi siempre queda por encima de la guía de la OMS.
-
-### Página 6 · Cómo lo hicimos y qué no sabemos
+### Página 5 · Cómo lo hicimos y qué no sabemos
 - Texto con el esquema: fuentes públicas → Python (extract) → DuckDB + dbt (bronze/silver/gold, tests de
   calidad) → notebooks (EDA, regresión, placebo) → Looker Studio.
 - Las limitaciones del notebook `05_eventos` (pocos eventos, colectivos o camiones, los paros bajan la actividad

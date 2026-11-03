@@ -32,22 +32,37 @@ order by estacion;
 
 
 -- -----------------------------------------------------------------------------------------------------
--- 2. ¿Qué tan seguido el NO2 supera la guía de la OMS de 24 h (25 µg/m³)? Por estación y año.
+-- 2. Contexto: ¿el NO2 cumple la norma de la Ciudad? ¿Y la guía de la OMS? Por estación y año.
+--    Norma de la Ciudad (Res. 68-APRA/21, 3ª etapa): 32 ppb de promedio anual y 106 ppb horario.
+--    Guía de la OMS (2021): 10 µg/m³ anual (≈ 5 ppb). No es parte de las hipótesis: ubica los niveles.
+--    El máximo horario sale de silver (estadístico max_1h), solo con valores válidos.
 -- -----------------------------------------------------------------------------------------------------
+with horario as (
+    select estacion, year(fecha) as anio, max(valor) as no2_max_horario_ppb
+    from silver.silver_aire
+    where contaminante = 'NO2' and estadistico = 'max_1h' and estado_valor = 'valido'
+      and not fuera_de_rango and not nox_incoherente
+    group by all
+)
 select
-    estacion,
-    anio,
-    count(no2_24h_ugm3)                                                   as dias_con_dato,
-    round(avg(no2_24h_ugm3), 1)                                           as media_ugm3,
-    round(100.0 * count(*) filter (where no2_24h_ugm3 > 25) / count(no2_24h_ugm3), 0)
-                                                                          as pct_dias_sobre_guia,
-    round(quantile_cont(no2_24h_ugm3, 0.99), 0)                           as percentil_99_ugm3
-from gold.gold_analitico
-where no2_24h_ugm3 is not null
-group by estacion, anio
-order by estacion, anio;
--- Resultado: La Boca supera la guía más del 90% de los días con dato, Córdoba, entre 78% y 88%.
--- La OMS mide su guía de 24 h con el percentil 99 (admite 3-4 días por año sobre el valor).
+    a.estacion,
+    a.anio,
+    count(a.no2_24h_ppb)                                        as dias_con_dato,
+    round(avg(a.no2_24h_ppb), 1)                                as media_anual_ppb,
+    case when avg(a.no2_24h_ppb) <= 32 then 'cumple' else 'no cumple' end
+                                                                as norma_ciudad_anual,
+    any_value(h.no2_max_horario_ppb)                            as max_horario_ppb,
+    case when any_value(h.no2_max_horario_ppb) <= 106 then 'cumple' else 'revisar' end
+                                                                as norma_ciudad_horaria,
+    round(avg(a.no2_24h_ugm3) / 10, 1)                          as veces_guia_oms_anual
+from gold.gold_analitico as a
+join horario as h using (estacion, anio)
+where a.no2_24h_ppb is not null
+group by a.estacion, a.anio
+order by a.estacion, a.anio;
+-- Resultado: las tres estaciones cumplen la norma de la Ciudad todos los años (el máximo horario no pasa de
+-- 88 ppb), pero el promedio anual está entre 2 y casi 6 veces por encima de la guía de la OMS.
+-- Si ningún máximo diario supera 106 ppb, tampoco lo supera el percentil 98 horario que pide la norma.
 
 
 -- -----------------------------------------------------------------------------------------------------
