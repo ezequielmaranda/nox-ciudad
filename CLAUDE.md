@@ -8,15 +8,20 @@ El usuario es data engineer con experiencia en monitoreo atmosférico: comunicac
 TP integrador de **Análisis de Datos 1** (licenciatura en ciencia de datos, UdelaCiudad). Equipo de 4.
 Entrega: pipeline + EDA en Python + dashboard (Looker Studio) + exposición con storytelling de 20 minutos.
 
-**Pregunta:** ¿Cambia la contaminación del aire en la Ciudad en los días de paro de colectivos, trenes o subte,
-y cómo queda frente a las guías de la OMS?
+**Pregunta:** ¿Cambia la contaminación del aire en la Ciudad en los días de paro de colectivos, trenes o subte?
 **H1:** En los días de paro de colectivos, el NOx es menor que en días hábiles comparables.
 **H2:** En los días de paro de trenes o subte (con colectivos funcionando), el NOx no baja, porque más gente usa
 el colectivo y el auto.
 Por qué no son obvias: en Europa los paros de transporte público empeoran el aire (ver sección 10); acá la flota
-de colectivos es casi toda diésel. Variables: NOx (hipótesis), NO2 (guía OMS), CO (mecanismo: autos a nafta).
+de colectivos es casi toda diésel. Variables: NOx (hipótesis), NO2 (salud), CO (mecanismo: autos a nafta).
+**Normativa fuera del análisis principal** (decisión del usuario, para no alargar el TP): queda solo como contexto
+en el 01 (sección 4), como comentario final en el 05 (sección 5), en la pregunta 2 de `consultas.sql` y en la
+conclusión de la presentación. Dos referencias: norma de la Ciudad (Ley 1356, Res. 68-APRA/21, 3ª etapa vigente
+2024-2026: NO2 anual 32 ppb = 60 µg/m³, horario 106 ppb con P98 anual, sin valor de 24 h) y guía OMS 2021
+(NO2 10 µg/m³ anual, 25 µg/m³ 24 h). Las tres estaciones cumplen la norma local y no la OMS (2 a 5,6 veces la
+guía anual). Las columnas µg/m³ y los flags `*_sobre_guia_oms` siguen en el pipeline.
 El cociente NOx/CO ("firma diésel") ya NO es el indicador principal: queda solo como verificación en el notebook 05.
-PM10 fuera del análisis de paros (no responde; depende de fuentes regionales); solo como contexto OMS en el 01.
+PM10 fuera del análisis de paros (no responde; depende de fuentes regionales); solo descriptivo en el 01.
 
 Criterios de la consigna que guían las decisiones: uso de SQL, limpieza y calidad de datos visible,
 flujo ETL básico, EDA en Python conectado a la hipótesis, coherencia problema-análisis-conclusiones,
@@ -206,13 +211,14 @@ sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + te
    NO2 −23% (p ≈ 0,007), CO +7% (normal); sin el 19/02/2026 queda −19% (p ≈ 0,05). H2 NO se sostiene: con paro de
    trenes o subte el NOx también baja (−19%, p ≈ 0,05; NO2 −21%, p ≈ 0,03), junto con el CO (−10%); en ningún paro el
    aire empeoró (contra Europa). Lo que separa los grupos es el CO: NOx relativo al CO −43% (p < 0,0002) contra −10%.
-   OMS: NO2 24 h en paros de colectivos, mediana 32 µg/m³ (esperado 39); 8 de 10 casos sobre la guía de 25.
+   Contexto (comentario final, fuera de las hipótesis): NO2 24 h en paros de colectivos, 8 de 10 casos sobre la
+   guía OMS de 25 µg/m³; todas las estaciones cumplen la norma de la Ciudad.
    A revisar: Córdoba 19/02/2026 con NOx +66% y CO +110% sobre lo esperado.
    A revisar: Córdoba 23/05/2026 NOx 8-16 = 492 ppb con viento normal.
 6. Dashboard en **Looker Studio** (decisión del equipo: gratis, en el navegador, edición colaborativa; la consigna
    acepta Power BI, Looker Studio o Tableau). `run.py` exporta `export/looker/*.csv` (7 tablas planas, UTF-8,
-   encabezados ASCII). Guía en `dashboard/README.md`: fuentes, campos calculados, 6 páginas, colores y chequeo
-   contra los notebooks (La Boca: 94,7% días NO2 > guía, P99 ≈ 95 µg/m³, mediana NOx/CO ≈ 162). Falta armarlo.
+   encabezados ASCII). Guía en `dashboard/README.md`: fuentes, campos calculados, 5 páginas (sin página OMS),
+   colores y chequeo contra los notebooks (La Boca: mediana NOx 8-16 ≈ 49 ppb, NOx/CO ≈ 162). Falta armarlo.
    `dim_calendario.grupo_dia` es el grupo de día único para EDA y dashboard.
 
 Reparto propuesto: Ezequiel → calidad del aire, ETL y análisis de eventos; compañero 1 → EDA SUBE y eventos;

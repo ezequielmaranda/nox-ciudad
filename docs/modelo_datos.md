@@ -142,7 +142,7 @@ erDiagram
 | **Bronze todo como texto** | Los PDF traen valores como `s/d`, `DND` o `<4`. Si se convirtieran a número al cargar, se perderían sin aviso. |
 | **No borrar filas en silver, marcarlas** | Cada problema queda visible y contado (ver `analysis/consultas.sql`, consulta 7). Gold elige qué usar. |
 | **Grano estación × día** | Es el grano más fino publicado por la APrA (tabla diaria del PDF). La SUBE y el SMN también son diarios. |
-| **Bloque de 8 a 16 h** | Es la ventana diurna que publica la APrA, cuando circulan los colectivos. El promedio de 24 h se guarda para la OMS y como verificación. |
+| **Bloque de 8 a 16 h** | Es la ventana diurna que publica la APrA, cuando circulan los colectivos. El promedio de 24 h se guarda como verificación y para el contexto normativo. |
 | **NO2 también en µg/m³** | Las guías de la OMS están en µg/m³ y la APrA publica en ppb. La conversión (1,88 a 25 °C) se hace una vez, en SQL. |
 | **Clave de línea = número** | El nombre de una misma línea cambia entre archivos y años (`LINEA 12`, `CABA_LINEA_12`, `BSAS_LINEA_026`…). El número es lo único estable. |
 | **Dimensión calendario con `grupo_dia`** | Un único criterio de "qué tipo de día es" para todo el TP: notebooks y dashboard no pueden contradecirse. |
