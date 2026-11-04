@@ -222,7 +222,7 @@ Tabla analítica de calidad del aire: una fila por estación y día. Ventana diu
 | `co_24h_ppm` | DOUBLE | CO, promedio de 24 h (ppm). |
 | `pm10_24h_ugm3` | DOUBLE | PM10 de 24 h en µg/m³ (guía OMS 24 h = 45 µg/m³). |
 
-### `gold.gold_sube_diario` (1.029 filas)
+### `gold.gold_sube_diario` (1.035 filas)
 
 Un registro por día: usos y proporción de un día típico por modo, y la "dosis" de paro de colectivos (porcentaje de líneas que circulan por CABA con menos del 15% de sus usos habituales).
 
@@ -303,7 +303,7 @@ Calidad del aire tipada. Cada valor tiene un estado (valido, sin_dato, bajo_limi
 | `unidad_masa` | VARCHAR | Unidad de valor_masa: µg/m³ o mg/m³ (CO). |
 | `archivo_pdf` | VARCHAR | PDF de la APrA del que salió el valor (trazabilidad). |
 
-### `silver.silver_sube` (1.536.620 filas)
+### `silver.silver_sube` (1.547.467 filas)
 
 SUBE tipado (grano: fecha × empresa × etiqueta de línea × modo). Agrega `linea_num` (número de línea normalizado), `es_colectivo_caba` (universo de análisis: 134 líneas que circulan por CABA) y `es_linea_solo_caba` (las 31 líneas traspasadas a la Ciudad en enero de 2025).
 
@@ -323,7 +323,7 @@ SUBE tipado (grano: fecha × empresa × etiqueta de línea × modo). Agrega `lin
 | `es_colectivo_caba` | BOOLEAN | La fila pertenece al universo de colectivos que circulan por CABA. |
 | `es_linea_solo_caba` | BOOLEAN | La línea circula solo dentro de CABA (pasó a jurisdicción de la Ciudad en 2025). |
 
-### `silver.silver_colectivos_caba_linea_dia` (135.219 filas)
+### `silver.silver_colectivos_caba_linea_dia` (135.993 filas)
 
 Usos por línea (número normalizado) y día, sumando etiquetas y operadores de la misma línea.
 
@@ -335,7 +335,7 @@ Usos por línea (número normalizado) y día, sumando etiquetas y operadores de 
 | `usos` | BIGINT | Cantidad de viajes pagados con SUBE. |
 | `etiquetas` | VARCHAR | Nombres originales de la línea ese día (pueden ser varios). |
 
-### `silver.silver_sube_actividad_diaria` (1.029 filas)
+### `silver.silver_sube_actividad_diaria` (1.035 filas)
 
 Actividad diaria por modo en el AMBA, como proporción de un día típico (mediana del mismo día de la semana, ±4 semanas). Define `es_dia_normal`: hábil, no feriado y colectivo, tren y subte > 90%.
 
