@@ -1,0 +1,25 @@
+# Dependencias del TP (Python 3.11 o superior).
+# Instalación:  python -m venv .venv  y  .venv/bin/pip install -r requirements.txt
+#               (en Windows: .venv\Scripts\pip install -r requirements.txt)
+
+# Base analítica y transformaciones
+duckdb>=1.5.4,<2          # fijado <2: DuckDB 2 cambió el formato de archivo y DBeaver/DataGrip 1.x no lo abren
+dbt-duckdb>=1.10,<2       # modelos SQL, tests de calidad y documentación del linaje
+
+# Análisis y visualización
+pandas>=2.2
+pyarrow>=16
+matplotlib>=3.8
+seaborn>=0.13
+
+# Notebook
+ipykernel>=6.29
+nbconvert>=7.16
+nbformat>=5.10
+
+# Tests
+pytest>=8
+
+# Extracción de los PDF públicos (solo para `make extract`)
+pdfminer.six>=20231228
+requests>=2.31
