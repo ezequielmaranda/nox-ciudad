@@ -30,7 +30,8 @@ las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, pyte
 
 - `make etl` (= `python -m src.etl`): perfil del crudo → `dbt build` (en subproceso) → export a `data/final/`
   (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
-- `make test`: 18 tests de pytest (idempotencia incluida, ~20 s). `make eda`: ejecuta `notebooks/eda.ipynb`.
+- `make test`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
+  (idempotencia, que corra `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. `make eda`: ejecuta `notebooks/eda.ipynb`.
 - `make extract` (= `python -m src.extract`): baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
   `static.buenosaires.gob.ar` corta la conexión TLS (probablemente bloqueo geográfico). El CSV crudo está en git.
 
@@ -58,7 +59,7 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
   promedio_incoherente, mayor_que_nox, nox_incoherente (descarta NO y NOx, **no NO2**).
 - Outliers: Q3 + 3·IQR por estación × contaminante × ventana, marcados.
 - Regla del 75% sobre el promedio de 24 h por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
-- Último build: 20 modelos, 74 tests + 5 seeds, PASS 98, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
+- Último build: 20 modelos, 76 tests + 5 seeds, PASS 100, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
 
 ## Resultados verificados
 

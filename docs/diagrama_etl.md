@@ -56,7 +56,7 @@ flowchart LR
 |---|---|---|---|---|
 | 0 | **Extracción de la fuente** (opcional) | `src/extract.py` | PDF de la APrA → `data/raw/aire_publico.csv` | Baja los PDF, reconstruye la tabla diaria por coordenadas y la escribe en formato largo, sin convertir valores. Deja un manifiesto con el estado de cada archivo |
 | 1 | **Extract** | `src/etl.py` + `src/calidad.py` | `data/raw/*.csv` | Verifica que esté el crudo y registra filas, columnas, rango de fechas, duplicados, nulos y valores no numéricos |
-| 2 | **Transform + Load** | dbt (`dbt build`) | raw + reference → DuckDB | Seeds de referencia → staging (tipos, normalización, reglas físicas) → dimensiones y fact (formato largo, grilla completa, conversión de unidades, outliers) → calidad (completitud, regla del 75%) → indicadores (OMS). Corre los 74 tests de calidad; si uno de tipo error falla, el ETL se detiene |
+| 2 | **Transform + Load** | dbt (`dbt build`) | raw + reference → DuckDB | Seeds de referencia → staging (tipos, normalización, reglas físicas) → dimensiones y fact (formato largo, grilla completa, conversión de unidades, outliers) → calidad (completitud, regla del 75%) → indicadores (OMS). Corre los 76 tests de calidad; si uno de tipo error falla, el ETL se detiene |
 | 3 | **Export** | `src/etl.py` | DuckDB → `data/final/` | 17 tablas en CSV (UTF-8, separador `,`, decimal `.`) y Parquet, ordenadas para que dos corridas den archivos idénticos |
 | 4 | **Análisis SQL** | `src/etl.py` | `sql/99_consultas_analisis.sql` | Ejecuta las consultas de análisis (verifica que corran) y crea las vistas del schema `analisis` |
 | 5 | **Documentar** | `src/diccionario.py` | descripciones de dbt → `docs/diccionario_datos.md` | Genera el diccionario de datos desde los `.yml` de dbt |

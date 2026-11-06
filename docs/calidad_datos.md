@@ -155,6 +155,6 @@ El factor sale del peso molecular (`data/reference/contaminantes.csv`) y del vol
 
 | Dónde | Qué | Cantidad |
 |---|---|---|
-| Tests de dbt (`dbt build`) | Claves únicas, no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, NO/NO2 ≤ NOx, factor NO2, cobertura de la tabla OMS, regla del 75% y casos conocidos | 74 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 851 violaciones de la fuente) |
-| `tests/test_etl.py` (pytest) | Lo mismo desde Python + idempotencia (dos corridas dan archivos idénticos) + que todas las consultas de `sql/99` corran + funciones del extractor | 18 tests |
+| Tests de dbt (`dbt build`): **los datos** | Claves únicas, no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, el staging conserva todas las filas del crudo, NO/NO2 ≤ NOx, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75% y casos conocidos | 76 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 851 violaciones de la fuente) |
+| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que todas las consultas de `sql/99` corran y las funciones del extractor de PDF | 8 tests |
 | `src/calidad.py` | Perfil del crudo antes de transformar y resumen de calidad al final de cada corrida | — |

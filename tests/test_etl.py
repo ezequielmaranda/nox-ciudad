@@ -1,9 +1,10 @@
-"""Tests del ETL (pytest). Se corren con `make test` o `python -m pytest -q`.
+"""Tests del pipeline y del código Python (pytest). Se corren con `make test` o `python -m pytest -q`.
 
-Revisan la base que arma `python -m src.etl` (si no existe, la construyen una vez al empezar).
-Complementan a los tests de dbt: aquellos validan cada tabla en cada build; estos validan
-propiedades del pipeline completo (idempotencia, consultas de análisis, extractor) y vuelven a
-chequear desde Python las reglas centrales de la consigna.
+División del trabajo:
+  * dbt prueba los DATOS (claves, nulos, relaciones, reglas físicas, regla del 75%...) en cada
+    `dbt build`: ver dbt/models/**/_*.yml y dbt/tests/.
+  * pytest prueba lo que dbt no puede: el pipeline completo (idempotencia), las consultas de
+    análisis que viven fuera de dbt (sql/99) y el código Python del extractor de PDF.
 """
 
 import hashlib
@@ -26,110 +27,6 @@ def correr_etl() -> None:
 def base_construida():
     if not config.BASE_DUCKDB.exists():
         correr_etl()
-
-
-@pytest.fixture
-def con():
-    # Conexión por test (y no por sesión) para no bloquear el archivo al re-correr el ETL
-    c = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)
-    yield c
-    c.close()
-
-
-def valor(con, sql: str):
-    return con.execute(sql).fetchone()[0]
-
-
-# --- Modelo -------------------------------------------------------------------------------------
-
-def test_fact_sin_duplicados(con):
-    duplicados = valor(con, """
-        select count(*) from (
-            select fecha, id_estacion, id_contaminante, ventana
-            from modelo.fact_medicion_diaria
-            group by all having count(*) > 1)
-    """)
-    assert duplicados == 0
-
-
-def test_fact_es_grilla_completa(con):
-    n_dias = valor(con, "select count(*) from modelo.dim_calendario")
-    filas = valor(con, "select count(*) from modelo.fact_medicion_diaria")
-    assert n_dias == 1004  # 2024-01-01 a 2026-09-30
-    assert filas == n_dias * 3 * 5 * 2  # días × estaciones × contaminantes × ventanas
-
-
-def test_fechas_de_la_fact_existen_en_calendario(con):
-    huerfanas = valor(con, """
-        select count(*) from modelo.fact_medicion_diaria f
-        left join modelo.dim_calendario c using (fecha)
-        where c.fecha is null
-    """)
-    assert huerfanas == 0
-
-
-def test_staging_conserva_todas_las_filas_del_crudo(con):
-    crudo = valor(con, f"select count(*) from read_csv('{config.RAW_AIRE.as_posix()}', all_varchar = true)")
-    assert valor(con, "select count(*) from staging.stg_aire") == crudo
-
-
-# --- Calidad ------------------------------------------------------------------------------------
-
-def test_sin_valores_negativos(con):
-    assert valor(con, "select count(*) from modelo.fact_medicion_diaria where valor < 0 or valor_masa < 0") == 0
-
-
-def test_no_y_no2_no_superan_nox(con):
-    violaciones = valor(con, """
-        with d as (
-            select fecha, id_estacion, ventana,
-                   max(valor) filter (where id_contaminante = 'no')  as no_,
-                   max(valor) filter (where id_contaminante = 'no2') as no2,
-                   max(valor) filter (where id_contaminante = 'nox') as nox
-            from modelo.fact_medicion_diaria where tiene_dato group by all)
-        select count(*) from d where no_ > nox or no2 > nox
-    """)
-    assert violaciones == 0
-
-
-def test_factor_no2_consistente(con):
-    # 46,0055 g/mol / 24,45 L/mol = 1,8816 µg/m³ por ppb
-    factor = valor(con, "select factor_masa from modelo.dim_contaminante where id_contaminante = 'no2'")
-    assert factor == pytest.approx(1.88, abs=0.01)
-    minimo, maximo = con.execute("""
-        select min(valor_masa / valor), max(valor_masa / valor)
-        from modelo.fact_medicion_diaria
-        where id_contaminante = 'no2' and tiene_dato and valor >= 5
-    """).fetchone()
-    assert minimo == pytest.approx(1.88, abs=0.01) and maximo == pytest.approx(1.88, abs=0.01)
-
-
-def test_ref_oms_tiene_todas_las_combinaciones_usadas(con):
-    combinaciones = set(con.execute("select id_contaminante, promedio from modelo.ref_oms").fetchall())
-    necesarias = {("no2", "24h"), ("no2", "anual"), ("pm10", "24h"), ("pm10", "anual"), ("co", "24h")}
-    assert necesarias <= combinaciones
-
-
-def test_regla_75_marca_no_validos(con):
-    mal_marcados = valor(con, """
-        select count(*) from indicadores.agg_anual
-        where (completitud < 0.75 and (es_valido or promedio_anual is not null or p99_24h is not null))
-           or (completitud >= 0.75 and not es_valido)
-    """)
-    assert mal_marcados == 0
-    no_validos = set(con.execute(
-        "select id_estacion, id_contaminante, id_periodo from indicadores.agg_anual where not es_valido"
-    ).fetchall())
-    # Los dos casos documentados en docs/calidad_datos.md
-    assert ("centenario", "no2", "2024") in no_validos
-    assert ("cordoba", "co", "2024") in no_validos
-
-
-def test_outliers_se_marcan_pero_no_se_borran(con):
-    marcados, con_valor = con.execute("""
-        select count(*), count(valor) from modelo.fact_medicion_diaria where es_outlier
-    """).fetchone()
-    assert marcados > 0 and marcados == con_valor
 
 
 # --- Pipeline -----------------------------------------------------------------------------------

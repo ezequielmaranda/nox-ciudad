@@ -136,7 +136,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── calidad.py                 perfil del crudo y resumen de calidad
 │   └── diccionario.py             genera docs/diccionario_datos.md
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
-├── tests/test_etl.py              tests de pytest (incluye idempotencia)
+├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
 └── reports/figures/               figuras del EDA (PNG)
 ```
@@ -178,8 +178,9 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 |---|---|
 | **Partir de los PDF públicos** y no de una tabla ya procesada | La consigna pide un flujo completo y desaconseja datasets ya procesados. Desde el PDF aparecen los problemas reales: `s/d`, `<4`, coma decimal, archivos de otra estación, valores incoherentes |
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV/Parquet y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
-| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 74 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 76 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
 | **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
+| **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, las consultas de `sql/99` y las funciones del extractor |
 | **Fact como grilla completa** (calendario × estación × contaminante) | Distingue "la fuente no publicó" de "publicó `s/d`" y de "lo descartó una regla"; la completitud es un promedio |
 | **No se borra nada:** se marca | Cada problema queda en una columna (`motivo_sin_dato`, `es_outlier`); el análisis decide |
 | **Umbrales en tablas** | Guías OMS, tolerancias, factores de conversión y parámetros (75%, 3·IQR) en `data/reference/` y `dbt_project.yml`, nunca escritos en el SQL |
