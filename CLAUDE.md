@@ -18,6 +18,12 @@ Hipótesis (reescritas por el equipo como expectativas previas al análisis, sin
 - **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂. → **No se sostiene**: la peor es La Boca (flujo medio-bajo, fuentes fijas); Córdoba es segunda.
 - **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
 La matriz de escalones (hasta qué IT cumple cada estación) ya no es una hipótesis: responde las subpreguntas 1 y 2.
+Fundamentación (README, "De dónde salen las hipótesis", con fuentes): premisa común "el NO₂ de la Ciudad viene sobre
+todo del tránsito" (Bogo et al. 1999) aplicada a cada corte. H1: la OMS 2021 endureció el NO₂ anual 4 veces (40→10)
+y el PM10 poco (20→15, 50→45). H2: la APrA describe a Córdoba con flujo vehicular alto y a La Boca medio-bajo con
+fuentes fijas; en Europa las superaciones de NO₂ son en estaciones de tránsito (EEA). H3: efecto fin de semana
+(Beirle et al. 2003). El período no tiene hipótesis (sin meteorología no hay base). Resultado conjunto: el tránsito
+explica buena parte del NO₂, pero no todo.
 
 Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
 noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
