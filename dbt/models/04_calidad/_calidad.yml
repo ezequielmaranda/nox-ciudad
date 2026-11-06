@@ -1,0 +1,147 @@
+version: 2
+
+models:
+  - name: agg_completitud_mensual
+    description: Completitud del promedio de 24 h por estación × contaminante × mes (heatmap de calidad).
+    columns:
+      - name: id_estacion
+        description: Estación.
+      - name: id_contaminante
+        description: Contaminante.
+      - name: anio
+        description: Año.
+      - name: mes
+        description: Mes (1-12).
+      - name: anio_mes
+        description: Primer día del mes.
+      - name: n_dias_calendario
+        description: Días del mes dentro del período.
+      - name: n_dias_con_fila
+        description: Días con fila publicada por la fuente.
+      - name: n_dias_con_dato
+        description: Días con valor válido.
+      - name: n_dias_sin_fila
+        description: Días sin fila (la fuente no publicó, p. ej. mes sin PDF).
+      - name: n_dias_sin_dato_fuente
+        description: Días con 's/d' o 'DND' en la planilla.
+      - name: n_dias_descartados
+        description: Días con número que descartó una regla de calidad.
+      - name: completitud
+        description: n_dias_con_dato / n_dias_calendario (0 a 1).
+        data_tests:
+          - entre:
+              arguments:
+                minimo: 0
+                maximo: 1
+      - name: cumple_umbral
+        description: Verdadero si la completitud del mes es >= 75%.
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [id_estacion, id_contaminante, anio_mes]
+
+  - name: agg_completitud_anual
+    description: Completitud por estación × contaminante × período y regla del 75% (es_valido).
+    columns:
+      - name: id_estacion
+        description: Estación.
+      - name: id_contaminante
+        description: Contaminante.
+      - name: id_periodo
+        description: Período (clave hacia dim_periodo).
+      - name: n_dias_periodo
+        description: Días del período.
+      - name: n_dias_con_dato
+        description: Días con valor válido de 24 h.
+      - name: completitud
+        description: n_dias_con_dato / n_dias_periodo.
+      - name: es_valido
+        description: Verdadero si completitud >= 75% (los indicadores anuales se pueden calcular).
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [id_estacion, id_contaminante, id_periodo]
+
+  - name: calidad_resumen
+    description: Cantidad de valores crudos por contaminante y categoría de calidad.
+    columns:
+      - name: id_contaminante
+        description: Contaminante.
+      - name: categoria
+        description: valido, valido_imputado o el motivo por el que se descartó.
+      - name: n_valores
+        description: Cantidad de celdas de los PDF.
+      - name: proporcion
+        description: Proporción dentro del contaminante (0 a 1).
+
+  - name: calidad_violaciones
+    description: Una fila por cada violación a una regla de validación (un valor puede violar varias).
+    columns:
+      - name: id_estacion
+        description: Estación.
+      - name: fecha
+        description: Fecha.
+      - name: id_contaminante
+        description: Contaminante.
+      - name: estadistico
+        description: Estadístico del día (24h, bloques, máximo o mínimo).
+      - name: valor_crudo
+        description: Texto original.
+      - name: regla
+        description: Regla violada.
+      - name: se_descarta
+        description: Verdadero si el valor quedó fuera del análisis.
+      - name: motivo_invalido
+        description: Motivo principal por el que se descartó (vacío si no se descartó).
+      - name: archivo_pdf
+        description: PDF de origen.
+
+  - name: calidad_outliers
+    description: Valores atípicos (Q3 + 3·IQR) con contexto para la revisión manual. No se borran.
+    columns:
+      - name: fecha
+        description: Fecha.
+      - name: id_estacion
+        description: Estación.
+      - name: id_contaminante
+        description: Contaminante.
+      - name: ventana
+        description: 24h u 8-16.
+      - name: valor
+        description: Valor en unidad original.
+      - name: unidad
+        description: Unidad original.
+      - name: umbral_outlier
+        description: Umbral Q3 + 3·IQR.
+      - name: mediana
+        description: Mediana de la serie (estación × contaminante × ventana).
+      - name: veces_mediana
+        description: valor / mediana.
+      - name: nombre_dia
+        description: Día de la semana.
+      - name: tipo_dia
+        description: Tipo de día.
+      - name: evento
+        description: Paro de transporte, si hubo.
+      - name: archivo_pdf
+        description: PDF de origen.
+
+  - name: calidad_archivos
+    description: Estado de cada PDF de la extracción (279 procesados y 2 descartados por estar enlazados en la estación equivocada).
+    columns:
+      - name: id_estacion
+        description: Estación cuya página enlaza el archivo.
+      - name: tipo_informe
+        description: co, nox o pm10.
+      - name: anio
+        description: Año del informe.
+      - name: mes
+        description: Mes del informe.
+      - name: archivo
+        description: Nombre del PDF.
+      - name: estado
+        description: ok, ok_con_aviso, descartado o error.
+      - name: estado_detalle
+        description: Detalle del estado o del aviso.
+      - name: estacion_en_encabezado
+        description: Estación que dice el encabezado del PDF.

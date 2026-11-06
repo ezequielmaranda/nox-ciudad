@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: fact_medicion_diaria
+    description: >
+      Tabla de hechos en formato largo. Grano: fecha × estación × contaminante × ventana
+      (24h u 8-16). Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso
+      y el motivo en motivo_sin_dato.
+    columns:
+      - name: fecha
+        description: Fecha (clave hacia dim_calendario).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_calendario')
+                field: fecha
+      - name: id_estacion
+        description: Estación (clave hacia dim_estacion).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_estacion')
+                field: id_estacion
+      - name: id_contaminante
+        description: Contaminante (clave hacia dim_contaminante).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contaminante')
+                field: id_contaminante
+      - name: ventana
+        description: "'24h' = promedio diario (el de la guía OMS); '8-16' = promedio de 8 a 16 h."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["24h", "8-16"]
+      - name: valor_crudo
+        description: Texto original del PDF (vacío si no hubo fila).
+      - name: estado_valor
+        description: Clasificación del crudo; 'sin_fila' si la fuente no publicó ese día.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["valido", "sin_dato", "bajo_limite_deteccion", "invalido", "sin_fila"]
+      - name: tiene_fila
+        description: Verdadero si la fuente publicó una fila para ese día y contaminante.
+      - name: tiene_dato
+        description: Verdadero si hay un valor válido (pasa las reglas de calidad).
+        data_tests: [not_null]
+      - name: motivo_sin_dato
+        description: Por qué no hay dato (vacío si tiene_dato). 'sin_fila', 'sin_dato_fuente' o la regla que lo descartó.
+      - name: valor
+        description: Valor en la unidad original (solo si tiene_dato).
+        data_tests:
+          - entre:
+              arguments:
+                minimo: 0
+                maximo: 2500
+      - name: unidad
+        description: Unidad original (ppb, ppm, µg/m³).
+      - name: valor_masa
+        description: Valor en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato.
+        data_tests:
+          - entre:
+              arguments:
+                minimo: 0
+                maximo: 5000
+      - name: unidad_masa
+        description: Unidad de valor_masa.
+      - name: es_imputado
+        description: Verdadero si el valor era '<límite' y se imputó como límite / 2.
+      - name: es_outlier
+        description: Verdadero si valor > Q3 + 3·IQR de su estación × contaminante × ventana. Se marca, no se borra.
+        data_tests: [not_null]
+      - name: umbral_outlier
+        description: Umbral Q3 + 3·IQR de esa estación × contaminante × ventana.
+      - name: archivo_pdf
+        description: PDF de origen.
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [fecha, id_estacion, id_contaminante, ventana]

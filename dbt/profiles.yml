@@ -1,0 +1,9 @@
+# Conexión de dbt: un archivo DuckDB local. AIRE_RAIZ (la raíz del repo) la define src/etl.py;
+# si se corre dbt a mano desde esta carpeta, la raíz es "..".
+aire_oms:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('AIRE_RAIZ', '..') }}/data/warehouse/aire.duckdb"
+      threads: 4

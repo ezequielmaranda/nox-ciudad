@@ -1,0 +1,109 @@
+version: 2
+
+# Tablas de referencia mantenidas a mano en data/reference/ (seeds de dbt, schema `referencia`).
+seeds:
+  - name: oms_2021
+    description: >
+      Guías de calidad del aire de la OMS 2021 y objetivos intermedios (IT1 a IT4).
+      Fuente: WHO global air quality guidelines (2021), resumen ejecutivo, Tabla 0.1
+      "Recommended AQG levels and interim targets". Valores vacíos = la OMS no define ese nivel.
+    config:
+      column_types:
+        id_contaminante: varchar
+        contaminante: varchar
+        promedio: varchar
+        guia_oms: double
+        it1: double
+        it2: double
+        it3: double
+        it4: double
+        unidad: varchar
+    columns:
+      - name: id_contaminante
+        description: Código del contaminante (clave hacia dim_contaminante).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('contaminantes')
+                field: id_contaminante
+      - name: contaminante
+        description: Nombre corto del contaminante como lo escribe la OMS.
+      - name: promedio
+        description: Período de promedio de la guía ('24h' o 'anual').
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["24h", "anual"]
+      - name: guia_oms
+        description: Nivel guía (AQG), el más exigente.
+        data_tests: [not_null]
+      - name: it1
+        description: Objetivo intermedio 1 (el menos exigente).
+      - name: it2
+        description: Objetivo intermedio 2.
+      - name: it3
+        description: Objetivo intermedio 3.
+      - name: it4
+        description: Objetivo intermedio 4 (el más exigente antes de la guía).
+      - name: unidad
+        description: Unidad de la guía (µg/m³ o mg/m³).
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [id_contaminante, promedio]
+
+  - name: contaminantes
+    description: Contaminantes medidos, unidades, peso molecular y parámetros de las reglas de calidad.
+    config:
+      column_types:
+        peso_molecular: double
+        tolerancia_coherencia: double
+        maximo_fisico: double
+        orden: integer
+    columns:
+      - name: id_contaminante
+        data_tests: [unique, not_null]
+
+  - name: estaciones
+    description: Estaciones de monitoreo de la APrA (datos de las páginas de cada estación).
+    config:
+      column_types:
+        inicio_operacion: integer
+        latitud_aprox: double
+        longitud_aprox: double
+    columns:
+      - name: id_estacion
+        data_tests: [unique, not_null]
+
+  - name: feriados
+    description: >
+      Feriados nacionales 2024-2026, incluidos los puentes turísticos.
+      Fuente: API pública ArgentinaDatos (https://api.argentinadatos.com/v1/feriados/<año>).
+    config:
+      column_types:
+        fecha: date
+        tipo: varchar
+        nombre: varchar
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: tipo
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["inamovible", "trasladable", "puente"]
+
+  - name: eventos
+    description: Días de paro de transporte del período (contexto). Fuente en la columna fuente_prensa.
+    config:
+      column_types:
+        fecha: date
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: grupo_evento
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["sin_colectivos", "trenes_subte"]
