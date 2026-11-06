@@ -7,15 +7,17 @@ con experiencia en monitoreo atmosférico: comunicación directa, sin vueltas.
 
 TP integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Equipo de 4. Pregunta: ¿cuán lejos está
 el aire de la Ciudad de Buenos Aires de las guías de la OMS 2021, y cómo varía entre estaciones, contaminantes, tipo
-de día y período? El enunciado completo está en `PROYECTO_TP_AIRE_OMS.md`; la consigna de la cátedra pide flujo
-completo (SQL, limpieza, ETL, EDA en Python, dashboard en **Power BI**) y poder justificar cada decisión.
+de día y período? La referencia es la **consigna de la cátedra** (PDF "Trabajo Práctico Integrador", fuera del repo):
+10 etapas (problema e hipótesis, dataset, modelado, SQL, limpieza y calidad, ETL, EDA en Python, visualizaciones e
+indicadores, dashboard en **Power BI**, conclusiones), exposición grupal de 20 minutos y poder justificar cada
+decisión técnica. El README tiene la tabla "Cómo cubre el TP la consigna". La guía `PROYECTO_TP_AIRE_OMS.md`, que
+venía de otro chat, se sacó del repo: no es la consigna.
 
-Hipótesis (H1 reformulada por el equipo: en vez de "supera la guía la mayoría de los días", hasta qué escalón cumple):
-- **H1:** el NO₂ no alcanza la guía OMS pero se mantiene dentro de los objetivos intermedios: la mayoría de los días
-  cumple el IT2 diario (50 µg/m³) y el promedio anual cumple al menos el IT1 (40 µg/m³). El PM10 cumple la guía
-  diaria casi siempre. → Se sostiene en Centenario y Córdoba, no en La Boca.
-- **H2:** La Boca es la estación más comprometida en NO₂. → Se sostiene.
+Hipótesis (reescritas por el equipo como expectativas previas al análisis, sin detalles que solo se saben después):
+- **H1:** el NO₂ es el contaminante más crítico: el que más se aleja de las guías de la OMS. → Se sostiene (50-95% de días sobre la guía vs. 2-4% del PM10 y 0% del CO).
+- **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂. → **No se sostiene**: la peor es La Boca (flujo medio-bajo, fuentes fijas); Córdoba es segunda.
 - **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
+La matriz de escalones (hasta qué IT cumple cada estación) ya no es una hipótesis: responde las subpreguntas 1 y 2.
 
 Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
 noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
@@ -74,7 +76,7 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 ## Resultados verificados
 
 - % días NO₂ > 25 µg/m³: La Boca 94,7% (944 d), Córdoba 84,4% (910), Centenario 50,3% (662). PM10 > 45: 2,3-4,1%.
-  CO: 0%. El enunciado decía ~91/75/33%: dividía por todas las filas.
+  CO: 0%. Denominador = días con dato (dividir por todas las filas daría ~91/75/33%, que subestima).
 - NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,0 (3,5×, IT1), Centenario 26,2 (2,6×, IT2).
 - Matriz de escalones (`agg_cumplimiento_niveles`, figura 06b): La Boca cumple el IT2 diario 40% → 54% → 58% de los
   días (2024 → 2025 → 2026 ene-sep); Córdoba 84-92%; Centenario 98-100%.

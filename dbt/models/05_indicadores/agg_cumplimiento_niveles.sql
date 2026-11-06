@@ -6,7 +6,7 @@
 -- cumple la guía también cumple todos los objetivos intermedios. Por eso, dentro de cada
 -- estación y período, el % crece de la guía (más exigente) al IT1 (menos exigente).
 --
--- Es la "matriz de escalones": para el NO2 responde H1 (¿hasta qué escalón se cumple?).
+-- Es la "matriz de escalones": responde hasta qué escalón cumple cada estación (subpreguntas 1 y 2).
 -- Regla del 75%: en los períodos con menos de 75% de días con dato, pct_dias_cumple queda
 -- en NULL (el valor calculado igual se informa en pct_referencial).
 -- Grano: estación × contaminante × período × nivel.

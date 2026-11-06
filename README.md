@@ -19,11 +19,12 @@ EDA en Python → dashboard en Power BI.
 6. ¿Cuánto condiciona la calidad o completitud de los datos a las conclusiones?
 
 **Hipótesis:**
-- **H1:** el NO₂ no alcanza la guía de la OMS, pero se mantiene dentro de sus objetivos intermedios: la mayoría de
-  los días cumple el objetivo intermedio diario IT2 (50 µg/m³) y el promedio anual cumple al menos el IT1
-  (40 µg/m³). El PM10 cumple la guía diaria casi todos los días.
-- **H2:** La Boca es la estación más comprometida en NO₂.
+- **H1:** el NO₂ es el contaminante más crítico: el que más se aleja de las guías de la OMS.
+- **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂.
 - **H3:** los domingos y feriados la brecha se reduce de forma visible.
+
+Son las expectativas previas al análisis: el NO₂ sale sobre todo de los motores (en especial diésel) y Córdoba es la
+estación que la APrA describe con flujo vehicular alto.
 
 **Por qué importa:** la OMS actualizó sus guías en 2021 y las hizo mucho más exigentes (la de NO₂ anual pasó de 40 a
 10 µg/m³). La norma de la Ciudad sigue valores más laxos, así que "cumplir la norma" no dice cuán lejos se está de
@@ -66,12 +67,35 @@ Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Bo
    está inflada porque en 2024 casi no hay datos de Centenario, la estación más limpia. Por estación: La Boca −20%,
    Córdoba −14% y Centenario sin tendencia. Y sin controlar la meteorología no se puede atribuir a una mejora real.
 
-**Hipótesis:** H1 se sostiene en Parque Centenario y Córdoba, no en La Boca (que es justamente lo que plantea H2);
-el PM10 cumple la guía diaria casi siempre, pero no la anual ni el P99. H2 se sostiene con todos los indicadores.
-H3 se sostiene a medias: baja el nivel, pero en La Boca el incumplimiento sigue.
+**Hipótesis:**
+- **H1 se sostiene:** el NO₂ supera la guía diaria el 50% a 95% de los días, contra 2% a 4% del PM10 y 0% del CO;
+  su promedio anual está 2,6 a 4,6 veces sobre la guía (PM10: 1,5 a 1,8).
+- **H2 no se sostiene:** la más comprometida es **La Boca**, con todos los indicadores; Córdoba queda segunda. La
+  Boca tiene flujo vehicular medio-bajo pero fuentes fijas cercanas (puerto, polo de Dock Sud, tránsito pesado) y es
+  la que menos baja el domingo: el tránsito de la avenida no explica todo.
+- **H3 se sostiene a medias:** baja el nivel, pero en La Boca el incumplimiento sigue.
 
 Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (las mismas respuestas en SQL).
+
+## Cómo cubre el TP la consigna
+
+| Etapa de la consigna | Dónde está |
+|---|---|
+| 1. Problema, pregunta e hipótesis | Este README (pregunta, subpreguntas, hipótesis, rol y público) |
+| 2. Selección, recolección y comprensión del dataset | Sección [Datos](#datos) y [`docs/calidad_datos.md`](docs/calidad_datos.md) §1 (fuente, formato, registros, columnas, granularidad, período, limitaciones) |
+| 3. Almacenamiento y modelado | DuckDB + [`docs/modelo_datos.md`](docs/modelo_datos.md) (qué representa cada tabla, claves, relaciones, decisiones) |
+| 4. Consultas SQL | [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (cada consulta dice qué responde, por qué y qué técnica usa) y los modelos de `dbt/models/` |
+| 5. Limpieza, calidad y normalización | [`docs/calidad_datos.md`](docs/calidad_datos.md) (nulos, duplicados, tipos, fechas, categorías, atípicos, redundancias, formato, unidades) y `dbt/models/01_staging/` |
+| 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
+| 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
+| 8. Visualizaciones e indicadores | `reports/figures/`, `indicadores.*` (cumplimiento diario, anual, escalones, rachas) |
+| 9. Dashboard en Power BI | `data/final/` + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (modelo, medidas DAX, 3 páginas, colores) |
+| 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §11 y presentación |
+
+**Entregables:** dashboard (Power BI), notebook, scripts (`src/`, `dbt/`), consultas SQL, archivos procesados
+(`data/final/`), diagrama del ETL, documentación del proceso (`docs/`), dataset final para Power BI y presentación
+(`presentacion/`).
 
 ## Cómo correrlo
 
@@ -128,7 +152,6 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ```
 .
 ├── README.md                      este archivo
-├── PROYECTO_TP_AIRE_OMS.md        enunciado del proyecto (instrucciones originales)
 ├── requirements.txt · Makefile · pytest.ini
 ├── data/
 │   ├── raw/                       crudo de la extracción (no se modifica a mano)
@@ -257,20 +280,3 @@ con el qué y el por qué.
 - Agencia de Protección Ambiental, GCBA. Calidad del aire, estaciones Parque Centenario, Córdoba y La Boca.
   <https://buenosaires.gob.ar/calidad-del-aire>.
 - ArgentinaDatos. API de feriados nacionales. <https://api.argentinadatos.com/v1/feriados/>.
-
-## Diferencias con el enunciado (`PROYECTO_TP_AIRE_OMS.md`)
-
-Se priorizaron los datos sobre lo que decía el documento:
-
-- **Entrada:** el enunciado partía de `gold_aire_diario.parquet` (la tabla diaria del proyecto anterior). Se partió
-  un paso antes, del CSV que sale de los PDF públicos, para que la limpieza sea visible y el flujo completo.
-- **% de días sobre la guía de NO₂:** el enunciado decía ~91 / 75 / 33%. Esos valores dividían por todas las filas,
-  incluidos los días sin dato. Con el denominador correcto (días con dato): **94,7 / 84,4 / 50,3%**.
-- **Filas faltantes (991 / 988 / 971):** eran un efecto de la tabla anterior, que solo tenía fila cuando había algún
-  valor válido. En la fuente cada estación tiene fila los 1.004 días; los huecos son por contaminante.
-- **NO₂ de enero a septiembre 26,1 → 20,8 → 18,9 ppb:** se reproduce (26,1 → 20,9 → 18,9), pero está inflado por la
-  falta de Centenario en 2024 (sección Hallazgos, punto 6).
-- **H1 reformulada en términos de objetivos intermedios.** El enunciado decía "el NO₂ supera la guía diaria la
-  mayoría de los días". Se reformuló para preguntar hasta qué escalón de la OMS se cumple, que es para lo que la OMS
-  define los objetivos intermedios. No se ajustó para "dar bien": La Boca no la cumple.
-- **Extensión de meteorología:** fuera del alcance, por decisión del equipo (se simplificó el TP a calidad del aire).
