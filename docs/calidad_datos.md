@@ -44,6 +44,8 @@ Perfil del crudo (lo registra `python -m src.etl` en cada corrida): 0 duplicados
 | Texto en una celda numérica | `Lunes` en el PM10 8-16 de Córdoba del 04/07/2025 | `estado_valor = 'invalido'`, valor nulo |
 | Categorías inconsistentes | `LA BOCA`, `NOx` | Identificadores en snake_case sin tildes (`la_boca`, `nox`); etiquetas legibles en las dimensiones |
 | Tipos | Todo texto | `fecha` → `DATE` con `try_cast` (nula si no fuera fecha; 0 casos) |
+| Variables redundantes | El NOx es NO + NO₂; el promedio de 24 h es (casi) el promedio de los tres bloques de 8 h; la columna `unidad` depende del contaminante | No se usan como información nueva: sirven para **validar** (reglas `nox_incoherente` y `promedio_incoherente`). La unidad pasa a `dim_contaminante` |
+| Codificación y formato | Tildes y símbolos (`µg/m³`, `LA BOCA`, `Córdoba`) en una fuente que se lee con distintas herramientas | Archivos en UTF-8; identificadores sin tildes ni espacios (`la_boca`, `no2`) y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (en Power BI, importar con configuración regional inglés o usar Parquet) |
 
 ### 2.3 Reglas de validación física
 
@@ -94,9 +96,9 @@ Los huecos son por contaminante:
 | La Boca | PM10 | 31 | enero 2025 (además, septiembre y octubre 2024 casi todo `s/d`) |
 | Parque Centenario | CO | 32 | 29/02/2024 y marzo 2024 |
 
-> **Diferencia con el enunciado.** El enunciado hablaba de 991 / 988 / 971 filas por estación en la tabla diaria
-> "gold" del proyecto anterior. Esa tabla solo tenía fila cuando había algún valor válido, así que mezclaba
-> "la fuente no publicó" con "la fuente publicó `s/d`". En la fuente cada estación tiene fila los 1.004 días.
+> **Por qué importa la grilla completa.** Una tabla diaria que solo tiene fila cuando hay algún valor válido (como la
+> del proyecto anterior: 991 / 988 / 971 filas por estación) mezcla "la fuente no publicó" con "la fuente publicó
+> `s/d`". En la fuente cada estación tiene fila los 1.004 días.
 
 ## 3. Completitud y regla del 75%
 
@@ -184,7 +186,7 @@ quiere detectar. Lista con contexto: `calidad.calidad_outliers` (185 valores, 85
 | Fecha | Qué | Lectura | Decisión |
 |---|---|---|---|
 | 18 y 19/06/2025 | NO y NOx altos en **las tres estaciones** a la vez (NO hasta 14 veces la mediana) | Episodio atmosférico de invierno (típico de una inversión térmica), no una falla de un equipo | Se conserva |
-| 18 y 19/11/2025 | PM10 de 104 a 134 µg/m³ en **las tres estaciones** (5 a 6 veces la mediana) | Episodio regional de partículas (humo o polvo); el valor de ~120 µg/m³ que mencionaba el enunciado | Se conserva |
+| 18 y 19/11/2025 | PM10 de 104 a 134 µg/m³ en **las tres estaciones** (5 a 6 veces la mediana) | Episodio regional de partículas (humo o polvo) | Se conserva |
 | 11 y 12/07/2024 | PM10 y CO altos en dos o tres estaciones | Episodio de invierno compartido | Se conserva |
 | 23/05/2026 (sábado), Córdoba | NO 8-16 = **424 ppb** (14 veces la mediana), NOx 492, NO2 70, CO normal (0,5 ppm) | Pico aislado de óxidos de nitrógeno sin CO: compatible con una fuente diésel muy cercana a la cabina (o con una falla). Pasa las reglas físicas | Se conserva marcado. Afecta a NO y NOx, que no se comparan con la OMS; el NO2 diario (58 µg/m³) no cambia ningún indicador |
 

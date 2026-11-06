@@ -78,6 +78,25 @@ Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Bo
 Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (las mismas respuestas en SQL).
 
+## Cómo cubre el TP la consigna
+
+| Etapa de la consigna | Dónde está |
+|---|---|
+| 1. Problema, pregunta e hipótesis | Este README (pregunta, subpreguntas, hipótesis, rol y público) |
+| 2. Selección, recolección y comprensión del dataset | Sección [Datos](#datos) y [`docs/calidad_datos.md`](docs/calidad_datos.md) §1 (fuente, formato, registros, columnas, granularidad, período, limitaciones) |
+| 3. Almacenamiento y modelado | DuckDB + [`docs/modelo_datos.md`](docs/modelo_datos.md) (qué representa cada tabla, claves, relaciones, decisiones) |
+| 4. Consultas SQL | [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (cada consulta dice qué responde, por qué y qué técnica usa) y los modelos de `dbt/models/` |
+| 5. Limpieza, calidad y normalización | [`docs/calidad_datos.md`](docs/calidad_datos.md) (nulos, duplicados, tipos, fechas, categorías, atípicos, redundancias, formato, unidades) y `dbt/models/01_staging/` |
+| 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
+| 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
+| 8. Visualizaciones e indicadores | `reports/figures/`, `indicadores.*` (cumplimiento diario, anual, escalones, rachas) |
+| 9. Dashboard en Power BI | `data/final/` + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (modelo, medidas DAX, 3 páginas, colores) |
+| 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §11 y presentación |
+
+**Entregables:** dashboard (Power BI), notebook, scripts (`src/`, `dbt/`), consultas SQL, archivos procesados
+(`data/final/`), diagrama del ETL, documentación del proceso (`docs/`), dataset final para Power BI y presentación
+(`presentacion/`).
+
 ## Cómo correrlo
 
 Requisitos: Python 3.11 o superior y Git. Todo corre local, sin servidores.
@@ -133,7 +152,6 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ```
 .
 ├── README.md                      este archivo
-├── PROYECTO_TP_AIRE_OMS.md        enunciado del proyecto (instrucciones originales)
 ├── requirements.txt · Makefile · pytest.ini
 ├── data/
 │   ├── raw/                       crudo de la extracción (no se modifica a mano)
@@ -262,21 +280,3 @@ con el qué y el por qué.
 - Agencia de Protección Ambiental, GCBA. Calidad del aire, estaciones Parque Centenario, Córdoba y La Boca.
   <https://buenosaires.gob.ar/calidad-del-aire>.
 - ArgentinaDatos. API de feriados nacionales. <https://api.argentinadatos.com/v1/feriados/>.
-
-## Diferencias con el enunciado (`PROYECTO_TP_AIRE_OMS.md`)
-
-Se priorizaron los datos sobre lo que decía el documento:
-
-- **Entrada:** el enunciado partía de `gold_aire_diario.parquet` (la tabla diaria del proyecto anterior). Se partió
-  un paso antes, del CSV que sale de los PDF públicos, para que la limpieza sea visible y el flujo completo.
-- **% de días sobre la guía de NO₂:** el enunciado decía ~91 / 75 / 33%. Esos valores dividían por todas las filas,
-  incluidos los días sin dato. Con el denominador correcto (días con dato): **94,7 / 84,4 / 50,3%**.
-- **Filas faltantes (991 / 988 / 971):** eran un efecto de la tabla anterior, que solo tenía fila cuando había algún
-  valor válido. En la fuente cada estación tiene fila los 1.004 días; los huecos son por contaminante.
-- **NO₂ de enero a septiembre 26,1 → 20,8 → 18,9 ppb:** se reproduce (26,1 → 20,9 → 18,9), pero está inflado por la
-  falta de Centenario en 2024 (sección Hallazgos, punto 6).
-- **Hipótesis reescritas como expectativas previas.** El enunciado planteaba H1 "el NO₂ supera la guía diaria la
-  mayoría de los días; el PM10 casi nunca" y H2 "La Boca es la más comprometida", con detalles que solo se conocen
-  después de analizar. Se reescribieron como lo esperable antes de mirar los datos: H1, que el NO₂ es el
-  contaminante más crítico; H2, que la peor es Córdoba, la estación de tránsito intenso. Los datos refutan H2.
-- **Extensión de meteorología:** fuera del alcance, por decisión del equipo (se simplificó el TP a calidad del aire).

@@ -7,8 +7,11 @@ con experiencia en monitoreo atmosférico: comunicación directa, sin vueltas.
 
 TP integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Equipo de 4. Pregunta: ¿cuán lejos está
 el aire de la Ciudad de Buenos Aires de las guías de la OMS 2021, y cómo varía entre estaciones, contaminantes, tipo
-de día y período? El enunciado completo está en `PROYECTO_TP_AIRE_OMS.md`; la consigna de la cátedra pide flujo
-completo (SQL, limpieza, ETL, EDA en Python, dashboard en **Power BI**) y poder justificar cada decisión.
+de día y período? La referencia es la **consigna de la cátedra** (PDF "Trabajo Práctico Integrador", fuera del repo):
+10 etapas (problema e hipótesis, dataset, modelado, SQL, limpieza y calidad, ETL, EDA en Python, visualizaciones e
+indicadores, dashboard en **Power BI**, conclusiones), exposición grupal de 20 minutos y poder justificar cada
+decisión técnica. El README tiene la tabla "Cómo cubre el TP la consigna". La guía `PROYECTO_TP_AIRE_OMS.md`, que
+venía de otro chat, se sacó del repo: no es la consigna.
 
 Hipótesis (reescritas por el equipo como expectativas previas al análisis, sin detalles que solo se saben después):
 - **H1:** el NO₂ es el contaminante más crítico: el que más se aleja de las guías de la OMS. → Se sostiene (50-95% de días sobre la guía vs. 2-4% del PM10 y 0% del CO).
@@ -73,7 +76,7 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 ## Resultados verificados
 
 - % días NO₂ > 25 µg/m³: La Boca 94,7% (944 d), Córdoba 84,4% (910), Centenario 50,3% (662). PM10 > 45: 2,3-4,1%.
-  CO: 0%. El enunciado decía ~91/75/33%: dividía por todas las filas.
+  CO: 0%. Denominador = días con dato (dividir por todas las filas daría ~91/75/33%, que subestima).
 - NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,0 (3,5×, IT1), Centenario 26,2 (2,6×, IT2).
 - Matriz de escalones (`agg_cumplimiento_niveles`, figura 06b): La Boca cumple el IT2 diario 40% → 54% → 58% de los
   días (2024 → 2025 → 2026 ene-sep); Córdoba 84-92%; Centenario 98-100%.
