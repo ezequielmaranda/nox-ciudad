@@ -58,7 +58,11 @@ Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Bo
    sigue sobre la guía.
 5. **Estacionalidad fuerte:** en invierno el NO₂ de La Boca es 1,8 veces el del verano y supera la guía el 99,6%
    de los días.
-6. **Los huecos de datos cambian conclusiones:** la "caída" del NO₂ de 2024 a 2026 (−28% juntando las estaciones)
+6. **La Boca mejora año a año en el escalón diario:** cumple el IT2 diario el 40% de los días en 2024, el 54% en
+   2025 y el 58% en 2026 (enero a septiembre). Su promedio anual sigue por encima del IT1 y, sin meteorología, la
+   mejora no se puede atribuir a menos emisiones. Ver la matriz de escalones
+   ([`reports/figures/06b_matriz_niveles_no2.png`](reports/figures/06b_matriz_niveles_no2.png)).
+7. **Los huecos de datos cambian conclusiones:** la "caída" del NO₂ de 2024 a 2026 (−28% juntando las estaciones)
    está inflada porque en 2024 casi no hay datos de Centenario, la estación más limpia. Por estación: La Boca −20%,
    Córdoba −14% y Centenario sin tendencia. Y sin controlar la meteorología no se puede atribuir a una mejora real.
 
@@ -202,7 +206,7 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 | **`<límite de detección` → límite / 2** | El valor real está entre 0 y el límite; descartarlo sesgaría los promedios hacia arriba |
 | **La incoherencia NOx ≠ NO + NO₂ descarta NO y NOx, no NO₂** | Se concentra en el día 8 de cada mes con el NO "trabado"; el NO₂ pasa sus propios controles |
 | **Outliers: Q3 + 3·IQR, marcados** | Los más extremos ocurren a la vez en las tres estaciones: son episodios reales, justo lo que la guía de 24 h quiere detectar |
-| **Regla del 75%** para indicadores anuales | Un promedio con meses faltantes puede estar sesgado por la estación del año |
+| **Regla del 75%** para indicadores anuales (criterio de la EPA; la OMS no fija uno) | Un promedio con meses faltantes puede estar sesgado por la estación del año. La UE pide 90%: se probó la sensibilidad y los escalones de cada estación no cambian (`docs/calidad_datos.md` §3) |
 | **% de días sobre la guía con denominador = días con dato** | Un día sin dato no es un día limpio |
 | **Dos métricas para la guía de 24 h:** % de días y percentil 99 | La OMS define la guía de 24 h como el P99 anual; el % de días es más fácil de comunicar |
 | **Últimos 12 meses** además de los años calendario | 2026 llega a septiembre: sin primavera ni verano no es comparable con un año completo |
@@ -211,7 +215,8 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 
 - **Solo 3 estaciones:** no representan a toda la Ciudad (no hay estaciones en el sudoeste ni en el norte).
 - **Huecos de datos:** el NO₂ de Parque Centenario falta de marzo a noviembre de 2024 y en julio de 2025; los
-  indicadores anuales con menos de 75% de días no se calculan.
+  indicadores anuales con menos de 75% de días no se calculan. Tampoco se puede verificar cuántas horas tuvo cada
+  promedio diario de la APrA (el criterio de 18 de 24 horas de las normas).
 - **2026 es parcial** (enero a septiembre).
 - **Sin control meteorológico:** las diferencias entre períodos o épocas del año pueden deberse al clima (viento,
   lluvia, inversiones térmicas).

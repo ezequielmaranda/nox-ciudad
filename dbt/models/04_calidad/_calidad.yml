@@ -57,6 +57,12 @@ models:
         description: n_dias_con_dato / n_dias_periodo.
       - name: es_valido
         description: Verdadero si completitud >= 75% (los indicadores anuales se pueden calcular).
+      - name: completitud_peor_trimestre
+        description: Completitud del trimestre calendario con menos datos dentro del período.
+      - name: cumple_criterio_trimestral
+        description: >
+          Verdadero si todos los trimestres del período tienen >= 75% de días con dato (criterio de la EPA
+          para la norma de 1 hora). Es una advertencia: no excluye el indicador.
     data_tests:
       - clave_unica:
           arguments:

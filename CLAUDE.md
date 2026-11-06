@@ -76,6 +76,11 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 - % días NO₂ > 25 µg/m³: La Boca 94,7% (944 d), Córdoba 84,4% (910), Centenario 50,3% (662). PM10 > 45: 2,3-4,1%.
   CO: 0%. El enunciado decía ~91/75/33%: dividía por todas las filas.
 - NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,0 (3,5×, IT1), Centenario 26,2 (2,6×, IT2).
+- Matriz de escalones (`agg_cumplimiento_niveles`, figura 06b): La Boca cumple el IT2 diario 40% → 54% → 58% de los
+  días (2024 → 2025 → 2026 ene-sep); Córdoba 84-92%; Centenario 98-100%.
+- Regla del 75%: es el criterio anual de la EPA (40 CFR 50 Ap. S); la UE pide 90% (Dir. 2008/50 Anexo XI); la OMS no
+  fija ninguno. Se agregó `cumple_criterio_trimestral` (EPA: 75% en cada trimestre) como advertencia. Sensibilidad
+  en `docs/calidad_datos.md` §3.2: los escalones de cada estación no cambian con el criterio más estricto.
 - Días que cumplen el IT2 diario de NO₂ (50): Centenario 98,6%, Córdoba 87,7%, La Boca 49,7%. IT1 diario (120):
   todos los días salvo uno en La Boca (124). PM10 cumple la guía diaria el 95,9-97,7% de los días.
   La Boca 2024: 56,5. PM10: 21,9-26,6 (1,5-1,8×, IT3); P99 de PM10 > 45 en todas las estaciones y años.

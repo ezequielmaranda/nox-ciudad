@@ -34,6 +34,7 @@ TABLAS_FINALES = [
     "modelo.fact_medicion_diaria",
     "indicadores.agg_cumplimiento_diario",
     "indicadores.agg_anual",
+    "indicadores.agg_cumplimiento_niveles",
     "indicadores.agg_rachas",
     "calidad.agg_completitud_mensual",
     "calidad.agg_completitud_anual",

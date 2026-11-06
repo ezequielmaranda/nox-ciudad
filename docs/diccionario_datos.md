@@ -17,6 +17,7 @@ Tablas finales que se exportan a `data/final/` (CSV y Parquet) y se cargan en Po
 | [`fact_medicion_diaria`](#fact_medicion_diaria) | modelo | 30.120 | Tabla de hechos en formato largo. Grano: fecha × estación × contaminante × ventana (24h u 8-16). Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato. |
 | [`agg_cumplimiento_diario`](#agg_cumplimiento_diario) | indicadores | 7.823 | Cumplimiento diario de la guía OMS de 24 h. Grano: fecha × estación × contaminante, solo días con dato válido y contaminantes con guía de 24 h (NO2, PM10, CO). |
 | [`agg_anual`](#agg_anual) | indicadores | 36 | Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 parcial y últimos 12 meses), con la regla del 75% aplicada. |
+| [`agg_cumplimiento_niveles`](#agg_cumplimiento_niveles) | indicadores | 120 | Matriz de escalones: % de días que cumplen la guía OMS de 24 h y cada objetivo intermedio, por estación × contaminante × período × nivel. Acumulativo (quien cumple la guía cumple todos los IT). |
 | [`agg_rachas`](#agg_rachas) | indicadores | 296 | Rachas de días consecutivos sobre la guía de 24 h (gaps and islands). Un día sin dato corta la racha. |
 | [`agg_completitud_mensual`](#agg_completitud_mensual) | calidad | 495 | Completitud del promedio de 24 h por estación × contaminante × mes (heatmap de calidad). |
 | [`agg_completitud_anual`](#agg_completitud_anual) | calidad | 60 | Completitud por estación × contaminante × período y regla del 75% (es_valido). |
@@ -207,6 +208,8 @@ Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 
 | `n_dias_con_dato` | BIGINT | Días con dato válido de 24 h. |
 | `completitud` | DOUBLE | n_dias_con_dato / n_dias_periodo. |
 | `es_valido` | BOOLEAN | Verdadero si completitud >= 75%. |
+| `completitud_peor_trimestre` | DOUBLE | Completitud del trimestre con menos datos dentro del período. |
+| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres tienen >= 75% de días con dato (advertencia, no excluye). |
 | `estado_indicador` | VARCHAR | 'valido' o 'no_valido'. |
 | `unidad` | VARCHAR | Unidad de la guía. |
 | `promedio_anual` | DOUBLE | Promedio de los valores diarios (vacío si no es válido). |
@@ -224,6 +227,28 @@ Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 
 | `maximo_diario` | DOUBLE | Máximo valor diario del período. |
 | `n_dias_supera_24h` | BIGINT | Días por encima de la guía de 24 h. |
 | `pct_dias_supera_24h` | DOUBLE | n_dias_supera_24h / n_dias_con_dato (0 a 1). |
+
+## agg_cumplimiento_niveles
+
+Matriz de escalones: % de días que cumplen la guía OMS de 24 h y cada objetivo intermedio, por estación × contaminante × período × nivel. Acumulativo (quien cumple la guía cumple todos los IT).
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `id_estacion` | VARCHAR | Estación. |
+| `id_contaminante` | VARCHAR | Contaminante (NO2, PM10, CO). |
+| `id_periodo` | VARCHAR | Período (clave hacia dim_periodo). |
+| `nivel` | VARCHAR | AQG, IT4, IT3, IT2 o IT1. |
+| `nivel_etiqueta` | VARCHAR | Etiqueta legible del nivel. |
+| `orden_exigencia` | INTEGER | 1 = guía (más exigente) … 5 = IT1 (menos exigente). Para ordenar columnas. |
+| `umbral` | DOUBLE | Umbral de 24 h del nivel. |
+| `unidad` | VARCHAR | Unidad del umbral. |
+| `n_dias_con_dato` | BIGINT | Días con dato válido en el período. |
+| `n_dias_cumple` | BIGINT | Días cuyo promedio de 24 h no supera el umbral. |
+| `completitud` | DOUBLE | Completitud del período (de agg_completitud_anual). |
+| `es_valido` | BOOLEAN | Verdadero si el período tiene >= 75% de días con dato. |
+| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres tienen >= 75% (advertencia, no excluye). |
+| `pct_dias_cumple` | DOUBLE | n_dias_cumple / n_dias_con_dato (0 a 1). Vacío si el período no es válido. |
+| `pct_referencial` | DOUBLE | El mismo cociente aunque el período no sea válido (solo para transparencia). |
 
 ## agg_rachas
 
@@ -271,6 +296,8 @@ Completitud por estación × contaminante × período y regla del 75% (es_valido
 | `n_dias_con_dato` | BIGINT | Días con valor válido de 24 h. |
 | `completitud` | DOUBLE | n_dias_con_dato / n_dias_periodo. |
 | `es_valido` | BOOLEAN | Verdadero si completitud >= 75% (los indicadores anuales se pueden calcular). |
+| `completitud_peor_trimestre` | DOUBLE | Completitud del trimestre calendario con menos datos dentro del período. |
+| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres del período tienen >= 75% de días con dato (criterio de la EPA para la norma de 1 hora). Es una advertencia: no excluye el indicador. |
 
 ## calidad_resumen
 

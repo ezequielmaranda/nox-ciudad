@@ -103,15 +103,61 @@ Los huecos son por contaminante:
 Implementada en `dbt/models/04_calidad/agg_completitud_mensual.sql` y `agg_completitud_anual.sql`.
 
 - **completitud** = días con dato válido del promedio de 24 h / días del período.
-- **Indicadores anuales** (promedio anual, percentil 99): solo si el período tiene **≥ 75%** de días con dato
-  (variable `umbral_completitud` de `dbt_project.yml`). Si no, `es_valido = false` y el valor no se publica
-  (queda en `promedio_referencial` solo por transparencia).
-- **Indicadores diarios** (% de días sobre la guía): usan todos los días con dato válido e informan siempre el `n`.
-  El denominador son los **días con dato**, no todos los días: un día sin dato no es un día "limpio".
+- **Indicadores anuales** (promedio anual, percentil 99, matriz de escalones por año): solo si el período tiene
+  **≥ 75%** de días con dato (variable `umbral_completitud` de `dbt_project.yml`). Si no, `es_valido = false` y el
+  valor no se publica (queda en `promedio_referencial` / `pct_referencial` solo por transparencia).
+- **Indicadores diarios de todo el período** (% de días sobre la guía): usan todos los días con dato válido e
+  informan siempre el `n`. El denominador son los **días con dato**, no todos los días.
 - **2026 es parcial** (enero a septiembre). Para compararlo con un año completo se calcula también el período
   **`movil_12m`** (octubre 2025 a septiembre 2026).
 
-**Qué queda afuera:**
+### 3.1 ¿De dónde sale el 75%?
+
+El 75% es una convención de las normas de calidad del aire, pero **no hay un único criterio** y **la OMS no fija
+ninguno** (sus guías definen niveles y tiempos de promedio, no reglas de completitud):
+
+| Referencia | De horas a día | Promedio anual |
+|---|---|---|
+| **Unión Europea**, Directiva 2008/50/CE, Anexo XI | 75%: al menos 18 valores horarios (y 45 minutos para un valor horario) | **90%** de los valores horarios (o, si no hay, de los de 24 h), sin contar las pérdidas por calibración o mantenimiento |
+| **EPA de EE.UU.**, 40 CFR 50, Apéndice S (NO2) | 75% de las horas del día | **75%** de las horas del año; para la norma de 1 hora, además, 75% de los días en **cada trimestre** |
+| **OMS 2021** | — | — |
+
+Dos consecuencias para el TP:
+
+1. **El 75% "de horas a día" ya lo aplicó la APrA** (o el criterio que use): el TP recibe promedios diarios y no
+   puede verificar cuántas horas tuvo cada día. Es una limitación declarada.
+2. **Para los indicadores anuales se usa el 75% al estilo EPA** (con días en lugar de horas). Es más laxo que la UE
+   (90%) y, solo, no mira cómo se reparten los datos en el año. Por eso se informa además el **criterio trimestral
+   de la EPA** (`cumple_criterio_trimestral`: todos los trimestres con ≥ 75% de días) como **advertencia**, sin
+   excluir.
+
+### 3.2 Sensibilidad: ¿cambian las conclusiones con un criterio más estricto?
+
+Validez del promedio anual de NO2 según cada criterio:
+
+| Estación | Período | Completitud | 75% anual (el usado) | 75% en cada trimestre (EPA) | 90% anual (UE) |
+|---|---|---|---|---|---|
+| Parque Centenario | 2024 | 18,9% | no | no | no |
+| | 2025 | 88,8% | sí | no (jul-sep: 66%) | no |
+| | últimos 12 meses | 96,7% | sí | sí | sí |
+| Córdoba | 2024 | 85,0% | sí | no (ene-mar: 44%) | no |
+| | 2025 | 91,5% | sí | sí | sí |
+| | últimos 12 meses | 96,7% | sí | sí | sí |
+| La Boca | 2024 | 95,9% | sí | sí | sí |
+| | 2025 | 98,9% | sí | sí | sí |
+| | últimos 12 meses | 87,9% | sí | no (jul-sep 2026: 70%) | no |
+
+**Las conclusiones no cambian:** con el criterio más estricto, cada estación tiene al menos un período válido y su
+escalón es el mismo en todos los períodos: Parque Centenario **IT2** (últimos 12 meses), Córdoba **IT1** (2025 y
+últimos 12 meses) y La Boca **por encima del IT1** (2024 y 2025). El PM10 es más sensible: con
+un criterio más estricto, Córdoba pierde 2025, 2026 y los últimos 12 meses, y **La Boca no tiene ningún período
+válido** (le faltan meses enteros de PM10). Donde hay períodos que pasan (Parque Centenario siempre, Córdoba 2024),
+el resultado es el mismo: IT3 anual y guía diaria cumplida el 95% a 99% de los días.
+
+Cambiar el umbral es una línea: `umbral_completitud` en `dbt/dbt_project.yml` (por ejemplo, 0.90 para el criterio
+de la UE) y volver a correr `make etl`.
+
+**Qué queda afuera con el 75% anual:**
 
 | Indicador | Completitud | Por qué |
 |---|---|---|
@@ -120,6 +166,11 @@ Implementada en `dbt/models/04_calidad/agg_completitud_mensual.sql` y `agg_compl
 
 El heatmap de completitud por estación × contaminante × mes está en `reports/figures/01_completitud_heatmap.png`
 (notebook, sección 2) y es la página 3 del dashboard.
+
+**Fuentes:** Directiva 2008/50/CE del Parlamento Europeo y del Consejo, Anexo XI
+([EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32008L0050)); 40 CFR Part 50, Appendix S,
+sección 3 ([govinfo, edición 2022](https://www.govinfo.gov/content/pkg/CFR-2022-title40-vol2/pdf/CFR-2022-title40-vol2-part50-appS.pdf));
+WHO global air quality guidelines (2021).
 
 ## 4. Valores atípicos (outliers)
 

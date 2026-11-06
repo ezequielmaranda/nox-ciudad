@@ -20,6 +20,7 @@ la configuración en español, `0.229` se lee como 229.
 | `fact_medicion_diaria` | Completitud y días válidos; serie con la ventana 8-16 | sí |
 | `agg_cumplimiento_diario` | % de días sobre la guía, P99, series de 24 h | sí |
 | `agg_anual` | Promedio anual, veces la guía, nivel OMS | sí |
+| `agg_cumplimiento_niveles` | Matriz de escalones (% de días que cumplen cada nivel, por año) | sí |
 | `agg_rachas` | Racha máxima | sí |
 | `agg_completitud_mensual` | Heatmap de completitud | sí |
 | `calidad_archivos`, `calidad_resumen`, `calidad_outliers` | Página de calidad | recomendado |
@@ -35,7 +36,8 @@ hechos o agregada). Ninguna bidireccional.
 | `dim_calendario` | `fact_medicion_diaria`, `agg_cumplimiento_diario` | `fecha` |
 | `dim_estacion` | `fact_medicion_diaria`, `agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`, `agg_completitud_mensual` | `id_estacion` |
 | `dim_contaminante` | `fact_medicion_diaria`, `agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`, `agg_completitud_mensual`, `ref_oms` | `id_contaminante` |
-| `dim_periodo` | `agg_anual` | `id_periodo` |
+| `dim_periodo` | `agg_anual`, `agg_cumplimiento_niveles` | `id_periodo` |
+| `dim_estacion` / `dim_contaminante` | `agg_cumplimiento_niveles` | `id_estacion` / `id_contaminante` |
 
 Notas:
 - `agg_anual` **no** se relaciona con `dim_calendario`: sus períodos (años, 2026 parcial, últimos 12 meses) vienen
@@ -157,6 +159,11 @@ intermedios y La Boca no alcanza ni el primero.**
 - **Serie temporal**: gráfico de líneas, eje `dim_calendario[fecha]` (o `anio_mes` para promedios mensuales), valor
   `Promedio diario`, leyenda `dim_estacion[nombre]`. Línea de referencia: panel *Análisis → Línea constante* con el
   valor de `Guía OMS 24 h` (o una medida en línea). Rotular la línea "Guía OMS".
+- **Matriz de escalones** (visual Matriz): filas `dim_estacion[nombre]` y `dim_periodo[etiqueta]`, columnas
+  `agg_cumplimiento_niveles[nivel_etiqueta]` (ordenada por `orden_exigencia`), valores `pct_dias_cumple`
+  (promedio; formato %) con formato condicional de fondo (escala de azules). Segmentadores de contaminante y
+  período para que no quede gigante. Para la presentación alcanza con el NO2 y los años (figura
+  `06b_matriz_niveles_no2.png`). Celdas vacías = período con menos de 75% de días.
 - **Barras agrupadas**: `% Días sobre guía` por contaminante y estación (sin filtro de contaminante).
 - **Barras horizontales**: `Promedio anual` por estación y período, con líneas constantes en la guía anual y los
   objetivos intermedios (tomar los valores de `ref_oms`).

@@ -169,6 +169,30 @@ GROUP BY id_contaminante, id_estacion, nivel_oms, orden_nivel_oms
 ORDER BY id_contaminante, id_estacion, orden_nivel_oms;
 
 
+-- B0b · Matriz de escalones: % de días que cumplen cada nivel, por estación y año (NO2)
+-- PREGUNTA  Subpreguntas 1, 2 y 3 y H1: ¿hasta qué escalón cumple cada estación, año por año?
+-- POR QUÉ   Es la tabla que va a la presentación: muestra en una sola vista la guía, los objetivos
+--           intermedios y el escalón del promedio anual. Celdas vacías = período con menos de 75% de días.
+-- TÉCNICA   "Pivot" con agregación condicional (MAX ... FILTER): las filas de nivel pasan a columnas.
+--           LEFT JOIN con agg_anual para sumar el escalón del promedio anual.
+SELECT
+    e.nombre                                                                         AS estacion,
+    p.etiqueta                                                                       AS periodo,
+    round(100 * max(n.pct_dias_cumple) FILTER (WHERE n.nivel = 'AQG'), 1)             AS pct_cumple_guia_25,
+    round(100 * max(n.pct_dias_cumple) FILTER (WHERE n.nivel = 'IT2'), 1)             AS pct_cumple_it2_50,
+    round(100 * max(n.pct_dias_cumple) FILTER (WHERE n.nivel = 'IT1'), 1)             AS pct_cumple_it1_120,
+    max(a.nivel_oms)                                                                 AS escalon_promedio_anual,
+    bool_and(n.cumple_criterio_trimestral)                                           AS todos_los_trimestres_75
+FROM indicadores.agg_cumplimiento_niveles n
+JOIN modelo.dim_estacion e ON e.id_estacion = n.id_estacion
+JOIN modelo.dim_periodo p  ON p.id_periodo = n.id_periodo
+LEFT JOIN indicadores.agg_anual a
+       ON a.id_estacion = n.id_estacion AND a.id_contaminante = n.id_contaminante AND a.id_periodo = n.id_periodo
+WHERE n.id_contaminante = 'no2'
+GROUP BY e.nombre, p.etiqueta, p.orden
+ORDER BY e.nombre, p.orden;
+
+
 -- B1 · % de días por encima de la guía diaria (24 h)
 -- PREGUNTA  Subpregunta 1: ¿qué porcentaje de días se supera la guía diaria, por estación y contaminante?
 -- POR QUÉ   Es el indicador más fácil de comunicar ("9 de cada 10 días").
