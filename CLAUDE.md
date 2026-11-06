@@ -1,255 +1,99 @@
-# CLAUDE.md — nox-ciudad
+# CLAUDE.md · nox-ciudad
 
-Contexto para continuar el proyecto en Claude Code. Idioma de trabajo: español rioplatense.
-El usuario es data engineer con experiencia en monitoreo atmosférico: comunicación directa, sin vueltas.
+Contexto para seguir el proyecto en Claude Code. Idioma de trabajo: español rioplatense. El usuario es data engineer
+con experiencia en monitoreo atmosférico: comunicación directa, sin vueltas.
 
-## 1. Qué es
+## Qué es
 
-TP integrador de **Análisis de Datos 1** (licenciatura en ciencia de datos, UdelaCiudad). Equipo de 4.
-Entrega: pipeline + EDA en Python + dashboard (Looker Studio) + exposición con storytelling de 20 minutos.
+TP integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Equipo de 4. Pregunta: ¿cuán lejos está
+el aire de la Ciudad de Buenos Aires de las guías de la OMS 2021, y cómo varía entre estaciones, contaminantes, tipo
+de día y período? El enunciado completo está en `PROYECTO_TP_AIRE_OMS.md`; la consigna de la cátedra pide flujo
+completo (SQL, limpieza, ETL, EDA en Python, dashboard en **Power BI**) y poder justificar cada decisión.
 
-**Pregunta:** ¿Cambia la contaminación del aire en la Ciudad en los días de paro de colectivos, trenes o subte?
-**H1:** En los días de paro de colectivos, el NOx es menor que en días hábiles comparables.
-**H2:** En los días de paro de trenes o subte (con colectivos funcionando), el NOx no baja, porque más gente usa
-el colectivo y el auto.
-Por qué no son obvias: en Europa los paros de transporte público empeoran el aire (ver sección 10); acá la flota
-de colectivos es casi toda diésel. Variables: NOx (hipótesis), NO2 (salud), CO (mecanismo: autos a nafta).
-**Normativa fuera del análisis principal** (decisión del usuario, para no alargar el TP): queda solo como contexto
-en el 01 (sección 4), como comentario final en el 05 (sección 5), en la pregunta 2 de `consultas.sql` y en la
-conclusión de la presentación. Dos referencias: norma de la Ciudad (Ley 1356, Res. 68-APRA/21, 3ª etapa vigente
-2024-2026: NO2 anual 32 ppb = 60 µg/m³, horario 106 ppb con P98 anual, sin valor de 24 h) y guía OMS 2021
-(NO2 10 µg/m³ anual, 25 µg/m³ 24 h). Las tres estaciones cumplen la norma local y no la OMS (2 a 5,6 veces la
-guía anual). Las columnas µg/m³ y los flags `*_sobre_guia_oms` siguen en el pipeline.
-El cociente NOx/CO ("firma diésel") ya NO es el indicador principal: queda solo como verificación en el notebook 05.
-PM10 fuera del análisis de paros (no responde; depende de fuentes regionales); solo descriptivo en el 01.
+Hipótesis (H1 reformulada por el equipo: en vez de "supera la guía la mayoría de los días", hasta qué escalón cumple):
+- **H1:** el NO₂ no alcanza la guía OMS pero se mantiene dentro de los objetivos intermedios: la mayoría de los días
+  cumple el IT2 diario (50 µg/m³) y el promedio anual cumple al menos el IT1 (40 µg/m³). El PM10 cumple la guía
+  diaria casi siempre. → Se sostiene en Centenario y Córdoba, no en La Boca.
+- **H2:** La Boca es la estación más comprometida en NO₂. → Se sostiene.
+- **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
 
-Criterios de la consigna que guían las decisiones: uso de SQL, limpieza y calidad de datos visible,
-flujo ETL básico, EDA en Python conectado a la hipótesis, coherencia problema-análisis-conclusiones,
-**justificar decisiones técnicas**, **participación equilibrada** (cualquier integrante tiene que poder
-explicar todo) e identificación de limitaciones. No se piden modelos de ML.
+Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
+noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
 
-## 2. Reglas del proyecto
+## Reglas
 
-- **Explicable antes que sofisticado.** Nada de Prefect, ML ni infraestructura que el equipo no pueda defender.
-- **Solo datos públicos.** Todas las fuentes del TP son publicadas (APrA, SUBE, SMN, feriados).
-- **Los datos nunca van a git** (tamaño). `data/` está en `.gitignore`. En git: código y seeds.
-- **No se borran filas en silver:** se marcan con flags de calidad. La limpieza vive en SQL/dbt, visible y testeada.
-- **Hora:** local `-03:00` (Argentina no tiene horario de verano). La hora indica el **inicio** del promedio
-  (`07:00-03:00` = promedio de 07 a 08).
-- **Lenguaje de resultados:** "estimamos", "es consistente con". Con 6 eventos no se "demuestra" nada.
+- **Explicable antes que sofisticado.** Cualquier integrante tiene que poder explicar todo. Nada de orquestadores,
+  ML ni infraestructura extra.
+- **No se borran filas:** se marcan (flags, `motivo_sin_dato`, `es_outlier`). La limpieza vive en SQL (dbt).
+- **Umbrales en tablas** (`data/reference/`, variables de `dbt_project.yml`), nunca escritos en el SQL.
+- Código, comentarios y documentación en español; identificadores en snake_case sin tildes.
+- Rutas relativas a la raíz (`src/config.py`; dbt usa la variable de entorno `AIRE_RAIZ`).
+- Lenguaje de resultados: "es consistente con", "estimamos"; sin meteorología no se atribuyen causas.
 
-## 3. Stack y arquitectura
+## Stack y comandos
 
-- Python 3.13 con **uv** (`uv sync`, `uv run ...`). Dependencias: pandas, pyarrow, python-calamine,
-  requests, pdfminer.six, duckdb (fijado <2), dbt-duckdb, matplotlib, statsmodels; dev: ipykernel, nbconvert.
-- **DuckDB**, un solo archivo `data/nox.duckdb` con schemas `bronze`, `silver`, `gold`.
-  **Fijado en `duckdb>=1.5.4,<2`:** DuckDB 2.0 cambió el formato de archivo y las herramientas 1.x
-  (CLI 1.5.4, drivers de DataGrip/DBeaver) no pueden abrir una base creada con 2.0.
-- **dbt-duckdb** para bronze → silver → gold. Los tests de dbt son el capítulo de calidad de datos.
-- Gold se exporta a **Parquet** en `export/` (y CSV para Looker Studio en `export/looker/`) para que el equipo haga EDA en Colab.
+Python 3.11+ con `requirements.txt` (`make install`). DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
+las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest.
+El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; correrlo dentro de `plt.rc_context()`
+porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
+heatmap) y matplotlib.
 
-Medallón:
-- **raw** (`data/raw/`): archivos originales, inmutables.
-- **landing** (`data/landing/`): CSV en formato largo que generan los scripts de `extract/`.
-- **bronze**: landing cargado tal cual (idealmente todo texto) + `archivo_origen` + `fecha_carga`.
-- **silver**: tipado, normalizado, con flags de calidad, más dimensiones.
-- **gold**: tablas analíticas para EDA y dashboard.
+- `make etl` (= `python -m src.etl`): perfil del crudo → `dbt build` (en subproceso) → export a `data/final/`
+  (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
+- `make test`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
+  (idempotencia, que corra `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. `make eda`: ejecuta `notebooks/eda.ipynb`.
+- `make extract` (= `python -m src.extract`): baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
+  `static.buenosaires.gob.ar` corta la conexión TLS (probablemente bloqueo geográfico). El CSV crudo está en git.
 
-## 4. Estructura del repo
+## Datos
 
-```
-data/            (fuera de git)
-  raw/aire_publico/<ESTACION>/  PDF mensuales públicos (los baja extract/aire_publico.py)
-  raw/smn/       smn_datos_meteorologicos_desde_2021.lst (TSV) + xlsx de metadatos
-  raw/sube/      dat-ab-usos-<año>.csv (los baja extract/sube_descarga.py)
-  landing/       aire_publico.csv (+ manifiesto), smn.csv
-extract/         aire_publico.py, sube_descarga.py, smn_to_csv.py
-dbt/             models/{bronze,silver,gold}, seeds/{eventos,feriados}.csv, tests/, macros/
-analysis/        notebooks 01-05 y consultas.sql (7 preguntas en SQL)
-docs/            modelo_datos.md (arquitectura, modelo, decisiones, diccionario generado con
-                 generar_diccionario.py) y proceso.md (fichas, problemas de calidad, tests, supuestos)
-dashboard/       guía de Looker Studio
-export/          Parquet de gold
-_to_delete/      el usuario lo borra a mano (venv viejo, etc.)
-```
+- `data/raw/aire_publico.csv`: 83.010 valores (estación × fecha × contaminante × estadístico), todo texto, de 279
+  PDF. Estadísticos: `24h`, `0-8`, `8-16`, `16-24`, `max_1h`, `min_1h`. Especiales: `s/d`, `DND`, `<x`, un `Lunes`.
+- `data/raw/aire_publico_manifiesto.csv`: 281 PDF; 2 descartados (link a otra estación: NOx de Córdoba de jul-2025
+  enlazado desde Centenario; PM10 de La Boca de feb-2026 enlazado desde Córdoba).
+- `data/reference/`: `oms_2021.csv` (Tabla 0.1 del resumen ejecutivo OMS 2021), `contaminantes.csv` (peso molecular,
+  tolerancias, máximos físicos), `estaciones.csv` (coordenadas aproximadas), `feriados.csv` (ArgentinaDatos),
+  `eventos.csv` (paros, solo contexto).
+- En git: crudo, referencias y `data/final/`. Fuera de git: `data/warehouse/`, `data/raw/pdf/`.
 
-## 5. Fuentes y particularidades (importante)
+## Modelo (dbt, `data/warehouse/aire.duckdb`)
 
-### Calidad del aire — informes públicos de la APrA (`landing/aire_publico.csv`)
-Origen: páginas de las estaciones en buenosaires.gob.ar/calidad-del-aire (Parque Centenario, Córdoba,
-La Boca). Un PDF mensual por contaminante y estación: `co_*`, `nox_*` (NO, NO2, NOx), `pm10_*`.
-- Los links de las páginas apuntan a `buenosaires.gob.ar/sites/default/files/...`, que redirige a
-  `gcaba_historico` y da 404. **Con el dominio `static.buenosaires.gob.ar` y la misma ruta descargan.**
-- Página 1 = tabla diaria. Por día: promedio 24 h, promedios 0-8, 8-16 y 16-24 h, máximo y mínimo horario
-  (en NOx, cada uno para NO, NO2 y NOx). CO y PM10 suelen traer una columna constante final ("2,6" o "100")
-  que se descarta; algunos meses no la traen (PM10 de octubre 2024).
-- pdfminer lee las planillas por columnas: el parser reconstruye la tabla por coordenadas.
-- Columnas de landing: `estacion, fecha, contaminante, estadistico, valor_crudo, unidad, archivo`.
-  `estadistico` ∈ {24h, 0-8, 8-16, 16-24, max_1h, min_1h}. `valor_crudo` es texto con coma decimal y valores
-  especiales `s/d`, `DND`, `<4` (bajo límite de detección): se convierte en silver.
-- Precisión publicada: NO/NO2/NOx en ppb enteros, CO en ppm con un decimal, PM10 en µg/m³ enteros.
-- Calidad de datos encontrada: nombres inconsistentes (`la boca`, `la  boca`, `laboca`, `_0`, `corregido`,
-  `centenaeio`); el PM10 de Córdoba de feb-2026 enlaza al archivo de La Boca (se descarta); el PM10 de
-  La Boca de may-2025 tiene encabezado "Córdoba" pero datos de La Boca (se conserva con aviso: sus valores
-  difieren del archivo de Córdoba del mismo mes).
-- Faltan (igual que en la fuente): NOx de Centenario abr/may/oct-2024 y CO de Córdoba abr/may-2024.
-- Unidades para OMS: NO2 ≈ 1,88 µg/m³ por ppb a 25 °C (convertir en SQL).
+Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `stg_manifiesto`) → `modelo`
+(`dim_calendario`, `dim_estacion`, `dim_contaminante`, `dim_periodo`, `dim_evento`, `ref_oms`, `ref_oms_niveles`,
+`fact_medicion_diaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_*`) → `indicadores`
+(`agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`). `sql/99` crea vistas en `analisis`.
 
-### SUBE (`raw/sube/dat-ab-usos-<año>.csv`, datos.transporte.gob.ar)
-Una fila por línea y día: `DIA_TRANSPORTE, NOMBRE_EMPRESA, LINEA, AMBA, TIPO_TRANSPORTE, JURISDICCION,
-PROVINCIA, MUNICIPIO, CANTIDAD, DATO_PRELIMINAR`. Cubre 2024-01-01 a 2026-10-25 sin días faltantes.
-- **Universo "colectivos que circulan por CABA"** (134 líneas): `AMBA='SI'`, `TIPO_TRANSPORTE='COLECTIVO'`,
-  `JURISDICCION IN ('NACIONAL','C.A.B.A')` (más etiquetas que empiezan con `CABA_`) y número de línea < 200.
-  **No** filtrar `PROVINCIA='BUENOS AIRES'`: eso excluye justamente CABA.
-- `NACIONAL` → `PROVINCIA='JN'`, `MUNICIPIO='SD'`: líneas interjurisdiccionales y, hasta el traspaso, las solo-CABA.
-  Las 31 líneas solo-CABA pasan a `JURISDICCION='C.A.B.A'` desde **2025-01-20**.
-- **La clave de línea es el número**, extraído con regex `(\d+)\s*$` sobre `LINEA`, sumando variantes por día.
-  Variantes reales: `LINEA 12` → `CABA_LINEA_12`; `BSAS_LINEA_026` → `CABA_LINEA_26`; espacios (`CABA_LINEA_ 42`);
-  cambio de operador (25: `CABA_LINEA_25` → `CABA_LINEA_025` en ene-2026; 4: `CABA_LINEA_4` → `CABA_LINEA_04` en may-2025);
-  superposición de etiquetas fines de ene/principios de feb 2025.
-- Jurisdicción mal cargada: `CABA_LINEA_6` como MUNICIPAL (1-7 may 2025), `CABA_LINEA_23` como PROVINCIAL,
-  `CABA_LINEA_99` como NACIONAL (feb 2026). Excluir líneas `8012`-`8188` (solo 8-28 may 2024, volúmenes mínimos).
-- `DATO_PRELIMINAR='SI'` desde feb 2026.
-- **Dosis de un evento:** una línea "paró" si sus usos < 15% de la mediana del mismo día de semana
-  (±3 semanas, solo días normales, base > 2000 usos). % ponderado por usos de base.
-  Limitación: SUBE mide pasajeros, no colectivos en calle ni km dentro de CABA.
+- Fact: formato largo, grilla completa (1.004 × 3 × 5 × 2 = 30.120 filas), ventanas `24h` y `8-16`.
+  `valor` en unidad original, `valor_masa` en unidad OMS (factor = peso molecular / 24,45).
+- `<x` → x/2 (`es_imputado`). Reglas: fuera_de_rango, valor_trabado, cero_sin_respaldo, fuera_de_max_min,
+  promedio_incoherente, mayor_que_nox, nox_incoherente (descarta NO y NOx, **no NO2**).
+- Outliers: Q3 + 3·IQR por estación × contaminante × ventana, marcados.
+- Regla del 75% sobre el promedio de 24 h por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
+- Último build: 21 modelos, 79 tests + 5 seeds, PASS 104, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
 
-### Meteostat — DESCARTADO
-Se usó en una primera versión (viento y temperatura horarios). Comparado con el SMN diario sobre datos públicos:
-R² casi iguales (NOx/CO 0,50 vs 0,50; NOx 0,45 vs 0,46; NO2 0,55 vs 0,58), el viento correlaciona 0,81
-y los percentiles del placebo son prácticamente idénticos. Se sacó para tener una sola fuente oficial
-y no depender de 3 GB de parquet. Limitación a declarar: viento promedio de 24 h, no de la ventana 8-16 h.
+## Resultados verificados
 
-### SMN diario (`landing/smn.csv`)
-Columnas: `estacion, fecha, metrica, valor, unidad`. 2021-01-01 a 2026-07-31. Aeroparque y Observatorio.
-Origen: SMN, "Descarga de datos" (https://www.smn.gob.ar/descarga-de-datos), datos diarios 2021-2026.
-Hay que aceptar términos y condiciones; el enlace descarga un zip con el `.lst`: https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=datosdiarios20212026
-La descarga es manual (no hay script): el zip se descomprime en `data/raw/smn/`.
-Es la ÚNICA fuente meteorológica del pipeline (viento, temperatura, humedad y lluvia).
-Métricas: HELIOF, HUM_REL, NUB_TOT, PRECIP, PRE_EST, TMAX, TMEDIA, TMIN, VEL_MED, VTO_MDIR, VTO_MVEL.
-- `PRECIP` solo tiene ~120 registros/año por estación (388 en cero): se asumió faltante = sin lluvia (**verificar**).
-- `VTO_MDIR` en decenas de grado (×10); es la dirección del viento máximo, no la dirección media.
+- % días NO₂ > 25 µg/m³: La Boca 94,7% (944 d), Córdoba 84,4% (910), Centenario 50,3% (662). PM10 > 45: 2,3-4,1%.
+  CO: 0%. El enunciado decía ~91/75/33%: dividía por todas las filas.
+- NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,0 (3,5×, IT1), Centenario 26,2 (2,6×, IT2).
+- Matriz de escalones (`agg_cumplimiento_niveles`, figura 06b): La Boca cumple el IT2 diario 40% → 54% → 58% de los
+  días (2024 → 2025 → 2026 ene-sep); Córdoba 84-92%; Centenario 98-100%.
+- Regla del 75%: es el criterio anual de la EPA (40 CFR 50 Ap. S); la UE pide 90% (Dir. 2008/50 Anexo XI); la OMS no
+  fija ninguno. Se agregó `cumple_criterio_trimestral` (EPA: 75% en cada trimestre) como advertencia. Sensibilidad
+  en `docs/calidad_datos.md` §3.2: los escalones de cada estación no cambian con el criterio más estricto.
+- Días que cumplen el IT2 diario de NO₂ (50): Centenario 98,6%, Córdoba 87,7%, La Boca 49,7%. IT1 diario (120):
+  todos los días salvo uno en La Boca (124). PM10 cumple la guía diaria el 95,9-97,7% de los días.
+  La Boca 2024: 56,5. PM10: 21,9-26,6 (1,5-1,8×, IT3); P99 de PM10 > 45 en todas las estaciones y años.
+- No válidos por el 75%: NO₂ Centenario 2024 (18,9%), CO Córdoba 2024 (66,1%).
+- Racha máxima NO₂: La Boca 216 días (25/03 a 26/10/2025), Córdoba 111, Centenario 22.
+- Domingo vs. hábil (NO₂): −27% Centenario, −21% Córdoba, −17% La Boca; 90% de los domingos de La Boca sobre la guía.
+- Invierno/verano NO₂ La Boca: 62,6 vs. 34,6 µg/m³.
+- Ene-sep NO₂: 26,1 → 20,9 → 18,9 ppb juntando estaciones, inflado por falta de Centenario en 2024 (40 días). Por
+  estación: La Boca −20%, Córdoba −14%, Centenario plano.
+- Día 8: 43% de las incoherencias NOx y los 22 días de NO trabado.
 
-### Días normales
-Día hábil normal = usos SUBE de colectivo, subte y tren > 0,9 × mediana del mismo día de semana (±4 semanas).
-Excluye feriados, puentes, vacaciones de invierno y paros sin necesidad de calendario externo
-(igual conviene un seed de feriados para el dashboard).
+## Pendiente
 
-## 6. Eventos (`dbt/seeds/eventos.csv`)
-
-| fecha | evento | grupo | % líneas paradas CABA |
-|---|---|---|---|
-| 2024-04-11 | Paro UTA | sin_colectivos | 67 |
-| 2025-05-06 | Paro UTA (con lluvia ~10 mm) | sin_colectivos | 63 |
-| 2024-05-09 | Paro general CGT | sin_colectivos | 68 |
-| 2026-02-19 | Paro general CGT | sin_colectivos | 67 |
-| 2024-02-21 | Paro de trenes (La Fraternidad) | trenes_subte | 0 |
-| 2024-10-30 | Paro de trenes y subte | trenes_subte | 0 |
-| 2025-04-10 | Paro general, colectivos funcionando (día muy ventoso) | trenes_subte | 0 |
-
-Grupos: `sin_colectivos` (etiqueta "Paro de colectivos") y `trenes_subte` ("Paro de trenes o subte"; antes se
-llamaba "control"). El test `eventos_coherentes_con_sube` exige dosis ≥ 50% en el primero y dosis ≤ 5% con tren
-o subte < 30% de sus viajes en el segundo.
-Descartados por no verse en SUBE: 2024-07-05, 2025-03-28. El 2024-01-24 fue un paro de medio día.
-Paros parciales de trenes no usados: 2024-05-30 (59% de viajes) y 2025-01-28 (45%). El subte no tuvo paros de
-día completo en el período (sus medidas son de algunas horas).
-
-## 7. Método del análisis de eventos
-
-Detalle en `analysis/05_eventos.ipynb`: promedio del bloque `8-16` por estación y día, regresión OLS
-sobre los días hábiles normales (`log(contaminante) ~ log(max(viento, 2)) + temperatura + lluvia + estación
-+ mes + año + día de semana`, meteorología del SMN diario), desvío del evento = residuo y prueba placebo
-(percentil del residuo frente a los días normales).
-
-## 8. Próximos pasos
-
-1. HECHO (calidad del aire): proyecto dbt en `dbt/` (correr desde `dbt/` con `--profiles-dir .`; la raíz se
-   puede cambiar con la variable NOX_RAIZ). Schemas bronze/silver/gold vía macro `generate_schema_name`.
-   Modelos: `bronze_aire`, `bronze_aire_manifiesto`, `silver_aire` (estado_valor, fuera_de_rango, valor_masa),
-   `dim_calendario` (tipo_dia con seed `feriados` de la API ArgentinaDatos, evento), `gold_aire_diario`
-   (estación × día, bloque 8-16, NOx/CO, 24 h en µg/m³). Tests: claves únicas, accepted_values y tests de
-   coherencia física en `tests/` (warn: 196 casos NOx ≠ NO+NO2 > 2 ppb; La Boca 29/02/2024 NOx 8-16 = 0
-   con mínimo horario 15). PM10 "<4" no entra a gold (se podría imputar LD/2).
-   Flags de silver_aire: `nox_incoherente` (|NOx − (NO+NO2)| > 2), `fuera_de_max_min` (bloque fuera del
-   rango horario del día) y `cero_sin_respaldo` (promedio 0 con máximo horario 0 o faltante: 29/02/2024 y
-   Centenario 01/08/2026); gold excluye esas filas y el test `gold_aire_nox_co_positivo` es error.
-2. HECHO (SUBE y meteorología): `bronze_sube`, `bronze_smn`; `silver_sube`,
-   `silver_colectivos_caba_linea_dia` (universo CABA, número de línea), `silver_sube_actividad_diaria`
-   (`es_dia_normal`: hábil, no feriado y colectivo/tren/subte > 0,9 × mediana ±4 semanas; 564 días),
-   `silver_smn_diario`; `gold_sube_diario` (dosis ponderada:
-   67/68/63/67 en los paros de colectivos, 0 en los de trenes o subte; `actividad_colectivo_vs_habil` comparable entre tipos de día),
-   `gold_meteo_diario` (solo SMN diario: viento, temperatura y humedad promedio de las 2 estaciones,
-   lluvia = máximo; llega hasta el último dato SMN, 2026-07-31) y **`gold_analitico`** (estación × día, 2950 filas): LA tabla del análisis.
-   Test `eventos_coherentes_con_sube` (error): ver sección 6.
-   Último build: PASS=58 WARN=2 ERROR=0.
-   Gradiente para el EDA (actividad vs. NOx/CO media geométrica 8-16): hábil 0,97/114 · sábado 0,59/96 ·
-   control 0,73/91 · feriado 0,38/81 · domingo 0,34/73 · sin colectivos 0,21/66.
-   Feriados y fines de semana entran al EDA como gradiente, NO a la base de la regresión ni del placebo.
-3. HECHO en `analysis/05_eventos.ipynb` (ver punto 5). Análisis en Python sobre `gold_analitico`: regresión OLS (días normales) + placebo para NOx/CO, NOx,
-   CO, NO2 y PM10 en el bloque 8-16; sensibilidad con promedios 24 h. Escribe `gold_resultados_evento`.
-   Plan B si no se sostiene: comparar contra semanas vecinas excluyendo días ventosos o con lluvia.
-4. HECHO: `run.py` encadena extract (con `--extraer`) → `dbt build` → export a `export/*.parquet`
-   (gold_analitico, gold_aire/sube/meteo_diario, dim_calendario, eventos). dbt no es un orquestador.
-5. EDA en `analysis/` (notebooks que leen `export/*.parquet`, corren local o en Colab):
-   HECHO `01_eda_aire` (cobertura, descriptivas, log, OMS, estacionalidad, ciclo semanal, atípicos) y
-   `04_bivariado` (gradiente por tipo de día con índice dentro de cada estación, actividad vs. NOx/CO,
-   viento, eventos sin ajustar). [Lo que sigue hasta 'RESULTADOS CON LAS HIPÓTESIS NUEVAS' es la versión anterior,
-   con 'controles' = 2 días y el cociente como protagonista.] Hallazgo clave: en paros sin colectivos NOx −32%, CO +16%, NOx/CO −43%
-   (domingo −36%). HECHO `05_eventos`: OLS en ~520 días normales (R² NOx/CO 0,50; validación cruzada 10
-   partes para los desvíos de días normales), percentil placebo por estación y placebo de grupo sorteando
-   días normales completos (5.000). Paros sin colectivos: NOx/CO −43% (p < 0,0002), NOx −28%, NO2 −23%,
-   CO +7% (normal), PM10 sin efecto; controles NOx/CO −10% (p 0,2). Robusto a sacar un paro (−36 a −56%) y
-   a usar 24 h (−44%). Descomposición (mismos 8 casos): NOx −34%, CO +16% → ~73% de la caída del cociente
-   es menos NOx. Las conclusiones van primero con NOx/NO2 por separado; ojo: en controles el NOx también baja
-   (−21%, p 0,07), lo que distingue a los paros sin colectivos es la composición (NOx/CO). Escribe `export/resultados_evento.parquet` y `resultados_grupo.parquet`; el 04 escribe
-   `indice_tipo_dia.parquet`. `run.py --analisis` ejecuta los notebooks. HECHO `02_eda_sube` (universo, demanda,
-   día normal = 82% de los hábiles, dosis 63-68% en paros y 0% en controles, catálogo completo: fuera de los 4 paros
-   solo Navidad/Año Nuevo y 07/03/2024 con 7%) y `03_eda_meteo` (64% de días sin registro de lluvia, totales
-   anuales ≈1.450-1.700 mm → supuesto razonable; VIF ≈ 1,1; eventos ventosos: 11/04/24, 19/02/26 y 10/04/25 en
-   P84-88 del viento de su mes). La dosis de `gold_sube_diario` es nula en sábados y domingos (antes daba 0).
-   RESULTADOS CON LAS HIPÓTESIS NUEVAS (05_eventos, reestructurado): H1 se sostiene: NOx −28% (p ≈ 0,002),
-   NO2 −23% (p ≈ 0,007), CO +7% (normal); sin el 19/02/2026 queda −19% (p ≈ 0,05). H2 NO se sostiene: con paro de
-   trenes o subte el NOx también baja (−19%, p ≈ 0,05; NO2 −21%, p ≈ 0,03), junto con el CO (−10%); en ningún paro el
-   aire empeoró (contra Europa). Lo que separa los grupos es el CO: NOx relativo al CO −43% (p < 0,0002) contra −10%.
-   Contexto (comentario final, fuera de las hipótesis): NO2 24 h en paros de colectivos, 8 de 10 casos sobre la
-   guía OMS de 25 µg/m³; todas las estaciones cumplen la norma de la Ciudad.
-   A revisar: Córdoba 19/02/2026 con NOx +66% y CO +110% sobre lo esperado.
-   A revisar: Córdoba 23/05/2026 NOx 8-16 = 492 ppb con viento normal.
-6. Dashboard en **Looker Studio** (decisión del equipo: gratis, en el navegador, edición colaborativa; la consigna
-   acepta Power BI, Looker Studio o Tableau). `run.py` exporta `export/looker/*.csv` (7 tablas planas, UTF-8,
-   encabezados ASCII). Guía en `dashboard/README.md`: fuentes, campos calculados, 5 páginas (sin página OMS),
-   colores y chequeo contra los notebooks (La Boca: mediana NOx 8-16 ≈ 49 ppb, NOx/CO ≈ 162). Falta armarlo.
-   `dim_calendario.grupo_dia` es el grupo de día único para EDA y dashboard.
-
-Reparto propuesto: Ezequiel → calidad del aire, ETL y análisis de eventos; compañero 1 → EDA SUBE y eventos;
-compañero 2 → EDA meteorología y calendario; compañero 3 → dashboard. Cada uno presenta su parte.
-
-## 9. Pendientes de verificar
-
-- Si los camioneros adhirieron a cada paro general.
-- Fecha real de los 150 colectivos a GNC de las líneas 65 y 151 (Grupo Metropol): ¿antes del 2026-02-19?
-- Si los días sin `PRECIP` en el SMN son realmente sin lluvia.
-
-## 10. Antecedentes (para la diapositiva de contexto)
-
-- **Bauernschuster, Hener y Rainer (2017)**, *AEJ: Economic Policy* 9(1):1-37, doi:10.1257/pol.20150414.
-  Alemania, paros de transporte público. Pregunta: ¿los paros ponen en riesgo la salud y la seguridad?
-  Horas de auto +11-13%, choques +14%, heridos +20%, partículas (PM10) +14%, internaciones respiratorias de
-  niños chicos +11%. https://ideas.repec.org/a/aea/aejpol/v9y2017i1p1-37.html
-- **Basagaña, Querol y otros (2018)**, *Science of the Total Environment* (online sept. 2017). Barcelona,
-  208 días de paro 2005-2016. Todos los paros: NO2 +4%, NO hasta +8%; paros de metro: de +8% (PM10) a +48% (NO).
-  Mecanismo: la gente se pasa al auto. https://repositori.upf.edu/items/6f83549c-bd68-4b34-894c-a9cc83ffd38b
-- **González, Perdiguero y Sanz (2021)**, *Transportation Research Part D* 98:102952, doi:10.1016/j.trd.2021.102952.
-  Barcelona, 147 días de paro + 4 generales. Hipótesis explícita: un paro de transporte público aumenta la
-  contaminación. **Paros de colectivos, nivel ciudad: NOx sin efecto significativo, CO +11,9% (significativo)**;
-  en estaciones de tránsito: NOx +13%, CO +18%. Metro y tren suben los cuatro contaminantes.
-  https://ddd.uab.cat/pub/artpub/2021/249261/trares_a2021n102952iENG.pdf
-- **Krecl, Targino y otros (2020)**, *Environmental Pollution* 265:114883, doi:10.1016/j.envpol.2020.114883.
-  Carta sobre la caída del NOx en el confinamiento COVID de San Pablo; usa el **paro de camioneros de mayo 2018**
-  como segundo experimento natural: NOx −40 a −70%. https://pmc.ncbi.nlm.nih.gov/articles/PMC7259904
-- McDonald y otros (2013), ES&T: la nafta domina el CO; el diésel, una parte creciente del NOx.
-
-Contraste clave: en Europa la hipótesis (y el resultado) es que los paros de transporte público **empeoran**
-el aire porque la gente se pasa al auto. En Barcelona, con paro de colectivos, el NOx no cambió y el CO subió 12%.
-En CABA (flota de colectivos casi toda diésel) el NOx baja y el CO no baja: el mismo mecanismo (más autos,
-CO estable o en suba) pero con el diésel saliendo de la calle.
+- Armar el `.pbix` siguiendo `docs/powerbi_spec.md` (lo hace el equipo; Claude Code no puede).
+- Verificar las coordenadas aproximadas de `data/reference/estaciones.csv` si se usa el mapa.
+- Preparar la presentación (guion en el README).

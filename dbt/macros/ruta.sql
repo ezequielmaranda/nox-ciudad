@@ -1,7 +1,7 @@
 {#
-  Ruta a un archivo del repo, relativa a la raíz (NOX_RAIZ, por defecto "..").
-  Uso: {{ ruta('data/landing/aire_publico.csv') }}
+  Ruta a un archivo del repo, relativa a la raíz (variable de entorno AIRE_RAIZ, por defecto "..").
+  Uso: {{ ruta('data/raw/aire_publico.csv') }}
 #}
 {% macro ruta(relativa) -%}
-    {{ env_var('NOX_RAIZ', '..') ~ '/' ~ relativa }}
+    {{ env_var('AIRE_RAIZ', '..') ~ '/' ~ relativa }}
 {%- endmacro %}

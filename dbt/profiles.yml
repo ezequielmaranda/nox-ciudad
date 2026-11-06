@@ -1,9 +1,9 @@
-# Perfil de conexión. La base queda en data/nox.duckdb (fuera de git).
-# NOX_RAIZ es la raíz del repo; por defecto se asume que dbt se corre desde la carpeta dbt/.
-nox_ciudad:
+# Conexión de dbt: un archivo DuckDB local. AIRE_RAIZ (la raíz del repo) la define src/etl.py;
+# si se corre dbt a mano desde esta carpeta, la raíz es "..".
+aire_oms:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('NOX_RAIZ', '..') }}/data/nox.duckdb"
+      path: "{{ env_var('AIRE_RAIZ', '..') }}/data/warehouse/aire.duckdb"
       threads: 4

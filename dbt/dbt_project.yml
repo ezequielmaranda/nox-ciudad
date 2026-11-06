@@ -1,28 +1,46 @@
-name: nox_ciudad
+# Proyecto dbt del TP: transforma el CSV crudo de calidad del aire en un modelo estrella
+# y en los indicadores contra las guías de la OMS (2021). Se corre con `make etl`
+# (o, a mano, desde esta carpeta: dbt build --profiles-dir .).
+name: aire_oms
 version: "1.0.0"
-profile: nox_ciudad
+profile: aire_oms
 
 model-paths: ["models"]
-seed-paths: ["seeds"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
+# Las tablas de referencia (guías OMS, estaciones, feriados...) viven en data/reference,
+# fuera de la carpeta de dbt, para que estén a mano de todo el equipo.
+seed-paths: ["../data/reference"]
 
 clean-targets: ["target", "dbt_packages"]
 
-# Arquitectura medallón: un schema por capa dentro de data/nox.duckdb.
+# Parámetros del estudio: se cambian acá y no en el SQL.
+vars:
+  fecha_inicio: "2024-01-01"     # primer día del período analizado
+  fecha_fin: "2026-09-30"        # último día con datos publicados
+  umbral_completitud: 0.75       # regla del 75% para indicadores anuales
+  factor_iqr: 3                  # outlier si valor > Q3 + factor_iqr · IQR
+  volumen_molar: 24.45           # litros por mol de gas a 25 °C y 1 atm (para pasar ppb a µg/m³)
+
+# Una carpeta = un paso del flujo = un schema dentro de data/warehouse/aire.duckdb.
 models:
-  nox_ciudad:
-    bronze:
-      +schema: bronze
+  aire_oms:
+    01_staging:
+      +schema: staging
       +materialized: table
-    silver:
-      +schema: silver
+    02_dimensiones:
+      +schema: modelo
       +materialized: table
-    gold:
-      +schema: gold
+    03_hechos:
+      +schema: modelo
+      +materialized: table
+    04_calidad:
+      +schema: calidad
+      +materialized: table
+    05_indicadores:
+      +schema: indicadores
       +materialized: table
 
-# Tablas chicas mantenidas a mano (eventos, feriados): van con bronze porque son insumos.
 seeds:
-  nox_ciudad:
-    +schema: bronze
+  aire_oms:
+    +schema: referencia

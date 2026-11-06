@@ -1,28 +1,23 @@
-# Python-generated files
+# Python
 __pycache__/
 *.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+.venv/
+.pytest_cache/
+.ipynb_checkpoints/
 
-# Virtual environments
-.venv
+# Base DuckDB generada por el ETL: se reconstruye con `make etl`
+data/warehouse/
 
-# Datos: nunca al repo (tamaño)
-data/
-*.duckdb
-*.duckdb.wal
-*.db
-export/
+# PDF originales de la APrA: se bajan con `make extract` (pesan y están publicados)
+data/raw/pdf/
 
 # dbt
 dbt/target/
 dbt/logs/
 dbt/dbt_packages/
+dbt/.user.yml
+logs/
 
 # Varios
-_to_delete/
 ~$*
-_sacar_del_proyecto/
-dbt/.user.yml
+.DS_Store

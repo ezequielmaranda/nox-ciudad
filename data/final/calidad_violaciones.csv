@@ -1,0 +1,852 @@
+id_estacion,fecha,id_contaminante,estadistico,valor_crudo,regla,se_descarta,motivo_invalido,archivo_pdf
+centenario,2024-01-02,no,24h,9,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-02,no2,24h,10,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-02,nox,24h,16,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-10,no,0-8,6,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-10,no2,0-8,20,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-10,nox,0-8,23,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-11,no,8-16,11,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-11,no2,8-16,11,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-11,nox,8-16,19,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-14,no,0-8,8,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-14,no2,0-8,15,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-14,nox,0-8,20,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-15,no,0-8,6,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-15,no2,0-8,8,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-15,nox,0-8,11,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-16,no,24h,13,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-16,no2,24h,18,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-16,nox,24h,28,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-18,no,24h,15,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-18,no2,24h,13,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-18,nox,24h,25,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-23,no,0-8,7,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-01-23,no2,0-8,7,nox_incoherente,false,,nox_centenario_enero_2024.pdf
+centenario,2024-01-23,nox,0-8,11,nox_incoherente,true,nox_incoherente,nox_centenario_enero_2024.pdf
+centenario,2024-02-01,no,8-16,16,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2024.pdf
+centenario,2024-02-01,no2,8-16,23,nox_incoherente,false,,nox_centenario_febrero_2024.pdf
+centenario,2024-02-01,nox,8-16,36,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2024.pdf
+centenario,2024-02-09,no,0-8,6,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2024.pdf
+centenario,2024-02-09,no2,0-8,12,nox_incoherente,false,,nox_centenario_febrero_2024.pdf
+centenario,2024-02-09,nox,0-8,14,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2024.pdf
+centenario,2024-02-29,nox,0-8,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_febrero_2024.pdf
+centenario,2024-02-29,nox,16-24,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_febrero_2024.pdf
+centenario,2024-02-29,nox,8-16,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_febrero_2024.pdf
+centenario,2025-02-09,no,0-8,3,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,no,16-24,3,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,no,8-16,3,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,no2,0-8,10,no2_mayor_que_nox,true,mayor_que_nox,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,no2,0-8,10,nox_incoherente,true,mayor_que_nox,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,no2,16-24,10,nox_incoherente,false,,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,no2,8-16,7,nox_incoherente,false,,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,0-8,8,nox_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,0-8,8,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,16-24,30,nox_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,16-24,30,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,24h,12,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,8-16,16,nox_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-02-09,nox,8-16,16,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2025.pdf
+centenario,2025-04-08,no,0-8,1,valor_trabado,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,16-24,1,nox_incoherente,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,16-24,1,valor_trabado,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,24h,1,nox_incoherente,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,24h,1,valor_trabado,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,8-16,1,nox_incoherente,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,8-16,1,valor_trabado,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,max_1h,1,valor_trabado,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no,min_1h,1,valor_trabado,true,valor_trabado,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no2,16-24,11,nox_incoherente,false,,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no2,24h,9,nox_incoherente,false,,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,no2,8-16,11,nox_incoherente,false,,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,nox,16-24,15,nox_incoherente,true,nox_incoherente,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,nox,24h,14,nox_incoherente,true,nox_incoherente,nox_centenario_abril_2025.pdf
+centenario,2025-04-08,nox,8-16,20,nox_incoherente,true,nox_incoherente,nox_centenario_abril_2025.pdf
+centenario,2025-05-29,no,0-8,35,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,no,16-24,66,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,no,24h,66,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,no,8-16,109,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,nox,0-8,49,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,nox,16-24,92,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,nox,24h,88,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-05-29,nox,8-16,136,promedio_incoherente,true,promedio_incoherente,nox_centenario_mayo_2025.pdf
+centenario,2025-08-13,no,0-8,74,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,no,16-24,18,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,no,24h,67,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,no,8-16,124,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,nox,0-8,78,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,nox,16-24,32,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,nox,24h,77,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-08-13,nox,8-16,136,promedio_incoherente,true,promedio_incoherente,NOx_CENTENARIO_AGOSTO_2025.pdf
+centenario,2025-09-08,no,0-8,2,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,0-8,2,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,16-24,2,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,16-24,2,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,24h,2,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,24h,2,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,8-16,2,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,8-16,2,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,max_1h,2,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no,min_1h,2,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no2,0-8,12,nox_incoherente,false,,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no2,16-24,21,nox_incoherente,false,,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no2,24h,17,nox_incoherente,false,,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,no2,8-16,18,nox_incoherente,false,,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,nox,0-8,20,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,nox,16-24,46,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,nox,24h,35,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2025.pdf
+centenario,2025-09-08,nox,8-16,40,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2025.pdf
+centenario,2026-02-09,no,16-24,11,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,no,8-16,14,nox_incoherente,true,nox_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,no2,16-24,16,nox_incoherente,false,,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,no2,8-16,15,no2_mayor_que_nox,true,mayor_que_nox,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,no2,8-16,15,nox_incoherente,true,mayor_que_nox,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,nox,0-8,11,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,nox,16-24,18,nox_incoherente,true,promedio_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,nox,16-24,18,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,nox,24h,23,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,nox,8-16,14,nox_incoherente,true,promedio_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-02-09,nox,8-16,14,promedio_incoherente,true,promedio_incoherente,nox_centenario_febrero_2026.pdf
+centenario,2026-03-26,no,0-8,107,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,no,16-24,4,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,no,24h,46,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,no,8-16,19,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,nox,0-8,134,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,nox,16-24,24,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,nox,24h,68,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-03-26,nox,8-16,39,promedio_incoherente,true,promedio_incoherente,nox_centenario_marzo_2026.pdf
+centenario,2026-04-08,no,0-8,3,nox_incoherente,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,0-8,3,valor_trabado,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,16-24,3,nox_incoherente,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,16-24,3,valor_trabado,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,24h,3,nox_incoherente,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,24h,3,valor_trabado,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,8-16,3,nox_incoherente,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,8-16,3,valor_trabado,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,max_1h,3,valor_trabado,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no,min_1h,3,valor_trabado,true,valor_trabado,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no2,0-8,5,nox_incoherente,false,,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no2,16-24,14,nox_incoherente,false,,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no2,24h,10,nox_incoherente,false,,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,no2,8-16,12,nox_incoherente,false,,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,nox,0-8,15,nox_incoherente,true,nox_incoherente,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,nox,16-24,56,nox_incoherente,true,nox_incoherente,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,nox,24h,40,nox_incoherente,true,nox_incoherente,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-04-08,nox,8-16,50,nox_incoherente,true,nox_incoherente,NOx_CENTENARIO_ABRIL_2026.pdf
+centenario,2026-07-08,no,0-8,15,nox_incoherente,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,0-8,15,valor_trabado,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,16-24,15,nox_incoherente,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,16-24,15,valor_trabado,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,24h,15,nox_incoherente,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,24h,15,valor_trabado,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,8-16,15,nox_incoherente,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,8-16,15,valor_trabado,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,max_1h,15,valor_trabado,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no,min_1h,15,valor_trabado,true,valor_trabado,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no2,0-8,14,nox_incoherente,false,,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no2,16-24,22,nox_incoherente,false,,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no2,24h,19,nox_incoherente,false,,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,no2,8-16,22,nox_incoherente,false,,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,nox,0-8,37,nox_incoherente,true,nox_incoherente,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,nox,16-24,55,nox_incoherente,true,nox_incoherente,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,nox,24h,61,nox_incoherente,true,nox_incoherente,nox_Centenario_julio_2026.pdf
+centenario,2026-07-08,nox,8-16,91,nox_incoherente,true,nox_incoherente,nox_Centenario_julio_2026.pdf
+centenario,2026-08-01,no,0-8,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,0-8,0,nox_incoherente,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,16-24,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,16-24,0,nox_incoherente,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,24h,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,24h,0,nox_incoherente,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,8-16,0,cero_sin_respaldo,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no,8-16,0,nox_incoherente,true,cero_sin_respaldo,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no2,0-8,9,nox_incoherente,false,,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no2,16-24,14,nox_incoherente,false,,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no2,24h,11,nox_incoherente,false,,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,no2,8-16,9,nox_incoherente,false,,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,nox,0-8,18,nox_incoherente,true,nox_incoherente,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,nox,16-24,45,nox_incoherente,true,nox_incoherente,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,nox,24h,29,nox_incoherente,true,nox_incoherente,nox_centenario_agosto_2026.pdf
+centenario,2026-08-01,nox,8-16,26,nox_incoherente,true,nox_incoherente,nox_centenario_agosto_2026.pdf
+centenario,2026-09-08,no,0-8,6,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,0-8,6,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,16-24,6,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,16-24,6,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,24h,6,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,24h,6,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,8-16,6,nox_incoherente,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,8-16,6,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,max_1h,6,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no,min_1h,6,valor_trabado,true,valor_trabado,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no2,0-8,9,nox_incoherente,false,,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no2,16-24,19,nox_incoherente,false,,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no2,24h,14,nox_incoherente,false,,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,no2,8-16,13,nox_incoherente,false,,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,nox,0-8,24,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,nox,16-24,31,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,nox,24h,33,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2026.pdf
+centenario,2026-09-08,nox,8-16,43,nox_incoherente,true,nox_incoherente,nox_centenario_septiembre_2026.pdf
+cordoba,2024-03-05,no,8-16,54,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2024.pdf
+cordoba,2024-03-05,no2,8-16,22,nox_incoherente,false,,nox_cordoba_marzo_2024.pdf
+cordoba,2024-03-05,nox,8-16,73,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2024.pdf
+cordoba,2024-04-08,no,0-8,20,no_mayor_que_nox,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,0-8,20,nox_incoherente,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,0-8,20,valor_trabado,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,16-24,20,nox_incoherente,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,16-24,20,valor_trabado,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,24h,20,valor_trabado,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,8-16,20,nox_incoherente,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,8-16,20,valor_trabado,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,max_1h,20,valor_trabado,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no,min_1h,20,valor_trabado,true,valor_trabado,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no2,0-8,11,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no2,16-24,20,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,no2,8-16,10,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,nox,0-8,17,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,nox,16-24,61,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-08,nox,8-16,21,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-10,no,24h,45,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-10,no,8-16,68,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-10,no2,24h,21,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-10,no2,8-16,26,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-10,nox,24h,63,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-10,nox,8-16,90,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-23,no,24h,58,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-23,no,8-16,70,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-23,no2,24h,24,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-23,no2,8-16,24,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-23,nox,24h,79,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-23,nox,8-16,90,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-24,no,24h,66,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-24,no,8-16,122,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-24,no2,24h,25,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-24,no2,8-16,32,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-24,nox,24h,88,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-24,nox,8-16,149,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-27,no,24h,62,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-27,no,8-16,69,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-27,no2,24h,25,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-27,no2,8-16,26,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-27,nox,24h,84,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-27,nox,8-16,92,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-30,no,16-24,79,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-30,no,8-16,147,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-30,no2,16-24,22,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-30,no2,8-16,26,nox_incoherente,false,,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-30,nox,16-24,97,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-04-30,nox,8-16,170,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2024.pdf
+cordoba,2024-05-02,no,8-16,91,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-02,no2,8-16,30,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-02,nox,8-16,118,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-07,no,8-16,54,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-07,no2,8-16,24,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-07,nox,8-16,74,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,no,16-24,38,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,no,24h,39,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,no,8-16,51,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,no2,16-24,22,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,no2,24h,20,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,no2,8-16,20,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,nox,16-24,57,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,nox,24h,56,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-08,nox,8-16,67,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-10,no,8-16,57,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-10,no2,8-16,26,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-10,nox,8-16,80,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-13,no,24h,70,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-13,no,8-16,91,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-13,no2,24h,26,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-13,no2,8-16,29,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-13,nox,24h,93,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-13,nox,8-16,116,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-17,no,8-16,98,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-17,no2,8-16,30,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-17,nox,8-16,125,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-23,no,24h,61,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-23,no,8-16,73,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-23,no2,24h,27,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-23,no2,8-16,30,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-23,nox,24h,85,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-23,nox,8-16,100,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-24,no,24h,65,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-24,no,8-16,77,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-24,no2,24h,28,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-24,no2,8-16,32,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-24,nox,24h,90,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-24,nox,8-16,106,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-27,no,8-16,111,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-27,no2,8-16,35,nox_incoherente,false,,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-05-27,nox,8-16,143,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2024_0.pdf
+cordoba,2024-06-03,no,8-16,96,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-03,no2,8-16,32,nox_incoherente,false,,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-03,nox,8-16,123,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-10,no,8-16,97,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-10,no2,8-16,30,nox_incoherente,false,,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-10,nox,8-16,124,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-14,no,24h,105,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-14,no,8-16,105,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-14,no2,24h,29,nox_incoherente,false,,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-14,no2,8-16,32,nox_incoherente,false,,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-14,nox,24h,131,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-14,nox,8-16,133,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-19,no,16-24,103,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-19,no,8-16,98,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-19,no2,16-24,34,nox_incoherente,false,,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-19,no2,8-16,30,nox_incoherente,false,,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-19,nox,16-24,134,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-06-19,nox,8-16,125,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2024.pdf
+cordoba,2024-07-05,no,8-16,82,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-05,no2,8-16,34,nox_incoherente,false,,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-05,nox,8-16,113,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,0-8,28,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,0-8,28,valor_trabado,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,16-24,28,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,16-24,28,valor_trabado,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,24h,28,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,24h,28,valor_trabado,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,8-16,28,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,8-16,28,valor_trabado,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,max_1h,28,valor_trabado,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no,min_1h,28,valor_trabado,true,valor_trabado,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no2,0-8,30,nox_incoherente,false,,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no2,16-24,38,nox_incoherente,false,,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no2,24h,35,nox_incoherente,false,,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,no2,8-16,35,nox_incoherente,false,,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,nox,0-8,70,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,nox,16-24,126,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,nox,24h,107,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-08,nox,8-16,125,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-19,no,8-16,71,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-19,no2,8-16,30,nox_incoherente,false,,nox_cordoba_julio_2024.pdf
+cordoba,2024-07-19,nox,8-16,98,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2024.pdf
+cordoba,2024-08-12,no,0-8,30,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,no,16-24,12,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,no,24h,37,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,no,8-16,80,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,nox,0-8,63,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,nox,16-24,42,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,nox,24h,70,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-08-12,nox,8-16,117,promedio_incoherente,true,promedio_incoherente,nox_cordoba_agosto_2024_0.pdf
+cordoba,2024-09-08,no,0-8,8,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,0-8,8,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,16-24,8,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,16-24,8,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,24h,8,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,24h,8,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,8-16,8,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,8-16,8,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,max_1h,8,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no,min_1h,8,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no2,0-8,24,nox_incoherente,false,,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no2,16-24,19,nox_incoherente,false,,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no2,24h,20,nox_incoherente,false,,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,no2,8-16,17,nox_incoherente,false,,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,nox,0-8,49,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,nox,16-24,33,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,nox,24h,39,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2024.pdf
+cordoba,2024-09-08,nox,8-16,34,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2024.pdf
+cordoba,2025-01-14,no,24h,14,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-14,no,8-16,23,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-14,no2,24h,16,nox_incoherente,false,,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-14,no2,8-16,18,nox_incoherente,false,,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-14,nox,24h,27,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-14,nox,8-16,33,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-15,no,24h,20,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-15,no,8-16,44,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-15,no2,24h,18,nox_incoherente,false,,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-15,no2,8-16,25,nox_incoherente,false,,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-15,nox,24h,35,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-15,nox,8-16,62,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-20,no,8-16,31,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-20,no2,8-16,13,nox_incoherente,false,,nox_cordoba_enero_2025.pdf
+cordoba,2025-01-20,nox,8-16,41,nox_incoherente,true,nox_incoherente,nox_cordoba_enero_2025.pdf
+cordoba,2025-03-08,no,16-24,59,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-08,no2,16-24,20,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-08,nox,16-24,76,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-09,no,8-16,24,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-09,no2,8-16,12,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-09,nox,8-16,33,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-11,no,8-16,40,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-11,no2,8-16,20,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-11,nox,8-16,57,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-12,no,24h,40,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-12,no,8-16,59,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-12,no2,24h,18,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-12,no2,8-16,21,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-12,nox,24h,55,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-12,nox,8-16,77,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-13,no,24h,59,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-13,no,8-16,70,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-13,no2,24h,21,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-13,no2,8-16,22,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-13,nox,24h,77,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-13,nox,8-16,88,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-31,no,8-16,78,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-31,no2,8-16,23,nox_incoherente,false,,nox_cordoba_marzo_2025.pdf
+cordoba,2025-03-31,nox,8-16,96,nox_incoherente,true,nox_incoherente,nox_cordoba_marzo_2025.pdf
+cordoba,2025-04-03,no,16-24,53,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-03,no,8-16,79,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-03,no2,16-24,20,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-03,no2,8-16,24,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-03,nox,16-24,70,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-03,nox,8-16,100,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-04,no,8-16,81,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-04,no2,8-16,22,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-04,nox,8-16,99,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,0-8,7,valor_trabado,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,16-24,7,nox_incoherente,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,16-24,7,valor_trabado,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,24h,7,nox_incoherente,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,24h,7,valor_trabado,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,8-16,7,nox_incoherente,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,8-16,7,valor_trabado,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,max_1h,7,valor_trabado,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no,min_1h,7,valor_trabado,true,valor_trabado,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no2,16-24,14,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no2,24h,13,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,no2,8-16,18,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,nox,16-24,34,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,nox,24h,32,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-08,nox,8-16,49,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-11,no,8-16,45,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-11,no2,8-16,16,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-11,nox,8-16,58,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-16,no,24h,59,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-16,no,8-16,88,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-16,no2,24h,26,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-16,no2,8-16,30,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-16,nox,24h,82,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-16,nox,8-16,115,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-28,no,8-16,77,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-28,no2,8-16,27,nox_incoherente,false,,nox_cordoba_abril_2025.pdf
+cordoba,2025-04-28,nox,8-16,101,nox_incoherente,true,nox_incoherente,nox_cordoba_abril_2025.pdf
+cordoba,2025-05-08,no,24h,68,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-08,no,8-16,99,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-08,no2,24h,23,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-08,no2,8-16,27,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-08,nox,24h,88,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-08,nox,8-16,121,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-09,no,8-16,95,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-09,no2,8-16,38,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-09,nox,8-16,130,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-20,no,8-16,107,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-20,no2,8-16,34,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-20,nox,8-16,138,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-21,no,8-16,72,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-21,no2,8-16,29,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-21,nox,8-16,98,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,no,16-24,52,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,no,24h,50,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,no,8-16,77,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,no2,16-24,23,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,no2,24h,22,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,no2,8-16,29,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,nox,16-24,72,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,nox,24h,69,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-27,nox,8-16,102,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,no,16-24,66,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,no,24h,57,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,no,8-16,85,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,no2,16-24,28,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,no2,24h,24,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,no2,8-16,29,nox_incoherente,false,,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,nox,16-24,91,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,nox,24h,78,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-05-28,nox,8-16,109,nox_incoherente,true,nox_incoherente,nox_cordoba_mayo_2025.pdf
+cordoba,2025-06-17,no,24h,78,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-17,no,8-16,95,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-17,no2,24h,22,nox_incoherente,false,,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-17,no2,8-16,23,nox_incoherente,false,,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-17,nox,24h,97,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-17,nox,8-16,114,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-18,no,8-16,121,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-18,no2,8-16,33,nox_incoherente,false,,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-18,nox,8-16,151,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-26,no,8-16,123,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-26,no2,8-16,40,nox_incoherente,false,,nox_cordoba_junio_2025.pdf
+cordoba,2025-06-26,nox,8-16,160,nox_incoherente,true,nox_incoherente,nox_cordoba_junio_2025.pdf
+cordoba,2025-07-04,pm10,8-16,Lunes,texto_invalido,true,texto_invalido,pm10_cordoba_julio_2025.pdf
+cordoba,2025-07-08,no,0-8,101,valor_trabado,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,16-24,101,nox_incoherente,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,16-24,101,valor_trabado,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,24h,101,nox_incoherente,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,24h,101,valor_trabado,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,8-16,101,nox_incoherente,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,8-16,101,valor_trabado,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,max_1h,101,valor_trabado,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no,min_1h,101,valor_trabado,true,valor_trabado,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no2,16-24,30,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no2,24h,29,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,no2,8-16,29,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,nox,16-24,125,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,nox,24h,126,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-08,nox,8-16,124,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-16,no,8-16,86,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-16,no2,8-16,27,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-16,nox,8-16,110,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-17,no,24h,75,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-17,no,8-16,84,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-17,no2,24h,27,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-17,no2,8-16,29,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-17,nox,24h,99,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-17,nox,8-16,110,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-22,no,8-16,67,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-22,no2,8-16,27,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-22,nox,8-16,91,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-23,no,8-16,56,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-23,no2,8-16,28,nox_incoherente,false,,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-07-23,nox,8-16,81,nox_incoherente,true,nox_incoherente,nox_cordoba _julio_2025_0.pdf
+cordoba,2025-08-04,no,24h,63,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-04,no,8-16,93,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-04,no2,24h,30,nox_incoherente,false,,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-04,no2,8-16,32,nox_incoherente,false,,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-04,nox,24h,90,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-04,nox,8-16,121,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-07,no,8-16,94,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-07,no2,8-16,27,nox_incoherente,false,,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-07,nox,8-16,118,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-25,no,8-16,63,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-25,no2,8-16,29,nox_incoherente,false,,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-08-25,nox,8-16,89,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_AGOSTO_2025_0.pdf
+cordoba,2025-09-08,no,0-8,17,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,0-8,17,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,16-24,17,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,16-24,17,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,24h,17,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,24h,17,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,8-16,17,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,8-16,17,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,max_1h,17,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no,min_1h,17,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no2,0-8,12,nox_incoherente,false,,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no2,16-24,27,nox_incoherente,false,,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no2,24h,20,nox_incoherente,false,,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,no2,8-16,21,nox_incoherente,false,,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,nox,0-8,33,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,nox,16-24,102,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,nox,24h,77,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-08,nox,8-16,95,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-18,no,16-24,73,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-18,no2,16-24,11,nox_incoherente,false,,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-18,nox,16-24,81,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-19,no,0-8,71,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-19,no2,0-8,5,nox_incoherente,false,,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-09-19,nox,0-8,72,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2025.pdf
+cordoba,2025-11-18,no,16-24,55,nox_incoherente,true,nox_incoherente,nox_cordoba_noviembre_2025.pdf
+cordoba,2025-11-18,no,8-16,47,nox_incoherente,true,nox_incoherente,nox_cordoba_noviembre_2025.pdf
+cordoba,2025-11-18,no2,16-24,26,nox_incoherente,false,,nox_cordoba_noviembre_2025.pdf
+cordoba,2025-11-18,no2,8-16,24,nox_incoherente,false,,nox_cordoba_noviembre_2025.pdf
+cordoba,2025-11-18,nox,16-24,78,nox_incoherente,true,nox_incoherente,nox_cordoba_noviembre_2025.pdf
+cordoba,2025-11-18,nox,8-16,68,nox_incoherente,true,nox_incoherente,nox_cordoba_noviembre_2025.pdf
+cordoba,2026-02-06,nox,0-8,37,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-06,nox,16-24,33,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-06,nox,24h,50,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-06,nox,8-16,91,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,no,0-8,3,nox_incoherente,true,nox_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,no,16-24,16,nox_incoherente,true,nox_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,no2,0-8,12,nox_incoherente,false,,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,no2,16-24,24,no2_mayor_que_nox,true,mayor_que_nox,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,no2,16-24,24,nox_incoherente,true,mayor_que_nox,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,nox,0-8,21,nox_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,nox,0-8,21,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,nox,16-24,17,nox_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,nox,16-24,17,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,nox,24h,25,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-02-09,nox,8-16,22,promedio_incoherente,true,promedio_incoherente,nox_cordoba_febrero_2026.pdf
+cordoba,2026-04-08,no,0-8,14,nox_incoherente,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,0-8,14,valor_trabado,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,16-24,14,nox_incoherente,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,16-24,14,valor_trabado,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,24h,14,nox_incoherente,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,24h,14,valor_trabado,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,8-16,14,nox_incoherente,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,8-16,14,valor_trabado,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,max_1h,14,valor_trabado,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no,min_1h,14,valor_trabado,true,valor_trabado,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no2,0-8,13,nox_incoherente,false,,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no2,16-24,30,nox_incoherente,false,,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no2,24h,24,nox_incoherente,false,,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,no2,8-16,28,nox_incoherente,false,,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,nox,0-8,31,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,nox,16-24,120,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,nox,24h,89,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-04-08,nox,8-16,116,nox_incoherente,true,nox_incoherente,NOx_CORDOBA_ABRIL_2026.pdf
+cordoba,2026-05-13,no,0-8,34,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,no,16-24,61,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,no,24h,60,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,no,8-16,93,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,nox,0-8,59,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,nox,16-24,86,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,nox,24h,88,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-05-13,nox,8-16,128,promedio_incoherente,true,promedio_incoherente,nox_cordoba_mayo_2026.pdf
+cordoba,2026-07-08,no,0-8,2,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,0-8,2,valor_trabado,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,16-24,2,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,16-24,2,valor_trabado,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,24h,2,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,24h,2,valor_trabado,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,8-16,2,nox_incoherente,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,8-16,2,valor_trabado,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,max_1h,2,valor_trabado,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no,min_1h,2,valor_trabado,true,valor_trabado,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no2,0-8,12,nox_incoherente,false,,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no2,16-24,24,nox_incoherente,false,,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no2,24h,19,nox_incoherente,false,,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,no2,8-16,20,nox_incoherente,false,,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,nox,0-8,17,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,nox,16-24,60,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,nox,24h,43,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2026.pdf
+cordoba,2026-07-08,nox,8-16,51,nox_incoherente,true,nox_incoherente,nox_cordoba_julio_2026.pdf
+cordoba,2026-09-08,no,0-8,3,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,16-24,3,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,16-24,3,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,24h,3,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,24h,3,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,8-16,3,nox_incoherente,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,8-16,3,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,max_1h,3,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no,min_1h,3,valor_trabado,true,valor_trabado,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no2,16-24,28,nox_incoherente,false,,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no2,24h,18,nox_incoherente,false,,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,no2,8-16,15,nox_incoherente,false,,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,nox,16-24,62,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,nox,24h,36,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-08,nox,8-16,33,nox_incoherente,true,nox_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,no,0-8,22,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,no,16-24,41,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,no,24h,59,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,no,8-16,123,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,nox,0-8,42,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,nox,16-24,67,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,nox,24h,85,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+cordoba,2026-09-11,nox,8-16,156,promedio_incoherente,true,promedio_incoherente,nox_cordoba_septiembre_2026.pdf
+la_boca,2024-02-09,no,0-8,12,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,no,16-24,4,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,no,8-16,16,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,no2,0-8,18,nox_incoherente,false,,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,no2,16-24,22,nox_incoherente,false,,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,no2,8-16,22,nox_incoherente,false,,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,0-8,23,nox_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,0-8,23,promedio_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,16-24,22,nox_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,16-24,22,promedio_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,24h,31,promedio_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,8-16,22,nox_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-09,nox,8-16,22,promedio_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no,0-8,8,no_mayor_que_nox,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no,0-8,8,nox_incoherente,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no,16-24,11,no_mayor_que_nox,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no,16-24,11,nox_incoherente,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no,8-16,10,no_mayor_que_nox,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no,8-16,10,nox_incoherente,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no2,0-8,20,no2_mayor_que_nox,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no2,0-8,20,nox_incoherente,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no2,16-24,26,no2_mayor_que_nox,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no2,16-24,26,nox_incoherente,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no2,8-16,30,no2_mayor_que_nox,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,no2,8-16,30,nox_incoherente,true,mayor_que_nox,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,0-8,0,fuera_de_max_min,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,0-8,0,nox_incoherente,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,0-8,0,promedio_incoherente,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,16-24,0,fuera_de_max_min,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,16-24,0,nox_incoherente,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,16-24,0,promedio_incoherente,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,24h,35,promedio_incoherente,true,promedio_incoherente,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,8-16,0,fuera_de_max_min,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,8-16,0,nox_incoherente,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-02-29,nox,8-16,0,promedio_incoherente,true,fuera_de_max_min,nox_la boca_febrero_2024.pdf
+la_boca,2024-04-08,no,0-8,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,0-8,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,16-24,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,16-24,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,24h,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,24h,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,8-16,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,8-16,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,max_1h,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no,min_1h,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no2,0-8,25,nox_incoherente,false,,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no2,16-24,26,nox_incoherente,false,,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no2,24h,28,nox_incoherente,false,,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,no2,8-16,34,nox_incoherente,false,,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,nox,0-8,35,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,nox,16-24,44,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,nox,24h,46,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2024.pdf
+la_boca,2024-04-08,nox,8-16,61,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2024.pdf
+la_boca,2024-07-08,no,0-8,2,nox_incoherente,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,0-8,2,valor_trabado,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,16-24,2,nox_incoherente,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,16-24,2,valor_trabado,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,24h,2,nox_incoherente,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,24h,2,valor_trabado,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,8-16,2,nox_incoherente,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,8-16,2,valor_trabado,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,max_1h,2,valor_trabado,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no,min_1h,2,valor_trabado,true,valor_trabado,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no2,0-8,36,nox_incoherente,false,,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no2,16-24,44,nox_incoherente,false,,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no2,24h,39,nox_incoherente,false,,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,no2,8-16,36,nox_incoherente,false,,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,nox,0-8,42,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,nox,16-24,69,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,nox,24h,55,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2024.pdf
+la_boca,2024-07-08,nox,8-16,53,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2024.pdf
+la_boca,2024-08-15,pm10,0-8,31,promedio_incoherente,true,promedio_incoherente,pm10_la boca_agosto_2024.pdf
+la_boca,2024-08-15,pm10,16-24,51,promedio_incoherente,true,promedio_incoherente,pm10_la boca_agosto_2024.pdf
+la_boca,2024-08-15,pm10,24h,67,promedio_incoherente,true,promedio_incoherente,pm10_la boca_agosto_2024.pdf
+la_boca,2024-08-15,pm10,8-16,128,promedio_incoherente,true,promedio_incoherente,pm10_la boca_agosto_2024.pdf
+la_boca,2024-09-08,no,0-8,5,nox_incoherente,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,0-8,5,valor_trabado,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,16-24,5,nox_incoherente,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,16-24,5,valor_trabado,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,24h,5,nox_incoherente,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,24h,5,valor_trabado,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,8-16,5,nox_incoherente,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,8-16,5,valor_trabado,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,max_1h,5,valor_trabado,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no,min_1h,5,valor_trabado,true,valor_trabado,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no2,0-8,44,nox_incoherente,false,,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no2,16-24,43,nox_incoherente,false,,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no2,24h,42,nox_incoherente,false,,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,no2,8-16,40,nox_incoherente,false,,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,nox,0-8,65,nox_incoherente,true,nox_incoherente,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,nox,16-24,51,nox_incoherente,true,nox_incoherente,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,nox,24h,57,nox_incoherente,true,nox_incoherente,nox_la boca _septiembre_2024.pdf
+la_boca,2024-09-08,nox,8-16,56,nox_incoherente,true,nox_incoherente,nox_la boca _septiembre_2024.pdf
+la_boca,2024-12-11,no,0-8,13,nox_incoherente,true,nox_incoherente,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no,16-24,26,no_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no,16-24,26,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no,24h,24,no_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no,24h,24,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no,8-16,32,no_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no,8-16,32,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,0-8,32,no2_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,0-8,32,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,16-24,46,no2_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,16-24,46,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,24h,43,no2_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,24h,43,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,8-16,51,no2_mayor_que_nox,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,no2,8-16,51,nox_incoherente,true,mayor_que_nox,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,nox,0-8,19,nox_incoherente,true,nox_incoherente,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,nox,16-24,20,nox_incoherente,true,nox_incoherente,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,nox,24h,19,nox_incoherente,true,nox_incoherente,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2024-12-11,nox,8-16,19,nox_incoherente,true,nox_incoherente,NOX_LABOCA_DICIEMBRE_2024.pdf
+la_boca,2025-02-09,no,0-8,5,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2025.pdf
+la_boca,2025-02-09,no,16-24,16,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2025.pdf
+la_boca,2025-02-09,no2,0-8,12,nox_incoherente,false,,nox_la boca_febrero_2025.pdf
+la_boca,2025-02-09,no2,16-24,11,nox_incoherente,false,,nox_la boca_febrero_2025.pdf
+la_boca,2025-02-09,nox,0-8,12,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2025.pdf
+la_boca,2025-02-09,nox,16-24,36,nox_incoherente,true,nox_incoherente,nox_la boca_febrero_2025.pdf
+la_boca,2025-04-08,no,0-8,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,16-24,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,16-24,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,24h,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,24h,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,8-16,4,nox_incoherente,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,8-16,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,max_1h,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no,min_1h,4,valor_trabado,true,valor_trabado,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no2,16-24,22,nox_incoherente,false,,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no2,24h,24,nox_incoherente,false,,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,no2,8-16,23,nox_incoherente,false,,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,nox,16-24,32,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,nox,24h,33,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2025.pdf
+la_boca,2025-04-08,nox,8-16,34,nox_incoherente,true,nox_incoherente,nox_la boca_abril_2025.pdf
+la_boca,2025-06-04,no,0-8,50,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,no,16-24,135,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,no,24h,103,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,no,8-16,131,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,nox,0-8,86,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,nox,16-24,177,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,nox,24h,143,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-06-04,nox,8-16,174,promedio_incoherente,true,promedio_incoherente,nox_la boca _junio_2025.pdf
+la_boca,2025-07-07,no,0-8,44,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,no,16-24,122,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,no,24h,92,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,no,8-16,118,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,nox,0-8,78,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,nox,16-24,172,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,nox,24h,136,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-07,nox,8-16,167,promedio_incoherente,true,promedio_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,0-8,166,nox_incoherente,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,0-8,166,valor_trabado,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,16-24,166,no_mayor_que_nox,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,16-24,166,nox_incoherente,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,16-24,166,valor_trabado,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,24h,166,no_mayor_que_nox,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,24h,166,nox_incoherente,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,24h,166,valor_trabado,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,8-16,166,no_mayor_que_nox,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,8-16,166,nox_incoherente,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,8-16,166,valor_trabado,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,max_1h,166,valor_trabado,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no,min_1h,166,valor_trabado,true,valor_trabado,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no2,0-8,36,nox_incoherente,false,,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no2,16-24,33,nox_incoherente,false,,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no2,24h,36,nox_incoherente,false,,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,no2,8-16,38,nox_incoherente,false,,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,nox,0-8,250,nox_incoherente,true,nox_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,nox,16-24,63,nox_incoherente,true,nox_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,nox,24h,140,nox_incoherente,true,nox_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-07-08,nox,8-16,107,nox_incoherente,true,nox_incoherente,nox_la boca _julio_2025.pdf
+la_boca,2025-09-08,no,0-8,8,nox_incoherente,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,0-8,8,valor_trabado,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,16-24,8,valor_trabado,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,24h,8,nox_incoherente,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,24h,8,valor_trabado,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,8-16,8,nox_incoherente,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,8-16,8,valor_trabado,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,max_1h,8,valor_trabado,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no,min_1h,8,valor_trabado,true,valor_trabado,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no2,0-8,29,nox_incoherente,false,,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no2,24h,31,nox_incoherente,false,,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,no2,8-16,34,nox_incoherente,false,,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,nox,0-8,44,nox_incoherente,true,nox_incoherente,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,nox,24h,53,nox_incoherente,true,nox_incoherente,nox_la boca_septiembre_2025_0.pdf
+la_boca,2025-09-08,nox,8-16,74,nox_incoherente,true,nox_incoherente,nox_la boca_septiembre_2025_0.pdf
+la_boca,2026-02-09,no,0-8,9,nox_incoherente,true,nox_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,no,16-24,11,nox_incoherente,true,nox_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,no,8-16,26,nox_incoherente,true,nox_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,no2,0-8,17,nox_incoherente,false,,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,no2,16-24,27,nox_incoherente,false,,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,no2,8-16,30,nox_incoherente,false,,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,0-8,19,nox_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,0-8,19,promedio_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,16-24,35,nox_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,16-24,35,promedio_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,24h,40,promedio_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,8-16,35,nox_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-09,nox,8-16,35,promedio_incoherente,true,promedio_incoherente,nox_la  boca_febrero_2026.pdf
+la_boca,2026-02-26,pm10,0-8,30,promedio_incoherente,true,promedio_incoherente,pm10_la  boca_febrero_2026.pdf
+la_boca,2026-02-26,pm10,16-24,48,promedio_incoherente,true,promedio_incoherente,pm10_la  boca_febrero_2026.pdf
+la_boca,2026-02-26,pm10,24h,45,promedio_incoherente,true,promedio_incoherente,pm10_la  boca_febrero_2026.pdf
+la_boca,2026-02-26,pm10,8-16,48,promedio_incoherente,true,promedio_incoherente,pm10_la  boca_febrero_2026.pdf
+la_boca,2026-04-08,no,0-8,2,valor_trabado,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,16-24,2,nox_incoherente,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,16-24,2,valor_trabado,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,24h,2,valor_trabado,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,8-16,2,nox_incoherente,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,8-16,2,valor_trabado,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,max_1h,2,valor_trabado,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no,min_1h,2,valor_trabado,true,valor_trabado,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no2,16-24,25,nox_incoherente,false,,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,no2,8-16,20,nox_incoherente,false,,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,nox,16-24,31,nox_incoherente,true,nox_incoherente,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-04-08,nox,8-16,26,nox_incoherente,true,nox_incoherente,NOx_LABOCA_ABRIL_2026.pdf
+la_boca,2026-07-08,no,0-8,5,nox_incoherente,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,0-8,5,valor_trabado,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,16-24,5,nox_incoherente,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,16-24,5,valor_trabado,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,24h,5,nox_incoherente,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,24h,5,valor_trabado,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,8-16,5,nox_incoherente,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,8-16,5,valor_trabado,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,max_1h,5,valor_trabado,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no,min_1h,5,valor_trabado,true,valor_trabado,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no2,0-8,25,nox_incoherente,false,,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no2,16-24,33,nox_incoherente,false,,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no2,24h,30,nox_incoherente,false,,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,no2,8-16,32,nox_incoherente,false,,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,nox,0-8,41,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,nox,16-24,85,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,nox,24h,74,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2026.pdf
+la_boca,2026-07-08,nox,8-16,96,nox_incoherente,true,nox_incoherente,nox_la boca_julio_2026.pdf
