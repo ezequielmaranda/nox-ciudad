@@ -1,0 +1,120 @@
+/// Cumplimiento diario de la guía OMS de 24 h. Grano: fecha × estación × contaminante, solo días con dato válido y contaminantes con guía de 24 h (NO2, PM10, CO).
+table agg_cumplimiento_diario
+	lineageTag: 3bfa93cc-9b6f-520d-8543-6c52b8bcd0c5
+
+	/// Fecha.
+	column fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 3fd4abf8-ef68-5769-8655-4daf849fa083
+		summarizeBy: none
+		sourceColumn: fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Estación.
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 864accdc-70c8-5676-944f-13361084382f
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante.
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 1e31db6a-7070-5ad9-a8d0-2fba2bc5e192
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Promedio de 24 h en la unidad de la guía (µg/m³; mg/m³ para CO).
+	column valor
+		dataType: double
+		lineageTag: dce43681-acb6-5ddf-a6de-419bb6ce9b82
+		summarizeBy: none
+		sourceColumn: valor
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad.
+	column unidad
+		dataType: string
+		lineageTag: e9a90ed5-a863-56c5-80f6-e2e0e436b1e8
+		summarizeBy: none
+		sourceColumn: unidad
+
+		annotation SummarizationSetBy = User
+
+	/// Guía OMS de 24 h del contaminante.
+	column guia_oms_24h
+		dataType: double
+		lineageTag: 6f014759-0ce7-5027-b97c-43fed6c53017
+		summarizeBy: none
+		sourceColumn: guia_oms_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si valor > guía.
+	column supera_guia
+		dataType: boolean
+		lineageTag: c1cff5c9-4e71-5975-a0c4-bea356d71ecb
+		summarizeBy: none
+		sourceColumn: supera_guia
+
+		annotation SummarizationSetBy = User
+
+	/// valor / guía (1 = justo en la guía).
+	column veces_guia
+		dataType: double
+		lineageTag: 759c7c21-731e-5f88-9398-5ad6bcd80c4a
+		summarizeBy: none
+		sourceColumn: veces_guia
+
+		annotation SummarizationSetBy = User
+
+	/// Escalón OMS del día (AQG, IT4 … IT1, '> IT1').
+	column nivel_oms
+		dataType: string
+		lineageTag: e36076e1-b067-5d0f-9510-7752dd47a8cd
+		summarizeBy: none
+		sourceColumn: nivel_oms
+		sortByColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1').
+	column orden_nivel_oms
+		dataType: int64
+		formatString: 0
+		lineageTag: 5ee50d71-9319-586f-8a22-c487d96b2e92
+		summarizeBy: none
+		sourceColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// Marca de valor atípico heredada de la fact.
+	column es_outlier
+		dataType: boolean
+		lineageTag: bda97d3d-0468-5d21-a880-d268899e7f56
+		summarizeBy: none
+		sourceColumn: es_outlier
+
+		annotation SummarizationSetBy = User
+
+	partition agg_cumplimiento_diario = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_cumplimiento_diario.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

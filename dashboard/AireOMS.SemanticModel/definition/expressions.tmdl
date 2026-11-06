@@ -1,0 +1,6 @@
+/// Carpeta data/final del repo, con la barra final. Cambiarla en Transformar datos > Administrar parámetros.
+expression RutaDatos = "C:\nox-ciudad\data\final\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: ccf17123-c02e-5422-9925-82106a682191
+
+	annotation PBI_ResultType = Text
+

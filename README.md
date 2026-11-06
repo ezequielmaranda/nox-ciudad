@@ -90,7 +90,7 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 | 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
 | 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
 | 8. Visualizaciones e indicadores | `reports/figures/`, `indicadores.*` (cumplimiento diario, anual, escalones, rachas) |
-| 9. Dashboard en Power BI | `data/final/` + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (modelo, medidas DAX, 3 páginas, colores) |
+| 9. Dashboard en Power BI | [`dashboard/AireOMS.pbip`](dashboard/) (modelo, relaciones y medidas DAX listos) + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (qué gráficos van en cada página) |
 | 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §11 y presentación |
 
 **Entregables:** dashboard (Power BI), notebook, scripts (`src/`, `dbt/`), consultas SQL, archivos procesados
@@ -173,10 +173,12 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── extract.py                 extracción: PDF de la APrA → data/raw/aire_publico.csv
 │   ├── etl.py                     orquesta extract → dbt build → export → consultas → diccionario
 │   ├── calidad.py                 perfil del crudo y resumen de calidad
-│   └── diccionario.py             genera docs/diccionario_datos.md
+│   ├── diccionario.py             genera docs/diccionario_datos.md
+│   └── generar_pbip.py            genera el proyecto de Power BI (dashboard/)
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
+├── dashboard/AireOMS.pbip         proyecto de Power BI: modelo, relaciones y medidas listos (se abre con Power BI Desktop)
 ├── presentacion/                 presentación (.pptx, 19 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)

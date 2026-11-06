@@ -1,0 +1,30 @@
+model Model
+	culture: es-AR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-AR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["RutaDatos", "_Medidas", "dim_estacion", "dim_contaminante", "dim_calendario", "dim_periodo", "ref_oms", "ref_oms_niveles", "fact_medicion_diaria", "agg_cumplimiento_diario", "agg_anual", "agg_cumplimiento_niveles", "agg_rachas", "agg_completitud_mensual", "calidad_resumen", "calidad_archivos"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table _Medidas
+ref table dim_estacion
+ref table dim_contaminante
+ref table dim_calendario
+ref table dim_periodo
+ref table ref_oms
+ref table ref_oms_niveles
+ref table fact_medicion_diaria
+ref table agg_cumplimiento_diario
+ref table agg_anual
+ref table agg_cumplimiento_niveles
+ref table agg_rachas
+ref table agg_completitud_mensual
+ref table calidad_resumen
+ref table calidad_archivos
+

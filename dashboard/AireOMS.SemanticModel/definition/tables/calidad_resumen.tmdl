@@ -1,0 +1,53 @@
+/// Cantidad de valores crudos por contaminante y categoría de calidad.
+table calidad_resumen
+	lineageTag: 6c67153c-0133-56d4-9444-0f11486a52a3
+
+	/// Contaminante.
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 5886a201-e96a-5a0b-96fc-1f1481a579ce
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// valido, valido_imputado o el motivo por el que se descartó.
+	column categoria
+		dataType: string
+		lineageTag: 1e2f23a2-6ad7-5fcf-b2fb-e27e4a370bb1
+		summarizeBy: none
+		sourceColumn: categoria
+
+		annotation SummarizationSetBy = User
+
+	/// Cantidad de celdas de los PDF.
+	column n_valores
+		dataType: int64
+		formatString: 0
+		lineageTag: 9bcf2b7d-ee2b-55f5-acd3-df3096271de6
+		summarizeBy: none
+		sourceColumn: n_valores
+
+		annotation SummarizationSetBy = User
+
+	/// Proporción dentro del contaminante (0 a 1).
+	column proporcion
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 267159bb-02bb-5f3a-b5bf-81f37855d850
+		summarizeBy: none
+		sourceColumn: proporcion
+
+		annotation SummarizationSetBy = User
+
+	partition calidad_resumen = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "calidad_resumen.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

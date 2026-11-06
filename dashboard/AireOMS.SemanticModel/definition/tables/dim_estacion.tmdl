@@ -1,0 +1,126 @@
+/// Una fila por estación de monitoreo de la APrA.
+table dim_estacion
+	lineageTag: fe67e3c1-5087-5f44-a04f-98903a9a44bd
+
+	/// Clave de la estación ('centenario', 'cordoba', 'la_boca').
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 1fb2492f-2747-5fdd-911c-96017479c953
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Nombre de la estación como figura en la fuente ('LA BOCA').
+	column codigo_fuente
+		dataType: string
+		lineageTag: d70f4169-4574-523a-9eb1-5491db3568fb
+		summarizeBy: none
+		sourceColumn: codigo_fuente
+
+		annotation SummarizationSetBy = User
+
+	/// Nombre legible para mostrar.
+	column nombre
+		dataType: string
+		lineageTag: 9d09b345-860d-5ba5-ad4b-33c72d44da37
+		summarizeBy: none
+		sourceColumn: nombre
+		sortByColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	/// Ubicación de la cabina según la APrA.
+	column direccion
+		dataType: string
+		lineageTag: 37bbbb5c-a6de-5421-a22e-5704fd95a9c1
+		summarizeBy: none
+		sourceColumn: direccion
+
+		annotation SummarizationSetBy = User
+
+	/// Tipo de zona según la APrA (residencial-comercial, mixta).
+	column entorno
+		dataType: string
+		lineageTag: c8a0cc87-7bd8-5d9d-b9fd-b817f044de90
+		summarizeBy: none
+		sourceColumn: entorno
+
+		annotation SummarizationSetBy = User
+
+	/// Flujo vehicular de la zona según la APrA (alto, medio, medio-bajo).
+	column flujo_vehicular
+		dataType: string
+		lineageTag: 5a27844e-bb15-5998-886d-1188af897f21
+		summarizeBy: none
+		sourceColumn: flujo_vehicular
+
+		annotation SummarizationSetBy = User
+
+	/// Incidencia de fuentes fijas (industrias, puerto) según la APrA.
+	column fuentes_fijas
+		dataType: string
+		lineageTag: cffbc9c5-913e-5d9b-9286-6138cf68add6
+		summarizeBy: none
+		sourceColumn: fuentes_fijas
+
+		annotation SummarizationSetBy = User
+
+	/// Año de inicio de operación (vacío si la fuente no lo informa).
+	column inicio_operacion
+		dataType: int64
+		formatString: 0
+		lineageTag: 62b99a79-d7e3-5117-bada-eb6d5a458589
+		summarizeBy: none
+		sourceColumn: inicio_operacion
+
+		annotation SummarizationSetBy = User
+
+	/// Latitud aproximada (geocodificada a mano desde la dirección; verificar antes de usar en un mapa).
+	column latitud_aprox
+		dataType: double
+		lineageTag: 8ac6ca90-561c-5296-bc85-fd64095278a5
+		summarizeBy: none
+		sourceColumn: latitud_aprox
+
+		annotation SummarizationSetBy = User
+
+	/// Longitud aproximada (ídem).
+	column longitud_aprox
+		dataType: double
+		lineageTag: d92099fc-bc1d-58fa-893c-3d7f4736e4a6
+		summarizeBy: none
+		sourceColumn: longitud_aprox
+
+		annotation SummarizationSetBy = User
+
+	/// Para qué zona es representativa la estación.
+	column descripcion
+		dataType: string
+		lineageTag: c1861342-3662-5538-bc10-8735f4aa4f2b
+		summarizeBy: none
+		sourceColumn: descripcion
+
+		annotation SummarizationSetBy = User
+
+	/// Orden alfabético para gráficos.
+	column orden
+		dataType: int64
+		formatString: 0
+		lineageTag: 60ee57a8-8d80-5a3b-9ddd-861da4b26a0a
+		summarizeBy: none
+		sourceColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	partition dim_estacion = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_estacion.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

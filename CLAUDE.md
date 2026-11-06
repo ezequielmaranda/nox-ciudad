@@ -44,6 +44,11 @@ heatmap) y matplotlib.
   (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
 - `make test`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
   (idempotencia, que corra `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. `make eda`: ejecuta `notebooks/eda.ipynb`.
+- `make pbip` (= `python -m src.generar_pbip`): genera `dashboard/AireOMS.pbip` (modelo TMDL con 14 tablas + `_Medidas`,
+  20 relaciones, 18 medidas DAX, orden de columnas, descripciones de dbt, tema; informe PBIR con 3 páginas vacías).
+  Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
+  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. El tema base
+  `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
 - `make extract` (= `python -m src.extract`): baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
   `static.buenosaires.gob.ar` corta la conexión TLS (probablemente bloqueo geográfico). El CSV crudo está en git.
 
@@ -96,6 +101,8 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 
 ## Pendiente
 
-- Armar el `.pbix` siguiendo `docs/powerbi_spec.md` (lo hace el equipo; Claude Code no puede).
+- Abrir `dashboard/AireOMS.pbip` en Power BI Desktop (parámetro `RutaDatos` con la ruta local de `data/final\`,
+  Actualizar) y armar los gráficos de las 3 páginas siguiendo `docs/powerbi_spec.md` (lo hace el equipo). Después
+  de armar gráficos, el modelo se toca desde Power BI, no con `make pbip`.
 - Verificar las coordenadas aproximadas de `data/reference/estaciones.csv` si se usa el mapa.
 - Preparar la presentación (guion en el README).

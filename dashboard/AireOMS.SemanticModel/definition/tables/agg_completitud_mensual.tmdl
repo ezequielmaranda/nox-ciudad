@@ -1,0 +1,145 @@
+/// Completitud del promedio de 24 h por estación × contaminante × mes (heatmap de calidad).
+table agg_completitud_mensual
+	lineageTag: 2ed6f66c-edcd-5352-a1c7-e56cba16dd6f
+
+	/// Estación.
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 9003ad81-8166-527c-a6ba-86abb928d3b1
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante.
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 3271f918-0fbc-5c73-8a4c-a258f88e4962
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Año.
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: df0f022a-c1b8-5252-bf19-ef037d5c8b52
+		summarizeBy: none
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = User
+
+	/// Mes (1-12).
+	column mes
+		dataType: int64
+		formatString: 0
+		lineageTag: afed63c7-285a-5f1c-bb49-ff3bcfc9c575
+		summarizeBy: none
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = User
+
+	/// Primer día del mes.
+	column anio_mes
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 86474054-e3dd-5441-be65-dce39dffede1
+		summarizeBy: none
+		sourceColumn: anio_mes
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Días del mes dentro del período.
+	column n_dias_calendario
+		dataType: int64
+		formatString: 0
+		lineageTag: 0553c48d-b950-504e-a66f-87c467278e5d
+		summarizeBy: none
+		sourceColumn: n_dias_calendario
+
+		annotation SummarizationSetBy = User
+
+	/// Días con fila publicada por la fuente.
+	column n_dias_con_fila
+		dataType: int64
+		formatString: 0
+		lineageTag: 1c59e77e-93c0-55d2-8551-44cf3f0b5004
+		summarizeBy: none
+		sourceColumn: n_dias_con_fila
+
+		annotation SummarizationSetBy = User
+
+	/// Días con valor válido.
+	column n_dias_con_dato
+		dataType: int64
+		formatString: 0
+		lineageTag: 3a25164e-c971-5234-919f-f0e07a417ea8
+		summarizeBy: none
+		sourceColumn: n_dias_con_dato
+
+		annotation SummarizationSetBy = User
+
+	/// Días sin fila (la fuente no publicó, p. ej. mes sin PDF).
+	column n_dias_sin_fila
+		dataType: int64
+		formatString: 0
+		lineageTag: 047f9b98-d718-53a3-a46c-4a8803d4c58b
+		summarizeBy: none
+		sourceColumn: n_dias_sin_fila
+
+		annotation SummarizationSetBy = User
+
+	/// Días con 's/d' o 'DND' en la planilla.
+	column n_dias_sin_dato_fuente
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a3c6534-a89c-5c68-a033-a6957474e340
+		summarizeBy: none
+		sourceColumn: n_dias_sin_dato_fuente
+
+		annotation SummarizationSetBy = User
+
+	/// Días con número que descartó una regla de calidad.
+	column n_dias_descartados
+		dataType: int64
+		formatString: 0
+		lineageTag: 1fbd5707-7ce7-52e8-a801-11f08b3d8654
+		summarizeBy: none
+		sourceColumn: n_dias_descartados
+
+		annotation SummarizationSetBy = User
+
+	/// n_dias_con_dato / n_dias_calendario (0 a 1).
+	column completitud
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 9413fea0-dbe7-5dee-9d9f-a4061874cfa0
+		summarizeBy: none
+		sourceColumn: completitud
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si la completitud del mes es >= 75%.
+	column cumple_umbral
+		dataType: boolean
+		lineageTag: 473093f6-1a34-5825-b0e2-4d2e703b42ef
+		summarizeBy: none
+		sourceColumn: cumple_umbral
+
+		annotation SummarizationSetBy = User
+
+	partition agg_completitud_mensual = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_completitud_mensual.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

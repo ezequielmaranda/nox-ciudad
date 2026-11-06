@@ -1,0 +1,141 @@
+/// Medidas DAX del dashboard (ver docs/powerbi_spec.md).
+table _Medidas
+	lineageTag: 12f55d6f-c117-5d92-a795-3cf465f803ac
+
+	/// Días con dato válido del promedio de 24 h. Mostrar siempre junto a un porcentaje.
+	measure 'Días válidos' =
+			CALCULATE (
+			    COUNTROWS ( fact_medicion_diaria ),
+			    fact_medicion_diaria[ventana] = "24h",
+			    fact_medicion_diaria[tiene_dato] = TRUE ()
+			)
+		formatString: #,0
+		lineageTag: e277934c-f101-56fe-aab2-44abf5ccba33
+
+	/// Días con dato / días del calendario (la fact es una grilla completa).
+	measure 'Completitud %' =
+			DIVIDE (
+			    [Días válidos],
+			    CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[ventana] = "24h" )
+			)
+		formatString: 0.0%
+		lineageTag: d107e801-3ded-59b3-8e6c-2b1d7305a45e
+
+	/// Días cuyo promedio de 24 h supera la guía OMS.
+	measure 'Días sobre guía' = CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[supera_guia] = TRUE () )
+		formatString: #,0
+		lineageTag: c6ad432f-d893-5a82-b5c9-fe7359f27808
+
+	/// Días sobre la guía / días con dato (un día sin dato no cuenta como día limpio).
+	measure '% Días sobre guía' = DIVIDE ( [Días sobre guía], COUNTROWS ( agg_cumplimiento_diario ) )
+		formatString: 0.0%
+		lineageTag: f8190d3d-e707-5824-a826-b23c66fce7d8
+
+	/// Días que cumplen el objetivo intermedio IT2 diario o uno más exigente (NO2: 50 µg/m³). No aplica al CO.
+	measure '% Días que cumplen IT2' =
+			DIVIDE (
+			    CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[orden_nivel_oms] <= 4 ),
+			    COUNTROWS ( agg_cumplimiento_diario )
+			)
+		formatString: 0.0%
+		lineageTag: 96cf5df6-72e6-5ac6-acd4-f14261030dd5
+
+	/// Promedio de los valores diarios en la unidad de la guía (µg/m³; mg/m³ para el CO).
+	measure 'Promedio diario' = AVERAGE ( agg_cumplimiento_diario[valor] )
+		formatString: #,0.0
+		lineageTag: dc76ce3a-5e7c-5c00-8505-be2cef8c6618
+
+	/// Promedio anual de agg_anual con la regla del 75% aplicada. Usar con una estación, un contaminante y un período.
+	measure 'Promedio anual' = CALCULATE ( AVERAGE ( agg_anual[promedio_anual] ), agg_anual[es_valido] = TRUE () )
+		formatString: #,0.0
+		lineageTag: 47bd90d8-5afa-5151-afc1-2167258d3252
+
+	/// Promedio anual / guía anual de la OMS.
+	measure 'Veces sobre guía anual' = DIVIDE ( [Promedio anual], AVERAGE ( agg_anual[guia_anual] ) )
+		formatString: 0.0
+		lineageTag: 24ce7ac9-e0c5-5ae8-a687-80f82addf38e
+
+	/// Escalón OMS del promedio anual (AQG, IT4 … IT1, > IT1).
+	measure 'Nivel OMS anual' = SELECTEDVALUE ( agg_anual[nivel_oms], "—" )
+		lineageTag: 1cdbd3f2-8f64-561f-b9c5-cc9fba908a8b
+
+	/// Percentil 99 de los valores diarios (definición formal de la guía de 24 h). Vacío si la completitud es menor a 75%.
+	measure 'Percentil 99' =
+			IF (
+			    [Completitud %] >= 0.75,
+			    PERCENTILE.INC ( agg_cumplimiento_diario[valor], 0.99 )
+			)
+		formatString: #,0.0
+		lineageTag: 0a594092-5db1-5892-911f-c2ff0be27379
+
+	/// Guía OMS de 24 h del contaminante filtrado.
+	measure 'Guía OMS 24 h' = CALCULATE ( MAX ( ref_oms[guia_oms] ), ref_oms[promedio] = "24h" )
+		formatString: #,0.##
+		lineageTag: 9d336565-15c5-5379-9069-8b5bb6513668
+
+	/// Guía OMS anual del contaminante filtrado (vacía para el CO).
+	measure 'Guía OMS anual' = CALCULATE ( MAX ( ref_oms[guia_oms] ), ref_oms[promedio] = "anual" )
+		formatString: #,0.##
+		lineageTag: a6b5834d-33c3-50f5-b7f6-679a3d7be1d6
+
+	/// Percentil 99 / guía de 24 h.
+	measure 'P99 veces la guía' = DIVIDE ( [Percentil 99], [Guía OMS 24 h] )
+		formatString: 0.00
+		lineageTag: 70da8c4b-8dd8-5707-82cb-a0cbaf54ec7f
+
+	/// Racha más larga de días seguidos sobre la guía (calculada en SQL con gaps and islands).
+	measure 'Racha máxima' = MAX ( agg_rachas[dias] )
+		formatString: #,0
+		lineageTag: 6d40065c-93a8-576c-b070-1bd0bcf5d138
+
+	/// Diferencia del promedio diario contra el día hábil, para la matriz por tipo de día.
+	measure 'Variación vs. hábil' =
+			VAR habil =
+			    CALCULATE (
+			        [Promedio diario],
+			        REMOVEFILTERS ( dim_calendario[tipo_dia_etiqueta], dim_calendario[orden_tipo_dia] ),
+			        dim_calendario[tipo_dia] = "habil"
+			    )
+			RETURN
+			    DIVIDE ( [Promedio diario] - habil, habil )
+		formatString: +0.0%;-0.0%;0.0%
+		lineageTag: 46046be3-0b7f-5dce-a621-018a5f343db6
+
+	/// Estación con mayor % de días sobre la guía en el contexto filtrado.
+	measure 'Estación más comprometida' =
+			VAR t =
+			    ADDCOLUMNS ( VALUES ( dim_estacion[nombre] ), "@pct", [% Días sobre guía] )
+			RETURN
+			    MAXX ( TOPN ( 1, t, [@pct], DESC ), dim_estacion[nombre] )
+		lineageTag: fa49fe88-a4fc-59de-b995-895630af8aaa
+
+	/// Texto para tarjetas, por ejemplo: 94,7% de 944 días.
+	measure '% Días sobre guía (texto)' =
+			FORMAT ( [% Días sobre guía], "0.0%" ) & " de "
+			    & FORMAT ( COUNTROWS ( agg_cumplimiento_diario ), "#,0" ) & " días"
+		lineageTag: c92b9cd0-693c-5327-a3ad-a08518e494ed
+
+	/// Completitud promedio de agg_completitud_mensual (heatmap de la página de calidad).
+	measure 'Completitud mensual' = AVERAGE ( agg_completitud_mensual[completitud] )
+		formatString: 0.0%
+		lineageTag: 3ed2c403-6062-514c-977b-c46822246f5d
+
+	column Columna
+		dataType: string
+		isHidden
+		lineageTag: 293451d5-1a78-55e8-8ce0-36226b17dbfd
+		summarizeBy: none
+		sourceColumn: Columna
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+				    Origen = #table(type table [Columna = text], {})
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

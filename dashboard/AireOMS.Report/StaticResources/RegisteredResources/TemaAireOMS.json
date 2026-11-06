@@ -1,0 +1,36 @@
+{
+  "name": "TemaAireOMS.json",
+  "dataColors": [
+    "#2A78D6",
+    "#EB6834",
+    "#1BAF7A",
+    "#EDA100",
+    "#E87BA4",
+    "#008300",
+    "#6250D6",
+    "#E34948"
+  ],
+  "background": "#FCFCFB",
+  "foreground": "#0B0B0B",
+  "tableAccent": "#2A78D6",
+  "good": "#2A78D6",
+  "neutral": "#C3C2B7",
+  "bad": "#0D366B",
+  "maximum": "#0D366B",
+  "center": "#5598E7",
+  "minimum": "#CDE2FB",
+  "textClasses": {
+    "title": {
+      "color": "#0B0B0B",
+      "fontFace": "Segoe UI Semibold"
+    },
+    "label": {
+      "color": "#52514E",
+      "fontFace": "Segoe UI"
+    },
+    "callout": {
+      "color": "#0B0B0B",
+      "fontFace": "Segoe UI Semibold"
+    }
+  }
+}

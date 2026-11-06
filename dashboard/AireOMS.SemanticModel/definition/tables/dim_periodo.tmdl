@@ -1,0 +1,97 @@
+/// Períodos de los indicadores anuales: un año calendario por fila (el último, parcial) más 'movil_12m', los últimos 12 meses con datos (comparable con un año completo).
+table dim_periodo
+	lineageTag: 5841e262-1c84-5b94-b935-aa0f2b090a83
+
+	/// '2024', '2025', '2026' o 'movil_12m'.
+	column id_periodo
+		dataType: string
+		isHidden
+		lineageTag: 8ccabdef-e94c-50ba-947b-c4fc87576caf
+		summarizeBy: none
+		sourceColumn: id_periodo
+
+		annotation SummarizationSetBy = User
+
+	/// Texto para mostrar.
+	column etiqueta
+		dataType: string
+		lineageTag: 09fa51e6-98eb-5cce-bbd6-e021f632ac72
+		summarizeBy: none
+		sourceColumn: etiqueta
+		sortByColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	/// anio_completo, anio_parcial o movil_12m.
+	column tipo_periodo
+		dataType: string
+		lineageTag: 120a9792-8720-5ca9-95f8-8f1380960028
+		summarizeBy: none
+		sourceColumn: tipo_periodo
+
+		annotation SummarizationSetBy = User
+
+	/// Año (vacío para movil_12m).
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 4fac9854-6b94-558d-919f-8e6f9ac7a965
+		summarizeBy: none
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = User
+
+	/// Primer día del período.
+	column fecha_desde
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6af4a556-c2f3-57fd-988c-909a71510263
+		summarizeBy: none
+		sourceColumn: fecha_desde
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Último día del período.
+	column fecha_hasta
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b3ae2ac4-7687-5feb-beeb-a83b626bb29c
+		summarizeBy: none
+		sourceColumn: fecha_hasta
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Cantidad de días del período.
+	column n_dias
+		dataType: int64
+		formatString: 0
+		lineageTag: ac465e15-50b2-5f3d-aad4-73cbcbbd92c8
+		summarizeBy: none
+		sourceColumn: n_dias
+
+		annotation SummarizationSetBy = User
+
+	/// Orden para gráficos.
+	column orden
+		dataType: int64
+		formatString: 0
+		lineageTag: af080cd1-69fe-55d4-8b68-7ab609afc797
+		summarizeBy: none
+		sourceColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	partition dim_periodo = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_periodo.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

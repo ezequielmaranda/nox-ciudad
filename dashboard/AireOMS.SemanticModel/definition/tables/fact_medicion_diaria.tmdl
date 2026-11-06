@@ -1,0 +1,172 @@
+/// Tabla de hechos en formato largo. Grano: fecha × estación × contaminante × ventana (24h u 8-16). Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
+table fact_medicion_diaria
+	lineageTag: 60270a43-8adc-5fa6-9797-00fb0bffa232
+
+	/// Fecha (clave hacia dim_calendario).
+	column fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 40b9d0f1-9c6c-5de1-a73f-7eb02a952809
+		summarizeBy: none
+		sourceColumn: fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Estación (clave hacia dim_estacion).
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 42bdb3ef-eddd-5fa5-b9a1-71571c790da7
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante (clave hacia dim_contaminante).
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 278e5752-0e16-5c07-92c9-128cb6b80d76
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// '24h' = promedio diario (el de la guía OMS); '8-16' = promedio de 8 a 16 h.
+	column ventana
+		dataType: string
+		lineageTag: ac93c75b-1f5f-5b22-8b04-9ea8c12721b5
+		summarizeBy: none
+		sourceColumn: ventana
+
+		annotation SummarizationSetBy = User
+
+	/// Texto original del PDF (vacío si no hubo fila).
+	column valor_crudo
+		dataType: string
+		lineageTag: dc1dd193-3328-5431-8d68-4dd4a945f185
+		summarizeBy: none
+		sourceColumn: valor_crudo
+
+		annotation SummarizationSetBy = User
+
+	/// Clasificación del crudo; 'sin_fila' si la fuente no publicó ese día.
+	column estado_valor
+		dataType: string
+		lineageTag: 860ef0f2-5a31-5f90-8310-4141f4217ba2
+		summarizeBy: none
+		sourceColumn: estado_valor
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si la fuente publicó una fila para ese día y contaminante.
+	column tiene_fila
+		dataType: boolean
+		lineageTag: 74406046-dc9c-5761-a09e-9a4679674224
+		summarizeBy: none
+		sourceColumn: tiene_fila
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si hay un valor válido (pasa las reglas de calidad).
+	column tiene_dato
+		dataType: boolean
+		lineageTag: 24a6d8a9-e25c-5368-8b0e-ce56e99ad161
+		summarizeBy: none
+		sourceColumn: tiene_dato
+
+		annotation SummarizationSetBy = User
+
+	/// Por qué no hay dato (vacío si tiene_dato). 'sin_fila', 'sin_dato_fuente' o la regla que lo descartó.
+	column motivo_sin_dato
+		dataType: string
+		lineageTag: 5efb56a0-2b6b-56da-90cd-6bf2a6f27797
+		summarizeBy: none
+		sourceColumn: motivo_sin_dato
+
+		annotation SummarizationSetBy = User
+
+	/// Valor en la unidad original (solo si tiene_dato).
+	column valor
+		dataType: double
+		lineageTag: 908ccc53-67da-5613-bd49-084a29645f50
+		summarizeBy: none
+		sourceColumn: valor
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad original (ppb, ppm, µg/m³).
+	column unidad
+		dataType: string
+		lineageTag: ab80d4f1-a0c4-522a-97fe-cded795e5486
+		summarizeBy: none
+		sourceColumn: unidad
+
+		annotation SummarizationSetBy = User
+
+	/// Valor en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato.
+	column valor_masa
+		dataType: double
+		lineageTag: 4cb8e37f-a063-5a8c-910b-0e97b56950ec
+		summarizeBy: none
+		sourceColumn: valor_masa
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad de valor_masa.
+	column unidad_masa
+		dataType: string
+		lineageTag: 80f05ac7-10df-534f-9b80-939926dd3d0d
+		summarizeBy: none
+		sourceColumn: unidad_masa
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si el valor era '<límite' y se imputó como límite / 2.
+	column es_imputado
+		dataType: boolean
+		lineageTag: c06a7fe2-4800-544f-a5aa-d98adf160537
+		summarizeBy: none
+		sourceColumn: es_imputado
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si valor > Q3 + 3·IQR de su estación × contaminante × ventana. Se marca, no se borra.
+	column es_outlier
+		dataType: boolean
+		lineageTag: ff448b89-abbb-53ea-aa78-e2c4ea2860d2
+		summarizeBy: none
+		sourceColumn: es_outlier
+
+		annotation SummarizationSetBy = User
+
+	/// Umbral Q3 + 3·IQR de esa estación × contaminante × ventana.
+	column umbral_outlier
+		dataType: double
+		lineageTag: c3dfa885-8cba-5925-91df-60987849e290
+		summarizeBy: none
+		sourceColumn: umbral_outlier
+
+		annotation SummarizationSetBy = User
+
+	/// PDF de origen.
+	column archivo_pdf
+		dataType: string
+		lineageTag: 795ac678-ead7-5ddd-95c4-34db8848d663
+		summarizeBy: none
+		sourceColumn: archivo_pdf
+
+		annotation SummarizationSetBy = User
+
+	partition fact_medicion_diaria = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "fact_medicion_diaria.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
