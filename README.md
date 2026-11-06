@@ -136,7 +136,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   │   └── aire_publico_manifiesto.csv  estado de cada PDF (procesado, aviso, descartado)
 │   ├── reference/                 tablas mantenidas a mano: guías OMS, estaciones, contaminantes, feriados, eventos
 │   ├── warehouse/aire.duckdb      base generada por el ETL (fuera de git)
-│   └── final/                     17 tablas en CSV y Parquet para Power BI y el EDA
+│   └── final/                     18 tablas en CSV y Parquet para Power BI y el EDA
 ├── dbt/                           transformaciones SQL (dbt + DuckDB)
 │   ├── models/01_staging/         tipar, normalizar, reglas de validación física
 │   ├── models/02_dimensiones/     calendario, estación, contaminante, período, evento, referencias OMS
@@ -154,6 +154,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
+├── presentacion/                 presentación (.pptx, 19 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)
     └── sweetviz_*.html            perfil automático del EDA (Sweetviz)
@@ -197,7 +198,7 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 | **EDA en dos pasos:** perfil automático con **Sweetviz** y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Sweetviz da un barrido rápido de tipos, nulos, distribuciones y asociaciones, pero no conoce la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
 | **Partir de los PDF públicos** y no de una tabla ya procesada | La consigna pide un flujo completo y desaconseja datasets ya procesados. Desde el PDF aparecen los problemas reales: `s/d`, `<4`, coma decimal, archivos de otra estación, valores incoherentes |
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV/Parquet y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
-| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 76 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 79 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
 | **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
 | **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, las consultas de `sql/99` y las funciones del extractor |
 | **Fact como grilla completa** (calendario × estación × contaminante) | Distingue "la fuente no publicó" de "publicó `s/d`" y de "lo descartó una regla"; la completitud es un promedio |
@@ -232,6 +233,8 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 APrA los datos horarios; agregar O₃ y PM2.5 si se publican; automatizar la extracción mensual.
 
 ## Exposición (20 minutos, 4 integrantes)
+
+Presentación: [`presentacion/presentacion_tp_aire_oms.pptx`](presentacion/presentacion_tp_aire_oms.pptx) (se puede importar en Google Slides). Cada slide tiene en las notas el guion de quien la presenta.
 
 | Bloque de la consigna | Contenido | Material | Quién (propuesta) |
 |---|---|---|---|

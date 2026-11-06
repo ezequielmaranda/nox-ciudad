@@ -69,7 +69,7 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
   promedio_incoherente, mayor_que_nox, nox_incoherente (descarta NO y NOx, **no NO2**).
 - Outliers: Q3 + 3·IQR por estación × contaminante × ventana, marcados.
 - Regla del 75% sobre el promedio de 24 h por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
-- Último build: 20 modelos, 76 tests + 5 seeds, PASS 100, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
+- Último build: 21 modelos, 79 tests + 5 seeds, PASS 104, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
 
 ## Resultados verificados
 
