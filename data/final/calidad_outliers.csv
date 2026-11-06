@@ -1,0 +1,186 @@
+fecha,id_estacion,id_contaminante,ventana,valor,unidad,umbral_outlier,mediana,veces_mediana,nombre_dia,tipo_dia,evento,archivo_pdf
+2024-04-05,la_boca,no,24h,110.0,ppb,86.0,17.0,6.5,viernes,habil,,nox_la boca_abril_2024.pdf
+2024-05-03,la_boca,no,24h,96.0,ppb,86.0,17.0,5.6,viernes,habil,,nox_la boca_mayo_2024.pdf
+2024-07-01,centenario,pm10,8-16,74.0,µg/m³,63.0,21.0,3.5,lunes,habil,,pm10_centenario_julio_2024.pdf
+2024-07-04,la_boca,no,24h,91.0,ppb,86.0,17.0,5.4,jueves,habil,,nox_la boca_julio_2024.pdf
+2024-07-04,la_boca,no,8-16,119.0,ppb,107.0,22.0,5.4,jueves,habil,,nox_la boca_julio_2024.pdf
+2024-07-11,centenario,co,24h,1.2,ppm,1.1,0.4,3.0,jueves,habil,,co_centenario_julio_2024.pdf
+2024-07-11,centenario,pm10,24h,74.0,µg/m³,55.0,19.0,3.9,jueves,habil,,pm10_centenario_julio_2024.pdf
+2024-07-11,centenario,pm10,8-16,70.0,µg/m³,63.0,21.0,3.3,jueves,habil,,pm10_centenario_julio_2024.pdf
+2024-07-11,cordoba,no,24h,134.0,ppb,112.0,26.0,5.2,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-11,cordoba,no,8-16,156.0,ppb,144.0,29.0,5.4,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-11,cordoba,no2,24h,55.0,ppb,47.0,19.0,2.9,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-11,cordoba,nox,24h,189.0,ppb,152.0,45.0,4.2,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-11,cordoba,nox,8-16,208.0,ppb,191.0,49.0,4.2,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-11,cordoba,pm10,24h,77.0,µg/m³,59.0,23.0,3.3,jueves,habil,,pm10_cordoba_julio_2024.pdf
+2024-07-11,cordoba,pm10,8-16,80.0,µg/m³,73.0,26.0,3.1,jueves,habil,,pm10_cordoba_julio_2024.pdf
+2024-07-12,centenario,co,24h,1.2,ppm,1.1,0.4,3.0,viernes,habil,,co_centenario_julio_2024.pdf
+2024-07-12,centenario,pm10,24h,82.0,µg/m³,55.0,19.0,4.3,viernes,habil,,pm10_centenario_julio_2024.pdf
+2024-07-12,centenario,pm10,8-16,67.0,µg/m³,63.0,21.0,3.2,viernes,habil,,pm10_centenario_julio_2024.pdf
+2024-07-12,cordoba,no,8-16,152.0,ppb,144.0,29.0,5.2,viernes,habil,,nox_cordoba_julio_2024.pdf
+2024-07-12,cordoba,no2,24h,53.0,ppb,47.0,19.0,2.8,viernes,habil,,nox_cordoba_julio_2024.pdf
+2024-07-12,cordoba,nox,8-16,207.0,ppb,191.0,49.0,4.2,viernes,habil,,nox_cordoba_julio_2024.pdf
+2024-07-12,cordoba,pm10,24h,82.0,µg/m³,59.0,23.0,3.6,viernes,habil,,pm10_cordoba_julio_2024.pdf
+2024-07-12,cordoba,pm10,8-16,83.0,µg/m³,73.0,26.0,3.2,viernes,habil,,pm10_cordoba_julio_2024.pdf
+2024-07-12,la_boca,co,24h,1.5,ppm,1.0,0.3,5.0,viernes,habil,,co_la boca_julio_2024.pdf
+2024-07-12,la_boca,co,8-16,1.1,ppm,1.0,0.3,3.7,viernes,habil,,co_la boca_julio_2024.pdf
+2024-07-12,la_boca,no,24h,137.0,ppb,86.0,17.0,8.1,viernes,habil,,nox_la boca_julio_2024.pdf
+2024-07-12,la_boca,no,8-16,110.0,ppb,107.0,22.0,5.0,viernes,habil,,nox_la boca_julio_2024.pdf
+2024-07-12,la_boca,nox,24h,203.0,ppb,152.0,44.0,4.6,viernes,habil,,nox_la boca_julio_2024.pdf
+2024-07-12,la_boca,nox,8-16,172.0,ppb,169.0,49.0,3.5,viernes,habil,,nox_la boca_julio_2024.pdf
+2024-07-12,la_boca,pm10,24h,77.0,µg/m³,68.0,22.0,3.5,viernes,habil,,pm10_la boca_julio_2024_0.pdf
+2024-07-13,centenario,pm10,24h,63.0,µg/m³,55.0,19.0,3.3,sábado,sabado,,pm10_centenario_julio_2024.pdf
+2024-07-13,centenario,pm10,8-16,65.0,µg/m³,63.0,21.0,3.1,sábado,sabado,,pm10_centenario_julio_2024.pdf
+2024-07-13,cordoba,no2,24h,49.0,ppb,47.0,19.0,2.6,sábado,sabado,,nox_cordoba_julio_2024.pdf
+2024-07-13,cordoba,pm10,8-16,74.0,µg/m³,73.0,26.0,2.8,sábado,sabado,,pm10_cordoba_julio_2024.pdf
+2024-07-13,la_boca,co,24h,1.6,ppm,1.0,0.3,5.3,sábado,sabado,,co_la boca_julio_2024.pdf
+2024-07-13,la_boca,co,8-16,1.1,ppm,1.0,0.3,3.7,sábado,sabado,,co_la boca_julio_2024.pdf
+2024-07-13,la_boca,no,24h,146.0,ppb,86.0,17.0,8.6,sábado,sabado,,nox_la boca_julio_2024.pdf
+2024-07-13,la_boca,no,8-16,120.0,ppb,107.0,22.0,5.5,sábado,sabado,,nox_la boca_julio_2024.pdf
+2024-07-13,la_boca,nox,24h,208.0,ppb,152.0,44.0,4.7,sábado,sabado,,nox_la boca_julio_2024.pdf
+2024-07-13,la_boca,nox,8-16,185.0,ppb,169.0,49.0,3.8,sábado,sabado,,nox_la boca_julio_2024.pdf
+2024-07-14,centenario,pm10,8-16,72.0,µg/m³,63.0,21.0,3.4,domingo,domingo,,pm10_centenario_julio_2024.pdf
+2024-07-14,la_boca,co,24h,1.3,ppm,1.0,0.3,4.3,domingo,domingo,,co_la boca_julio_2024.pdf
+2024-07-14,la_boca,co,8-16,1.7,ppm,1.0,0.3,5.7,domingo,domingo,,co_la boca_julio_2024.pdf
+2024-07-14,la_boca,no,24h,100.0,ppb,86.0,17.0,5.9,domingo,domingo,,nox_la boca_julio_2024.pdf
+2024-07-14,la_boca,no,8-16,110.0,ppb,107.0,22.0,5.0,domingo,domingo,,nox_la boca_julio_2024.pdf
+2024-07-14,la_boca,pm10,8-16,82.0,µg/m³,78.75,24.0,3.4,domingo,domingo,,pm10_la boca_julio_2024_0.pdf
+2024-07-24,centenario,pm10,8-16,71.0,µg/m³,63.0,21.0,3.4,miércoles,habil,,pm10_centenario_julio_2024.pdf
+2024-07-24,la_boca,co,8-16,1.1,ppm,1.0,0.3,3.7,miércoles,habil,,co_la boca_julio_2024.pdf
+2024-07-24,la_boca,no,8-16,119.0,ppb,107.0,22.0,5.4,miércoles,habil,,nox_la boca_julio_2024.pdf
+2024-07-25,cordoba,no,24h,127.0,ppb,112.0,26.0,4.9,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-25,cordoba,nox,24h,159.0,ppb,152.0,45.0,3.5,jueves,habil,,nox_cordoba_julio_2024.pdf
+2024-07-26,la_boca,no,24h,95.0,ppb,86.0,17.0,5.6,viernes,habil,,nox_la boca_julio_2024.pdf
+2024-07-27,cordoba,no,24h,124.0,ppb,112.0,26.0,4.8,sábado,sabado,,nox_cordoba_julio_2024.pdf
+2024-07-27,cordoba,nox,24h,161.0,ppb,152.0,45.0,3.6,sábado,sabado,,nox_cordoba_julio_2024.pdf
+2024-08-15,cordoba,no,8-16,152.0,ppb,144.0,29.0,5.2,jueves,habil,,nox_cordoba_agosto_2024_0.pdf
+2024-08-15,cordoba,nox,8-16,198.0,ppb,191.0,49.0,4.0,jueves,habil,,nox_cordoba_agosto_2024_0.pdf
+2024-09-30,la_boca,co,8-16,1.3,ppm,1.0,0.3,4.3,lunes,habil,,co_la boca _septiembre_2024.pdf
+2024-10-01,la_boca,co,24h,1.2,ppm,1.0,0.3,4.0,martes,habil,,co_la boca_octubre_2024.pdf
+2024-10-01,la_boca,co,8-16,1.1,ppm,1.0,0.3,3.7,martes,habil,,co_la boca_octubre_2024.pdf
+2024-10-03,la_boca,co,8-16,1.2,ppm,1.0,0.3,4.0,jueves,habil,,co_la boca_octubre_2024.pdf
+2024-11-01,la_boca,co,8-16,1.1,ppm,1.0,0.3,3.7,viernes,habil,,Co_la boca_noviembre_2024.pdf
+2025-04-29,centenario,no,24h,96.0,ppb,75.0,12.0,8.0,martes,habil,,nox_centenario_abril_2025.pdf
+2025-04-29,centenario,nox,24h,119.0,ppb,110.0,27.0,4.4,martes,habil,,nox_centenario_abril_2025.pdf
+2025-04-29,la_boca,no,24h,107.0,ppb,86.0,17.0,6.3,martes,habil,,nox_la boca_abril_2025.pdf
+2025-04-29,la_boca,nox,24h,153.0,ppb,152.0,44.0,3.5,martes,habil,,nox_la boca_abril_2025.pdf
+2025-06-06,centenario,no,24h,88.0,ppb,75.0,12.0,7.3,viernes,habil,,nox_centenario _junio_2025.pdf
+2025-06-06,centenario,no,8-16,85.0,ppb,81.0,15.0,5.7,viernes,habil,,nox_centenario _junio_2025.pdf
+2025-06-06,centenario,nox,24h,117.0,ppb,110.0,27.0,4.3,viernes,habil,,nox_centenario _junio_2025.pdf
+2025-06-06,la_boca,no,24h,144.0,ppb,86.0,17.0,8.5,viernes,habil,,nox_la boca _junio_2025.pdf
+2025-06-06,la_boca,nox,24h,193.0,ppb,152.0,44.0,4.4,viernes,habil,,nox_la boca _junio_2025.pdf
+2025-06-07,la_boca,no,24h,144.0,ppb,86.0,17.0,8.5,sábado,sabado,,nox_la boca _junio_2025.pdf
+2025-06-07,la_boca,no,8-16,192.0,ppb,107.0,22.0,8.7,sábado,sabado,,nox_la boca _junio_2025.pdf
+2025-06-07,la_boca,nox,24h,192.0,ppb,152.0,44.0,4.4,sábado,sabado,,nox_la boca _junio_2025.pdf
+2025-06-07,la_boca,nox,8-16,246.0,ppb,169.0,49.0,5.0,sábado,sabado,,nox_la boca _junio_2025.pdf
+2025-06-10,la_boca,no,24h,117.0,ppb,86.0,17.0,6.9,martes,habil,,nox_la boca _junio_2025.pdf
+2025-06-10,la_boca,nox,24h,158.0,ppb,152.0,44.0,3.6,martes,habil,,nox_la boca _junio_2025.pdf
+2025-06-18,centenario,no,24h,92.0,ppb,75.0,12.0,7.7,miércoles,habil,,nox_centenario _junio_2025.pdf
+2025-06-18,centenario,nox,24h,111.0,ppb,110.0,27.0,4.1,miércoles,habil,,nox_centenario _junio_2025.pdf
+2025-06-18,cordoba,no,24h,156.0,ppb,112.0,26.0,6.0,miércoles,habil,,nox_cordoba_junio_2025.pdf
+2025-06-18,cordoba,nox,24h,186.0,ppb,152.0,45.0,4.1,miércoles,habil,,nox_cordoba_junio_2025.pdf
+2025-06-18,la_boca,no,24h,118.0,ppb,86.0,17.0,6.9,miércoles,habil,,nox_la boca _junio_2025.pdf
+2025-06-18,la_boca,nox,24h,153.0,ppb,152.0,44.0,3.5,miércoles,habil,,nox_la boca _junio_2025.pdf
+2025-06-19,centenario,co,24h,1.4,ppm,1.1,0.4,3.5,jueves,habil,,co_centenario _junio_2025.pdf
+2025-06-19,centenario,co,8-16,1.3,ppm,1.1,0.4,3.3,jueves,habil,,co_centenario _junio_2025.pdf
+2025-06-19,centenario,no,24h,149.0,ppb,75.0,12.0,12.4,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-19,centenario,no,8-16,136.0,ppb,81.0,15.0,9.1,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-19,centenario,no2,8-16,40.0,ppb,38.0,13.0,3.1,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-19,centenario,nox,24h,181.0,ppb,110.0,27.0,6.7,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-19,centenario,nox,8-16,176.0,ppb,119.0,28.5,6.2,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-19,cordoba,no,24h,151.0,ppb,112.0,26.0,5.8,jueves,habil,,nox_cordoba_junio_2025.pdf
+2025-06-19,cordoba,no,8-16,173.0,ppb,144.0,29.0,6.0,jueves,habil,,nox_cordoba_junio_2025.pdf
+2025-06-19,cordoba,nox,24h,189.0,ppb,152.0,45.0,4.2,jueves,habil,,nox_cordoba_junio_2025.pdf
+2025-06-19,cordoba,nox,8-16,217.0,ppb,191.0,49.0,4.4,jueves,habil,,nox_cordoba_junio_2025.pdf
+2025-06-19,la_boca,no,24h,242.0,ppb,86.0,17.0,14.2,jueves,habil,,nox_la boca _junio_2025.pdf
+2025-06-19,la_boca,no,8-16,209.0,ppb,107.0,22.0,9.5,jueves,habil,,nox_la boca _junio_2025.pdf
+2025-06-19,la_boca,nox,24h,295.0,ppb,152.0,44.0,6.7,jueves,habil,,nox_la boca _junio_2025.pdf
+2025-06-19,la_boca,nox,8-16,268.0,ppb,169.0,49.0,5.5,jueves,habil,,nox_la boca _junio_2025.pdf
+2025-06-19,la_boca,pm10,24h,75.0,µg/m³,68.0,22.0,3.4,jueves,habil,,pm10_la boca _junio_2025.pdf
+2025-06-26,centenario,no,24h,80.0,ppb,75.0,12.0,6.7,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-26,centenario,no,8-16,114.0,ppb,81.0,15.0,7.6,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-26,centenario,nox,8-16,136.0,ppb,119.0,28.5,4.8,jueves,habil,,nox_centenario _junio_2025.pdf
+2025-06-27,la_boca,no,24h,87.0,ppb,86.0,17.0,5.1,viernes,habil,,nox_la boca _junio_2025.pdf
+2025-06-27,la_boca,no,8-16,118.0,ppb,107.0,22.0,5.4,viernes,habil,,nox_la boca _junio_2025.pdf
+2025-06-27,la_boca,nox,8-16,173.0,ppb,169.0,49.0,3.5,viernes,habil,,nox_la boca _junio_2025.pdf
+2025-07-02,centenario,co,24h,1.2,ppm,1.1,0.4,3.0,miércoles,habil,,co_centenario _julio_2025.pdf
+2025-07-02,centenario,co,8-16,1.3,ppm,1.1,0.4,3.3,miércoles,habil,,co_centenario _julio_2025.pdf
+2025-07-02,la_boca,no,24h,168.0,ppb,86.0,17.0,9.9,miércoles,habil,,nox_la boca _julio_2025.pdf
+2025-07-02,la_boca,no,8-16,201.0,ppb,107.0,22.0,9.1,miércoles,habil,,nox_la boca _julio_2025.pdf
+2025-07-02,la_boca,nox,24h,220.0,ppb,152.0,44.0,5.0,miércoles,habil,,nox_la boca _julio_2025.pdf
+2025-07-02,la_boca,nox,8-16,255.0,ppb,169.0,49.0,5.2,miércoles,habil,,nox_la boca _julio_2025.pdf
+2025-07-11,centenario,co,24h,1.2,ppm,1.1,0.4,3.0,viernes,habil,,co_centenario _julio_2025.pdf
+2025-07-11,centenario,co,8-16,1.4,ppm,1.1,0.4,3.5,viernes,habil,,co_centenario _julio_2025.pdf
+2025-07-11,centenario,pm10,8-16,67.0,µg/m³,63.0,21.0,3.2,viernes,habil,,pm10_centenario _julio_2025.pdf
+2025-07-11,cordoba,pm10,8-16,76.0,µg/m³,73.0,26.0,2.9,viernes,habil,,pm10_cordoba_julio_2025.pdf
+2025-07-11,la_boca,no,8-16,116.0,ppb,107.0,22.0,5.3,viernes,habil,,nox_la boca _julio_2025.pdf
+2025-07-11,la_boca,pm10,8-16,82.0,µg/m³,78.75,24.0,3.4,viernes,habil,,pm10_la boca _julio_2025_1.pdf
+2025-07-18,la_boca,no,24h,89.0,ppb,86.0,17.0,5.2,viernes,habil,,nox_la boca _julio_2025.pdf
+2025-07-21,la_boca,no,8-16,143.0,ppb,107.0,22.0,6.5,lunes,habil,,nox_la boca _julio_2025.pdf
+2025-07-21,la_boca,nox,8-16,185.0,ppb,169.0,49.0,3.8,lunes,habil,,nox_la boca _julio_2025.pdf
+2025-09-10,centenario,no,8-16,93.0,ppb,81.0,15.0,6.2,miércoles,habil,,nox_centenario_septiembre_2025.pdf
+2025-11-18,centenario,pm10,24h,104.0,µg/m³,55.0,19.0,5.5,martes,habil,,pm10_centenario_noviembre_2025.pdf
+2025-11-18,centenario,pm10,8-16,99.0,µg/m³,63.0,21.0,4.7,martes,habil,,pm10_centenario_noviembre_2025.pdf
+2025-11-18,cordoba,pm10,24h,134.0,µg/m³,59.0,23.0,5.8,martes,habil,,pm10_cordoba_noviembre_2025.pdf
+2025-11-18,cordoba,pm10,8-16,119.0,µg/m³,73.0,26.0,4.6,martes,habil,,pm10_cordoba_noviembre_2025.pdf
+2025-11-18,la_boca,pm10,24h,122.0,µg/m³,68.0,22.0,5.5,martes,habil,,pm10_la boca_noviembre_2025.pdf
+2025-11-18,la_boca,pm10,8-16,114.0,µg/m³,78.75,24.0,4.8,martes,habil,,pm10_la boca_noviembre_2025.pdf
+2025-11-19,centenario,pm10,24h,72.0,µg/m³,55.0,19.0,3.8,miércoles,habil,,pm10_centenario_noviembre_2025.pdf
+2025-11-19,centenario,pm10,8-16,79.0,µg/m³,63.0,21.0,3.8,miércoles,habil,,pm10_centenario_noviembre_2025.pdf
+2025-11-19,cordoba,pm10,24h,99.0,µg/m³,59.0,23.0,4.3,miércoles,habil,,pm10_cordoba_noviembre_2025.pdf
+2025-11-19,cordoba,pm10,8-16,94.0,µg/m³,73.0,26.0,3.6,miércoles,habil,,pm10_cordoba_noviembre_2025.pdf
+2025-11-19,la_boca,pm10,24h,82.0,µg/m³,68.0,22.0,3.7,miércoles,habil,,pm10_la boca_noviembre_2025.pdf
+2025-11-19,la_boca,pm10,8-16,89.0,µg/m³,78.75,24.0,3.7,miércoles,habil,,pm10_la boca_noviembre_2025.pdf
+2025-11-20,cordoba,pm10,8-16,80.0,µg/m³,73.0,26.0,3.1,jueves,habil,,pm10_cordoba_noviembre_2025.pdf
+2025-11-20,la_boca,pm10,8-16,79.0,µg/m³,78.75,24.0,3.3,jueves,habil,,pm10_la boca_noviembre_2025.pdf
+2025-12-29,centenario,no2,8-16,46.0,ppb,38.0,13.0,3.5,lunes,habil,,NOx_CENTENARIO_DICIEMBRE_2025_0.pdf
+2026-01-15,centenario,no,24h,97.0,ppb,75.0,12.0,8.1,jueves,habil,,nox_centenario_enero_2026.pdf
+2026-01-15,centenario,no,8-16,117.0,ppb,81.0,15.0,7.8,jueves,habil,,nox_centenario_enero_2026.pdf
+2026-01-15,centenario,nox,24h,112.0,ppb,110.0,27.0,4.1,jueves,habil,,nox_centenario_enero_2026.pdf
+2026-01-15,centenario,nox,8-16,135.0,ppb,119.0,28.5,4.7,jueves,habil,,nox_centenario_enero_2026.pdf
+2026-02-03,la_boca,pm10,8-16,87.0,µg/m³,78.75,24.0,3.6,martes,habil,,pm10_la  boca_febrero_2026.pdf
+2026-02-11,la_boca,pm10,24h,70.0,µg/m³,68.0,22.0,3.2,miércoles,habil,,pm10_la  boca_febrero_2026.pdf
+2026-02-11,la_boca,pm10,8-16,83.0,µg/m³,78.75,24.0,3.5,miércoles,habil,,pm10_la  boca_febrero_2026.pdf
+2026-03-04,cordoba,pm10,8-16,74.0,µg/m³,73.0,26.0,2.8,miércoles,habil,,pm10_cordoba_marzo_2026.pdf
+2026-03-04,la_boca,pm10,8-16,87.0,µg/m³,78.75,24.0,3.6,miércoles,habil,,pm10_la boca_marzo_2026.pdf
+2026-04-10,centenario,no,24h,90.0,ppb,75.0,12.0,7.5,viernes,habil,,NOx_CENTENARIO_ABRIL_2026.pdf
+2026-04-10,centenario,nox,24h,112.0,ppb,110.0,27.0,4.1,viernes,habil,,NOx_CENTENARIO_ABRIL_2026.pdf
+2026-05-11,centenario,no,8-16,94.0,ppb,81.0,15.0,6.3,lunes,habil,,nox_centenario_mayo_2026.pdf
+2026-05-15,la_boca,no,24h,90.0,ppb,86.0,17.0,5.3,viernes,habil,,nox_la boca_mayo_2026_0.pdf
+2026-05-18,centenario,no,24h,85.0,ppb,75.0,12.0,7.1,lunes,habil,,nox_centenario_mayo_2026.pdf
+2026-05-23,cordoba,no,24h,276.0,ppb,112.0,26.0,10.6,sábado,sabado,,nox_cordoba_mayo_2026.pdf
+2026-05-23,cordoba,no,8-16,424.0,ppb,144.0,29.0,14.6,sábado,sabado,,nox_cordoba_mayo_2026.pdf
+2026-05-23,cordoba,no2,24h,58.0,ppb,47.0,19.0,3.1,sábado,sabado,,nox_cordoba_mayo_2026.pdf
+2026-05-23,cordoba,no2,8-16,70.0,ppb,58.0,19.0,3.7,sábado,sabado,,nox_cordoba_mayo_2026.pdf
+2026-05-23,cordoba,nox,24h,333.0,ppb,152.0,45.0,7.4,sábado,sabado,,nox_cordoba_mayo_2026.pdf
+2026-05-23,cordoba,nox,8-16,492.0,ppb,191.0,49.0,10.0,sábado,sabado,,nox_cordoba_mayo_2026.pdf
+2026-05-31,la_boca,co,24h,1.2,ppm,1.0,0.3,4.0,domingo,domingo,,co_la boca_mayo_2026_0.pdf
+2026-05-31,la_boca,no,24h,108.0,ppb,86.0,17.0,6.4,domingo,domingo,,nox_la boca_mayo_2026_0.pdf
+2026-06-11,centenario,no,24h,102.0,ppb,75.0,12.0,8.5,jueves,habil,,nox_centenario_junio_2026.pdf
+2026-06-11,centenario,no,8-16,94.0,ppb,81.0,15.0,6.3,jueves,habil,,nox_centenario_junio_2026.pdf
+2026-06-11,centenario,nox,24h,121.0,ppb,110.0,27.0,4.5,jueves,habil,,nox_centenario_junio_2026.pdf
+2026-06-11,la_boca,no,24h,106.0,ppb,86.0,17.0,6.2,jueves,habil,,nox_la boca_junio_2026.pdf
+2026-06-12,centenario,no,24h,90.0,ppb,75.0,12.0,7.5,viernes,habil,,nox_centenario_junio_2026.pdf
+2026-06-12,centenario,no,8-16,91.0,ppb,81.0,15.0,6.1,viernes,habil,,nox_centenario_junio_2026.pdf
+2026-06-12,la_boca,no,24h,138.0,ppb,86.0,17.0,8.1,viernes,habil,,nox_la boca_junio_2026.pdf
+2026-06-12,la_boca,no,8-16,112.0,ppb,107.0,22.0,5.1,viernes,habil,,nox_la boca_junio_2026.pdf
+2026-06-12,la_boca,nox,24h,180.0,ppb,152.0,44.0,4.1,viernes,habil,,nox_la boca_junio_2026.pdf
+2026-06-16,centenario,no,24h,81.0,ppb,75.0,12.0,6.8,martes,habil,,nox_centenario_junio_2026.pdf
+2026-06-29,centenario,no,24h,78.0,ppb,75.0,12.0,6.5,lunes,habil,,nox_centenario_junio_2026.pdf
+2026-06-30,centenario,no,24h,95.0,ppb,75.0,12.0,7.9,martes,habil,,nox_centenario_junio_2026.pdf
+2026-06-30,centenario,no,8-16,116.0,ppb,81.0,15.0,7.7,martes,habil,,nox_centenario_junio_2026.pdf
+2026-06-30,centenario,nox,24h,115.0,ppb,110.0,27.0,4.3,martes,habil,,nox_centenario_junio_2026.pdf
+2026-06-30,centenario,nox,8-16,135.0,ppb,119.0,28.5,4.7,martes,habil,,nox_centenario_junio_2026.pdf
+2026-07-01,centenario,no,8-16,101.0,ppb,81.0,15.0,6.7,miércoles,habil,,nox_Centenario_julio_2026.pdf
+2026-07-01,centenario,nox,8-16,127.0,ppb,119.0,28.5,4.5,miércoles,habil,,nox_Centenario_julio_2026.pdf
+2026-07-01,cordoba,pm10,8-16,75.0,µg/m³,73.0,26.0,2.9,miércoles,habil,,pm10_cordoba_julio_2026.pdf
+2026-07-01,la_boca,no,24h,90.0,ppb,86.0,17.0,5.3,miércoles,habil,,nox_la boca_julio_2026.pdf
+2026-07-03,centenario,no,8-16,82.0,ppb,81.0,15.0,5.5,viernes,habil,,nox_Centenario_julio_2026.pdf
+2026-07-04,centenario,no,24h,79.0,ppb,75.0,12.0,6.6,sábado,sabado,,nox_Centenario_julio_2026.pdf
+2026-07-07,centenario,no,8-16,98.0,ppb,81.0,15.0,6.5,martes,habil,,nox_Centenario_julio_2026.pdf
+2026-07-07,centenario,nox,8-16,121.0,ppb,119.0,28.5,4.2,martes,habil,,nox_Centenario_julio_2026.pdf
+2026-07-17,centenario,pm10,8-16,64.0,µg/m³,63.0,21.0,3.0,viernes,habil,,pm10_centenario_julio_2026.pdf
+2026-08-20,centenario,no,8-16,118.0,ppb,81.0,15.0,7.9,jueves,habil,,nox_centenario_agosto_2026.pdf
+2026-08-20,centenario,nox,8-16,149.0,ppb,119.0,28.5,5.2,jueves,habil,,nox_centenario_agosto_2026.pdf
+2026-08-20,centenario,pm10,8-16,67.0,µg/m³,63.0,21.0,3.2,jueves,habil,,pm10_centenario_agosto_2026.pdf
+2026-08-20,cordoba,pm10,8-16,78.0,µg/m³,73.0,26.0,3.0,jueves,habil,,pm10_cordoba_agosto_2026.pdf

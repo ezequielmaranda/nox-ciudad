@@ -1,0 +1,282 @@
+id_estacion,tipo_informe,anio,mes,archivo,estado,estado_detalle,estacion_en_encabezado
+centenario,co,2024,1,co_centenario_enero_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,2,co_centenario_febrero_2024.pdf,ok_con_aviso,ok (aviso: la tabla termina el día 28 de 29),CENTENARIO
+centenario,co,2024,4,co_centenario_abril_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,5,co_centenario_mayo_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,6,co_centenario_junio_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,7,co_centenario_julio_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,8,co_centenario_agosto_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,9,co_centenario _septiembre_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,10,co_centenario_octubre_2024_0.pdf,ok,ok,CENTENARIO
+centenario,co,2024,11,Co_centenario_noviembre_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2024,12,CO_CENTENARIO_DICIEMBRE_2024.pdf,ok,ok,CENTENARIO
+centenario,co,2025,1,co_centenario_enero_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,2,co_centenario_febrero_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,3,co_centenario_marzo_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,4,co_centenario _abril_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,5,co_centenario_mayo_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,6,co_centenario _junio_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,7,co_centenario _julio_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,8,co_centenario_agosto_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,9,co_centenario_septiembre_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,10,co_centenario_octubre_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,11,co_centenario_noviembre_2025.pdf,ok,ok,CENTENARIO
+centenario,co,2025,12,CO_CENTENARIO_DICIEMBRE_2025_0.pdf,ok,ok,CENTENARIO
+centenario,co,2026,1,co_centenario_enero_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,2,co_centenario_febrero_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,3,co_centenario_marzo_2026_0.pdf,ok,ok,CENTENARIO
+centenario,co,2026,4,CO_CENTENARIO_ABRIL_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,5,co_centenaeio_mayo_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,6,co_centenario_junio_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,7,co_centenario_julio_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,8,co_centenario_agosto_2026.pdf,ok,ok,CENTENARIO
+centenario,co,2026,9,co_centenario_septiembre_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2024,1,nox_centenario_enero_2024.pdf,ok,ok,CENTENARIO
+centenario,nox,2024,2,nox_centenario_febrero_2024.pdf,ok,ok,CENTENARIO
+centenario,nox,2024,12,NOX_CENTENARIO_DICIEMBRE_2024.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,1,nox_centenario_enero_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,2,nox_centenario_febrero_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,3,nox_centenario_marzo_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,4,nox_centenario_abril_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,5,nox_centenario_mayo_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,6,nox_centenario _junio_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,7,nox_cordoba _julio_2025.pdf,descartado,descartado: archivo de CORDOBA enlazado desde CENTENARIO,CORDOBA
+centenario,nox,2025,8,NOx_CENTENARIO_AGOSTO_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,9,nox_centenario_septiembre_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,10,nox_centenario_octubre_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,11,nox_centenario_noviembre_2025.pdf,ok,ok,CENTENARIO
+centenario,nox,2025,12,NOx_CENTENARIO_DICIEMBRE_2025_0.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,1,nox_centenario_enero_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,2,nox_centenario_febrero_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,3,nox_centenario_marzo_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,4,NOx_CENTENARIO_ABRIL_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,5,nox_centenario_mayo_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,6,nox_centenario_junio_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,7,nox_Centenario_julio_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,8,nox_centenario_agosto_2026.pdf,ok,ok,CENTENARIO
+centenario,nox,2026,9,nox_centenario_septiembre_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,1,pm10_centenario_enero_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,2,pm10_centenario_febrero_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,3,pm10_centenario_marzo_2024_1.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,4,pm10_centenario_abril_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,5,pm10_centenario_mayo_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,6,pm10_centenario_junio_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,7,pm10_centenario_julio_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,8,pm10_centenario_agosto_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,9,pm10_centenario _septiembre_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,10,pm10_centenario_octubre_2024_0.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,11,Pm10_centenario_noviembre_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2024,12,PM10_CENTENARIO_DICIEMBRE_2024.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,1,pm10_centenario_enero_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,2,pm10_centenario_febrero_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,3,pm10_centenario_marzo_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,4,pm10_centenario_abril_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,5,pm10_centenario_mayo_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,6,pm10_centenario _junio_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,7,pm10_centenario _julio_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,8,pm10_centenario_agosto_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,9,pm10_centenario_septiembre_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,10,pm10_centenario_octubre_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,11,pm10_centenario_noviembre_2025.pdf,ok,ok,CENTENARIO
+centenario,pm10,2025,12,PM10_CENTENARIO_DICIEMBRE_2025_0.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,1,pm10_centenario_enero_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,2,pm10_centenario_febrero_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,3,pm10_centenario_marzo_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,4,PM10_CENTENARIO_ABRIL_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,5,pm10_centenaio_mayo_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,6,pm10_centenario_junio_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,7,pm10_centenario_julio_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,8,pm10_centenario_agosto_2026.pdf,ok,ok,CENTENARIO
+centenario,pm10,2026,9,pm10_centenario_septiembre_2026.pdf,ok,ok,CENTENARIO
+cordoba,co,2024,2,co_cordoba_febrero_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,3,co_cordoba_marzo_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,6,co_cordoba_junio_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,7,co_cordoba_julio_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,8,co_cordoba_agosto_2024_0.pdf,ok,ok,CORDOBA
+cordoba,co,2024,9,co_cordoba _septiembre_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,10,co_cordoba_octubre_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,11,Co_cordoba_noviembre_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2024,12,CO_CORDOBA_DICIEMBRE_2024.pdf,ok,ok,CORDOBA
+cordoba,co,2025,1,co_cordoba_enero_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,2,co_cordoba_febrero_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,3,co_cordoba_marzo_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,4,co_cordoba _abril_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,5,co_cordoba_mayo_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,6,co_cordoba_junio_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,7,co_cordoba_julio_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,8,co_cordoba_agosto_2025_0.pdf,ok,ok,CORDOBA
+cordoba,co,2025,9,co_cordoba_septiembre_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,10,co_cordoba_octubre_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,11,co_cordoba_noviembre_2025.pdf,ok,ok,CORDOBA
+cordoba,co,2025,12,CO_CORDOBA_DICIEMBRE_2025_1.pdf,ok,ok,CORDOBA
+cordoba,co,2026,1,co_cordoba_enero_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,2,co_cordoba_febrero_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,3,co_cordoba_marzo_2026_0.pdf,ok,ok,CORDOBA
+cordoba,co,2026,4,CO_CORDOBA_ABRIL_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,5,co_cordoba_mayo_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,6,co_cordoba_junio_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,7,co_cordoba_julio_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,8,co_cordoba_agosto_2026.pdf,ok,ok,CORDOBA
+cordoba,co,2026,9,co_cordoba_septiembre_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,2,nox_cordoba_febrero_2024_0.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,3,nox_cordoba_marzo_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,4,nox_cordoba_abril_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,5,nox_cordoba_mayo_2024_0.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,6,nox_cordoba_junio_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,7,nox_cordoba_julio_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,8,nox_cordoba_agosto_2024_0.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,9,nox_cordoba_septiembre_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,10,nox_cordoba_octubre_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,11,Nox_cordoba_noviembre_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2024,12,NOX_CORDOBA_DICIEMBRE_2024.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,1,nox_cordoba_enero_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,2,nox_cordoba_febrero_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,3,nox_cordoba_marzo_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,4,nox_cordoba_abril_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,5,nox_cordoba_mayo_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,6,nox_cordoba_junio_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,7,nox_cordoba _julio_2025_0.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,8,NOx_CORDOBA_AGOSTO_2025_0.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,9,nox_cordoba_septiembre_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,10,nox_cordoba_octubre_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,11,nox_cordoba_noviembre_2025.pdf,ok,ok,CORDOBA
+cordoba,nox,2025,12,NOx_CORDOBA_DICIEMBRE_2025_1.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,1,nox_cordoba_enero_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,2,nox_cordoba_febrero_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,3,nox_cordoba_marzo_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,4,NOx_CORDOBA_ABRIL_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,5,nox_cordoba_mayo_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,6,nox_cordoba_junio_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,7,nox_cordoba_julio_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,8,nox_cordoba_agosto_2026.pdf,ok,ok,CORDOBA
+cordoba,nox,2026,9,nox_cordoba_septiembre_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,1,pm10_cordoba_enero_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,2,pm10_cordoba_febrero_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,3,pm10_cordoba_marzo_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,4,pm10_cordoba_abril_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,5,pm10_cordoba_mayo_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,6,pm10_cordoba_junio_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,7,pm10_cordoba_julio_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,8,pm10_cordoba_agosto_2024_0.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,9,pm10_cordoba_septiembre_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,10,pm10_cordoba_octubre_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,11,Pm10_cordoba_noviembre_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2024,12,PM10_CORDOBA_DICIEMBRE_2024.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,1,pm10_cordoba_enero_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,2,pm10_cordoba_febrero_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,3,pm10_cordoba_marzo_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,4,pm10_cordoba_abril_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,5,pm10_cordoba_mayo_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,6,pm10_cordoba_junio_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,7,pm10_cordoba_julio_2025.pdf,ok_con_aviso,ok (aviso: celdas con texto inválido: Lunes),CORDOBA
+cordoba,pm10,2025,9,pm10_cordoba_septiembre_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,10,pm10_cordoba_octubre_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,11,pm10_cordoba_noviembre_2025.pdf,ok,ok,CORDOBA
+cordoba,pm10,2025,12,PM10_CORDOBA_DICIEMBRE_2025_1.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,1,pm10_cordoba_enero_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,2,pm10_la  boca_febrero_2026_0.pdf,descartado,descartado: archivo de LA BOCA enlazado desde CORDOBA,LA BOCA
+cordoba,pm10,2026,3,pm10_cordoba_marzo_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,4,PM10_CORDOBA_ABRIL_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,5,pm10_cordoba_mayo_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,6,pm10_cordoba_junio_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,7,pm10_cordoba_julio_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,8,pm10_cordoba_agosto_2026.pdf,ok,ok,CORDOBA
+cordoba,pm10,2026,9,PM10_cordoba_septiembre_2026.pdf,ok,ok,CORDOBA
+la_boca,co,2024,1,co_la boca_enero_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,2,co_la boca_febrero_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,3,co_la boca_marzo_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,4,co_la boca_abril_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,5,co_la boca_mayo_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,6,co_laboca_junio_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,7,co_la boca_julio_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,8,co_la boca_agosto_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,9,co_la boca _septiembre_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,10,co_la boca_octubre_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,11,Co_la boca_noviembre_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2024,12,CO_LABOCA_DICIEMBRE_2024.pdf,ok,ok,LA BOCA
+la_boca,co,2025,1,co_la boca_enero_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,2,co_la boca_febrero_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,3,co_la boca_marzo_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,4,co_la boca_abril_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,5,co_laboca_mayo_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,6,co_la boca _junio_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,7,co_la boca _julio_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,8,co_la boca_agosto_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2025,9,co_la boca_septiembre_2025_0.pdf,ok,ok,LA BOCA
+la_boca,co,2025,10,co_la boca_octubre_2025_0.pdf,ok,ok,LA BOCA
+la_boca,co,2025,11,co_la boca_noviembre_2025_0.pdf,ok,ok,LA BOCA
+la_boca,co,2025,12,CO_LABOCA_DICIEMBRE_2025.pdf,ok,ok,LA BOCA
+la_boca,co,2026,1,co_la boca_enero_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,2,co_la boca_febrero_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,3,co_la boca_marzo_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,4,CO_LABOCA_ABRIL_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,5,co_la boca_mayo_2026_0.pdf,ok,ok,LA BOCA
+la_boca,co,2026,6,co_laboca_junio_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,7,co_la boca_julio_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,8,co_la boca_agosto_2026.pdf,ok,ok,LA BOCA
+la_boca,co,2026,9,co_la boca_septiembre_2026_0.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,1,nox_la boca_enero_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,2,nox_la boca_febrero_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,3,nox_la boca_marzo_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,4,nox_la boca_abril_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,5,nox_la boca_mayo_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,6,nox_laboca_junio_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,7,nox_la boca_julio_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,8,nox_la boca_agosto_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,9,nox_la boca _septiembre_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,10,nox_la boca_octubre_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,11,Nox_la boca_noviembre_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2024,12,NOX_LABOCA_DICIEMBRE_2024.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,1,nox_la boca_enero_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,2,nox_la boca_febrero_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,3,nox_la boca_marzo_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,4,nox_la boca_abril_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,5,nox_laboca_mayo_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,6,nox_la boca _junio_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,7,nox_la boca _julio_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,8,NOx_LABOCA_AGOSTO_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,9,nox_la boca_septiembre_2025_0.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,10,nox_la boca_octubre_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,11,nox_la boca_noviembre_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2025,12,NOx_LABOCA_DICIEMBRE_2025.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,1,nox_la  boca_enero_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,2,nox_la  boca_febrero_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,3,nox_la boca_marzo_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,4,NOx_LABOCA_ABRIL_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,5,nox_la boca_mayo_2026_0.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,6,nox_la boca_junio_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,7,nox_la boca_julio_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,8,nox_la boca_agosto_2026.pdf,ok,ok,LA BOCA
+la_boca,nox,2026,9,nox_la boca_septiembre_2026_0.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,1,pm10_la boca_enero_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,2,pm10_la boca_febrero_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,3,pm10_la boca_marzo_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,4,pm10_la boca_abril_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,5,pm10_la boca_mayo_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,6,pm10_laboca_junio_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,7,pm10_la boca_julio_2024_0.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,8,pm10_la boca_agosto_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,9,pm10_la boca_septiembre_2024 no publ.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,10,pm10_la boca_octubre_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,11,Pm10_la boca_noviembre_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2024,12,PM10_LABOCA_DICIEMBRE_2024.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,2,pm10_la boca_febrero_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,3,pm10_la boca_marzo_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,4,pm10_la boca_abril_2025corregido.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,5,pm10_laboca_mayo_2025.pdf,ok_con_aviso,ok (aviso: el encabezado dice CORDOBA),CORDOBA
+la_boca,pm10,2025,6,pm10_la boca _junio_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,7,pm10_la boca _julio_2025_1.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,8,pm10_la boca_agosto_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,9,pm10_la boca_septiembre_2025_0.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,10,pm10_la boca_octubre_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,11,pm10_la boca_noviembre_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2025,12,PM10_LABOCA_DICIEMBRE_2025.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,1,pm10_la  boca_enero_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,2,pm10_la  boca_febrero_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,3,pm10_la boca_marzo_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,4,PM10_LABOCA_ABRIL_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,5,pm10_la boca_mayo_2026_0.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,6,pm10_la boca_junio_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,7,pm10_la boca_julio_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,8,pm10_la boca_agosto_2026.pdf,ok,ok,LA BOCA
+la_boca,pm10,2026,9,pm10_la boca_septiembre_2026_0.pdf,ok,ok,LA BOCA

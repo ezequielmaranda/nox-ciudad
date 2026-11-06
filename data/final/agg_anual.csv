@@ -1,0 +1,37 @@
+id_estacion,id_contaminante,id_periodo,periodo,tipo_periodo,anio,n_dias_periodo,n_dias_con_dato,completitud,es_valido,estado_indicador,unidad,promedio_anual,promedio_referencial,guia_anual,veces_guia_anual,nivel_oms,proximo_nivel,ug_para_proximo_nivel,p99_24h,guia_24h,p99_veces_guia_24h,p99_supera_guia_24h,maximo_diario,n_dias_supera_24h,pct_dias_supera_24h
+centenario,co,2024,2024,anio_completo,2024,366,297,0.8115,true,valido,mg/m³,0.44,0.44,,,,,,1.04,4.0,0.26,false,1.38,0,0.0
+centenario,co,2025,2025,anio_completo,2025,365,350,0.9589,true,valido,mg/m³,0.53,0.53,,,,,,1.26,4.0,0.32,false,1.6,0,0.0
+centenario,co,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,269,0.9853,true,valido,mg/m³,0.49,0.49,,,,,,1.03,4.0,0.26,false,1.26,0,0.0
+centenario,co,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,353,0.9671,true,valido,mg/m³,0.49,0.49,,,,,,1.03,4.0,0.26,false,1.26,0,0.0
+centenario,no2,2024,2024,anio_completo,2024,366,69,0.1885,false,no_valido,µg/m³,,23.42,10.0,,,,,,25.0,,,52.69,23,0.3333
+centenario,no2,2025,2025,anio_completo,2025,365,324,0.8877,true,valido,µg/m³,28.13,28.13,10.0,2.81,IT2,IT3,8.13,52.69,25.0,2.11,true,58.33,179,0.5525
+centenario,no2,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,269,0.9853,true,valido,µg/m³,25.16,25.16,10.0,2.52,IT2,IT3,5.16,43.28,25.0,1.73,true,48.92,131,0.487
+centenario,no2,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,353,0.9671,true,valido,µg/m³,26.17,26.17,10.0,2.62,IT2,IT3,6.17,48.92,25.0,1.96,true,54.57,183,0.5184
+centenario,pm10,2024,2024,anio_completo,2024,366,334,0.9126,true,valido,µg/m³,20.99,20.99,15.0,1.4,IT3,IT4,0.99,53.0,45.0,1.18,true,82.0,14,0.0419
+centenario,pm10,2025,2025,anio_completo,2025,365,347,0.9507,true,valido,µg/m³,21.47,21.47,15.0,1.43,IT3,IT4,1.47,46.08,45.0,1.02,true,104.0,4,0.0115
+centenario,pm10,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,256,0.9377,true,valido,µg/m³,21.89,21.89,15.0,1.46,IT3,IT4,1.89,47.9,45.0,1.06,true,55.0,4,0.0156
+centenario,pm10,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,335,0.9178,true,valido,µg/m³,21.87,21.87,15.0,1.46,IT3,IT4,1.87,52.96,45.0,1.18,true,104.0,6,0.0179
+cordoba,co,2024,2024,anio_completo,2024,366,242,0.6612,false,no_valido,mg/m³,,0.74,,,,,,,4.0,,,1.72,0,0.0
+cordoba,co,2025,2025,anio_completo,2025,365,347,0.9507,true,valido,mg/m³,0.68,0.68,,,,,,1.49,4.0,0.37,false,1.95,0,0.0
+cordoba,co,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,265,0.9707,true,valido,mg/m³,0.73,0.73,,,,,,1.49,4.0,0.37,false,1.49,0,0.0
+cordoba,co,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,353,0.9671,true,valido,mg/m³,0.7,0.7,,,,,,1.49,4.0,0.37,false,1.49,0,0.0
+cordoba,no2,2024,2024,anio_completo,2024,366,311,0.8497,true,valido,µg/m³,39.24,39.24,10.0,3.92,IT1,IT2,9.24,76.77,25.0,3.07,true,103.49,274,0.881
+cordoba,no2,2025,2025,anio_completo,2025,365,334,0.9151,true,valido,µg/m³,35.24,35.24,10.0,3.52,IT1,IT2,5.24,63.35,25.0,2.53,true,73.38,263,0.7874
+cordoba,no2,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,265,0.9707,true,valido,µg/m³,36.18,36.18,10.0,3.62,IT1,IT2,6.18,70.3,25.0,2.81,true,109.13,231,0.8717
+cordoba,no2,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,353,0.9671,true,valido,µg/m³,34.98,34.98,10.0,3.5,IT1,IT2,4.98,67.66,25.0,2.71,true,109.13,291,0.8244
+cordoba,pm10,2024,2024,anio_completo,2024,366,348,0.9508,true,valido,µg/m³,24.61,24.61,15.0,1.64,IT3,IT4,4.61,56.53,45.0,1.26,true,82.0,13,0.0374
+cordoba,pm10,2025,2025,anio_completo,2025,365,279,0.7644,true,valido,µg/m³,24.42,24.42,15.0,1.63,IT3,IT4,4.42,57.22,45.0,1.27,true,134.0,6,0.0215
+cordoba,pm10,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,228,0.8352,true,valido,µg/m³,26.5,26.5,15.0,1.77,IT3,IT4,6.5,52.19,45.0,1.16,true,59.0,9,0.0395
+cordoba,pm10,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,311,0.8521,true,valido,µg/m³,26.57,26.57,15.0,1.77,IT3,IT4,6.57,58.0,45.0,1.29,true,134.0,13,0.0418
+la_boca,co,2024,2024,anio_completo,2024,366,331,0.9044,true,valido,mg/m³,0.52,0.52,,,,,,1.31,4.0,0.33,false,1.83,0,0.0
+la_boca,co,2025,2025,anio_completo,2025,365,361,0.989,true,valido,mg/m³,0.34,0.34,,,,,,0.69,4.0,0.17,false,0.69,0,0.0
+la_boca,co,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,232,0.8498,true,valido,mg/m³,0.36,0.36,,,,,,0.96,4.0,0.24,false,1.38,0,0.0
+la_boca,co,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,321,0.8795,true,valido,mg/m³,0.35,0.35,,,,,,0.8,4.0,0.2,false,1.38,0,0.0
+la_boca,no2,2024,2024,anio_completo,2024,366,351,0.959,true,valido,µg/m³,56.45,56.45,10.0,5.65,> IT1,IT1,16.45,104.43,25.0,4.18,true,124.19,336,0.9573
+la_boca,no2,2025,2025,anio_completo,2025,365,361,0.989,true,valido,µg/m³,49.87,49.87,10.0,4.99,> IT1,IT1,9.87,92.95,25.0,3.72,true,97.84,339,0.9391
+la_boca,no2,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,232,0.8498,true,valido,µg/m³,46.74,46.74,10.0,4.67,> IT1,IT1,6.74,85.52,25.0,3.42,true,112.9,219,0.944
+la_boca,no2,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,321,0.8795,true,valido,µg/m³,45.93,45.93,10.0,4.59,> IT1,IT1,5.93,79.03,25.0,3.16,true,112.9,305,0.9502
+la_boca,pm10,2024,2024,anio_completo,2024,366,297,0.8115,true,valido,µg/m³,23.76,23.76,15.0,1.58,IT3,IT4,3.76,63.04,45.0,1.4,true,77.0,11,0.037
+la_boca,pm10,2025,2025,anio_completo,2025,365,306,0.8384,true,valido,µg/m³,23.6,23.6,15.0,1.57,IT3,IT4,3.6,58.9,45.0,1.31,true,122.0,13,0.0425
+la_boca,pm10,2026,2026 (parcial: 01/01 a 30/09),anio_parcial,2026,273,218,0.7985,true,valido,µg/m³,24.65,24.65,15.0,1.64,IT3,IT4,4.65,57.98,45.0,1.29,true,70.0,10,0.0459
+la_boca,pm10,movil_12m,Últimos 12 meses (10/2025 a 09/2026),movil_12m,,365,299,0.8192,true,valido,µg/m³,25.19,25.19,15.0,1.68,IT3,IT4,5.19,61.18,45.0,1.36,true,122.0,16,0.0535
