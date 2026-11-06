@@ -19,11 +19,12 @@ EDA en Python → dashboard en Power BI.
 6. ¿Cuánto condiciona la calidad o completitud de los datos a las conclusiones?
 
 **Hipótesis:**
-- **H1:** el NO₂ no alcanza la guía de la OMS, pero se mantiene dentro de sus objetivos intermedios: la mayoría de
-  los días cumple el objetivo intermedio diario IT2 (50 µg/m³) y el promedio anual cumple al menos el IT1
-  (40 µg/m³). El PM10 cumple la guía diaria casi todos los días.
-- **H2:** La Boca es la estación más comprometida en NO₂.
+- **H1:** el NO₂ es el contaminante más crítico: el que más se aleja de las guías de la OMS.
+- **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂.
 - **H3:** los domingos y feriados la brecha se reduce de forma visible.
+
+Son las expectativas previas al análisis: el NO₂ sale sobre todo de los motores (en especial diésel) y Córdoba es la
+estación que la APrA describe con flujo vehicular alto.
 
 **Por qué importa:** la OMS actualizó sus guías en 2021 y las hizo mucho más exigentes (la de NO₂ anual pasó de 40 a
 10 µg/m³). La norma de la Ciudad sigue valores más laxos, así que "cumplir la norma" no dice cuán lejos se está de
@@ -66,9 +67,13 @@ Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Bo
    está inflada porque en 2024 casi no hay datos de Centenario, la estación más limpia. Por estación: La Boca −20%,
    Córdoba −14% y Centenario sin tendencia. Y sin controlar la meteorología no se puede atribuir a una mejora real.
 
-**Hipótesis:** H1 se sostiene en Parque Centenario y Córdoba, no en La Boca (que es justamente lo que plantea H2);
-el PM10 cumple la guía diaria casi siempre, pero no la anual ni el P99. H2 se sostiene con todos los indicadores.
-H3 se sostiene a medias: baja el nivel, pero en La Boca el incumplimiento sigue.
+**Hipótesis:**
+- **H1 se sostiene:** el NO₂ supera la guía diaria el 50% a 95% de los días, contra 2% a 4% del PM10 y 0% del CO;
+  su promedio anual está 2,6 a 4,6 veces sobre la guía (PM10: 1,5 a 1,8).
+- **H2 no se sostiene:** la más comprometida es **La Boca**, con todos los indicadores; Córdoba queda segunda. La
+  Boca tiene flujo vehicular medio-bajo pero fuentes fijas cercanas (puerto, polo de Dock Sud, tránsito pesado) y es
+  la que menos baja el domingo: el tránsito de la avenida no explica todo.
+- **H3 se sostiene a medias:** baja el nivel, pero en La Boca el incumplimiento sigue.
 
 Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (las mismas respuestas en SQL).
@@ -270,7 +275,8 @@ Se priorizaron los datos sobre lo que decía el documento:
   valor válido. En la fuente cada estación tiene fila los 1.004 días; los huecos son por contaminante.
 - **NO₂ de enero a septiembre 26,1 → 20,8 → 18,9 ppb:** se reproduce (26,1 → 20,9 → 18,9), pero está inflado por la
   falta de Centenario en 2024 (sección Hallazgos, punto 6).
-- **H1 reformulada en términos de objetivos intermedios.** El enunciado decía "el NO₂ supera la guía diaria la
-  mayoría de los días". Se reformuló para preguntar hasta qué escalón de la OMS se cumple, que es para lo que la OMS
-  define los objetivos intermedios. No se ajustó para "dar bien": La Boca no la cumple.
+- **Hipótesis reescritas como expectativas previas.** El enunciado planteaba H1 "el NO₂ supera la guía diaria la
+  mayoría de los días; el PM10 casi nunca" y H2 "La Boca es la más comprometida", con detalles que solo se conocen
+  después de analizar. Se reescribieron como lo esperable antes de mirar los datos: H1, que el NO₂ es el
+  contaminante más crítico; H2, que la peor es Córdoba, la estación de tránsito intenso. Los datos refutan H2.
 - **Extensión de meteorología:** fuera del alcance, por decisión del equipo (se simplificó el TP a calidad del aire).

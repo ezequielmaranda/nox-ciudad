@@ -105,7 +105,7 @@ P99 veces la guía = DIVIDE ( [Percentil 99], [Guía OMS 24 h] )
 -- Racha más larga de días seguidos sobre la guía (calculada en SQL con gaps and islands)
 Racha máxima = MAX ( agg_rachas[dias] )
 
--- % de días que cumplen el objetivo intermedio IT2 diario o uno más exigente (NO2: 50 µg/m³). Para H1.
+-- % de días que cumplen el objetivo intermedio IT2 diario o uno más exigente (NO2: 50 µg/m³).
 % Días que cumplen IT2 =
 DIVIDE (
     CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[orden_nivel_oms] <= 4 ),
@@ -145,7 +145,7 @@ intermedios y La Boca no alcanza ni el primero.**
   4. `Racha máxima` ("216 días seguidos sobre la guía").
 - **Barras 100% apiladas "en qué escalón cae cada día"**: eje `dim_estacion[nombre]`, leyenda
   `agg_cumplimiento_diario[nivel_oms]` (ordenada por `orden_nivel_oms`), valores = recuento de filas, mostrado
-  como % del total. Colores por nivel (sección 6). Es el gráfico que responde H1 (figura
+  como % del total. Colores por nivel (sección 6). Responde "¿en qué escalón está cada estación?" (figura
   `reports/figures/06_niveles_oms_diarios.png` del EDA).
 - **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `Nivel OMS anual`,
   `Promedio anual` (últimos 12 meses), `% Días sobre guía`.

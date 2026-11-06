@@ -148,9 +148,9 @@ LIMIT 5;
 -- =====================================================================================================
 
 -- B0 · ¿En qué escalón de la OMS cae cada día?
--- PREGUNTA  Subpregunta 1 y H1: ¿hasta qué objetivo intermedio cumple el NO2 (y el PM10) día a día?
--- POR QUÉ   La guía es muy exigente; los objetivos intermedios (IT) miden en qué escalón se está. H1 dice
---           que la mayoría de los días se cumple el IT2 diario del NO2 (50 µg/m³).
+-- PREGUNTA  Subpreguntas 1 y 2: ¿hasta qué objetivo intermedio cumple el NO2 (y el PM10) día a día?
+-- POR QUÉ   La guía es muy exigente; los objetivos intermedios (IT) miden en qué escalón se está, que dice
+--           más que "cumple / no cumple".
 -- TÉCNICA   GROUP BY + dos funciones de ventana: el % de cada nivel (SUM ... OVER PARTITION) y el %
 --           ACUMULADO de días que cumplen ese nivel o uno más exigente (SUM ... OVER ... ORDER BY ...
 --           ROWS UNBOUNDED PRECEDING). En la fila IT2 del NO2, el acumulado es el % de días que cumple el IT2.
@@ -170,7 +170,7 @@ ORDER BY id_contaminante, id_estacion, orden_nivel_oms;
 
 
 -- B0b · Matriz de escalones: % de días que cumplen cada nivel, por estación y año (NO2)
--- PREGUNTA  Subpreguntas 1, 2 y 3 y H1: ¿hasta qué escalón cumple cada estación, año por año?
+-- PREGUNTA  Subpreguntas 1, 2 y 3: ¿hasta qué escalón cumple cada estación, año por año?
 -- POR QUÉ   Es la tabla que va a la presentación: muestra en una sola vista la guía, los objetivos
 --           intermedios y el escalón del promedio anual. Celdas vacías = período con menos de 75% de días.
 -- TÉCNICA   "Pivot" con agregación condicional (MAX ... FILTER): las filas de nivel pasan a columnas.
@@ -194,7 +194,8 @@ ORDER BY e.nombre, p.orden;
 
 
 -- B1 · % de días por encima de la guía diaria (24 h)
--- PREGUNTA  Subpregunta 1: ¿qué porcentaje de días se supera la guía diaria, por estación y contaminante?
+-- PREGUNTA  Subpregunta 1 y H1: ¿qué porcentaje de días se supera la guía diaria, por estación y contaminante?
+--           ¿El NO2 es el que más se aleja de la guía?
 -- POR QUÉ   Es el indicador más fácil de comunicar ("9 de cada 10 días").
 --           Denominador = días CON DATO (no todos los días): un día sin dato no es un día "limpio".
 -- TÉCNICA   JOIN de la fact con la tabla de referencia OMS (el umbral no está escrito en el SQL).
@@ -294,7 +295,8 @@ ORDER BY a.id_contaminante, a.veces_guia_anual DESC;
 
 
 -- B5 · Ranking de estaciones
--- PREGUNTA  Subpregunta 3: ¿qué estación tiene la peor situación y con qué contaminante? (H2: La Boca en NO2)
+-- PREGUNTA  Subpregunta 3 y H2: ¿qué estación tiene la peor situación? (H2 espera que sea Córdoba, la de
+--           tránsito intenso; el ranking muestra que es La Boca).
 -- POR QUÉ   Ordenar las estaciones con dos criterios (veces la guía anual y % de días sobre la guía
 --           diaria) y ver si coinciden.
 -- TÉCNICA   Funciones de ventana RANK() OVER (PARTITION BY ... ORDER BY ...).

@@ -10,12 +10,11 @@ el aire de la Ciudad de Buenos Aires de las guías de la OMS 2021, y cómo varí
 de día y período? El enunciado completo está en `PROYECTO_TP_AIRE_OMS.md`; la consigna de la cátedra pide flujo
 completo (SQL, limpieza, ETL, EDA en Python, dashboard en **Power BI**) y poder justificar cada decisión.
 
-Hipótesis (H1 reformulada por el equipo: en vez de "supera la guía la mayoría de los días", hasta qué escalón cumple):
-- **H1:** el NO₂ no alcanza la guía OMS pero se mantiene dentro de los objetivos intermedios: la mayoría de los días
-  cumple el IT2 diario (50 µg/m³) y el promedio anual cumple al menos el IT1 (40 µg/m³). El PM10 cumple la guía
-  diaria casi siempre. → Se sostiene en Centenario y Córdoba, no en La Boca.
-- **H2:** La Boca es la estación más comprometida en NO₂. → Se sostiene.
+Hipótesis (reescritas por el equipo como expectativas previas al análisis, sin detalles que solo se saben después):
+- **H1:** el NO₂ es el contaminante más crítico: el que más se aleja de las guías de la OMS. → Se sostiene (50-95% de días sobre la guía vs. 2-4% del PM10 y 0% del CO).
+- **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂. → **No se sostiene**: la peor es La Boca (flujo medio-bajo, fuentes fijas); Córdoba es segunda.
 - **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
+La matriz de escalones (hasta qué IT cumple cada estación) ya no es una hipótesis: responde las subpreguntas 1 y 2.
 
 Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
 noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
