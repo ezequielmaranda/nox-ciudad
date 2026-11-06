@@ -18,6 +18,12 @@ Hipótesis (reescritas por el equipo como expectativas previas al análisis, sin
 - **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂. → **No se sostiene**: la peor es La Boca (flujo medio-bajo, fuentes fijas); Córdoba es segunda.
 - **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
 La matriz de escalones (hasta qué IT cumple cada estación) ya no es una hipótesis: responde las subpreguntas 1 y 2.
+Fundamentación (README, "De dónde salen las hipótesis", con fuentes): premisa común "el NO₂ de la Ciudad viene sobre
+todo del tránsito" (Bogo et al. 1999) aplicada a cada corte. H1: la OMS 2021 endureció el NO₂ anual 4 veces (40→10)
+y el PM10 poco (20→15, 50→45). H2: la APrA describe a Córdoba con flujo vehicular alto y a La Boca medio-bajo con
+fuentes fijas; en Europa las superaciones de NO₂ son en estaciones de tránsito (EEA). H3: efecto fin de semana
+(Beirle et al. 2003). El período no tiene hipótesis (sin meteorología no hay base). Resultado conjunto: el tránsito
+explica buena parte del NO₂, pero no todo.
 
 Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
 noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
@@ -44,6 +50,11 @@ heatmap) y matplotlib.
   (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
 - `make test`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
   (idempotencia, que corra `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. `make eda`: ejecuta `notebooks/eda.ipynb`.
+- `make pbip` (= `python -m src.generar_pbip`): genera `dashboard/AireOMS.pbip` (modelo TMDL con 14 tablas + `_Medidas`,
+  20 relaciones, 18 medidas DAX, orden de columnas, descripciones de dbt, tema; informe PBIR con 3 páginas vacías).
+  Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
+  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. El tema base
+  `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
 - `make extract` (= `python -m src.extract`): baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
   `static.buenosaires.gob.ar` corta la conexión TLS (probablemente bloqueo geográfico). El CSV crudo está en git.
 
@@ -96,6 +107,8 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 
 ## Pendiente
 
-- Armar el `.pbix` siguiendo `docs/powerbi_spec.md` (lo hace el equipo; Claude Code no puede).
+- Abrir `dashboard/AireOMS.pbip` en Power BI Desktop (parámetro `RutaDatos` con la ruta local de `data/final\`,
+  Actualizar) y armar los gráficos de las 3 páginas siguiendo `docs/powerbi_spec.md` (lo hace el equipo). Después
+  de armar gráficos, el modelo se toca desde Power BI, no con `make pbip`.
 - Verificar las coordenadas aproximadas de `data/reference/estaciones.csv` si se usa el mapa.
 - Preparar la presentación (guion en el README).

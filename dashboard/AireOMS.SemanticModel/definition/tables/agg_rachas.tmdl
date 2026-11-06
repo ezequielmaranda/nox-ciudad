@@ -1,0 +1,77 @@
+/// Rachas de días consecutivos sobre la guía de 24 h (gaps and islands). Un día sin dato corta la racha.
+table agg_rachas
+	lineageTag: 26717cf8-1e36-5ad6-944a-fca4f73c0e20
+
+	/// Estación.
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: c3bb7b62-1712-5bea-b6ad-8321dcb6ac4a
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante.
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 2399cf4e-291c-5a20-8d54-a6e15e925075
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Primer día de la racha.
+	column fecha_inicio
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: ad4684b7-b635-5fec-8865-6f117ec47506
+		summarizeBy: none
+		sourceColumn: fecha_inicio
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Último día de la racha.
+	column fecha_fin
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: af7ecc84-a438-5ce4-accf-84c645b3674b
+		summarizeBy: none
+		sourceColumn: fecha_fin
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Duración de la racha en días.
+	column dias
+		dataType: int64
+		formatString: 0
+		lineageTag: 47a1d9b4-d77e-5b0e-a35f-0fd113109d1b
+		summarizeBy: none
+		sourceColumn: dias
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si es la racha más larga de su estación × contaminante.
+	column es_racha_maxima
+		dataType: boolean
+		lineageTag: 8de14e08-953a-5e78-bfa2-f4f2821d4d9c
+		summarizeBy: none
+		sourceColumn: es_racha_maxima
+
+		annotation SummarizationSetBy = User
+
+	partition agg_rachas = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_rachas.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

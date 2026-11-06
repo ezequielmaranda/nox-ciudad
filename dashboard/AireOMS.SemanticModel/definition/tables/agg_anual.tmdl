@@ -1,0 +1,287 @@
+/// Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 parcial y últimos 12 meses), con la regla del 75% aplicada.
+table agg_anual
+	lineageTag: e0a91c0f-ccea-5ca8-9d8a-6fe7fea89bc0
+
+	/// Estación.
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 877f5537-5c4c-5706-9cd6-55f7e7e3bf46
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante (NO2, PM10, CO).
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: b7bb35a2-520f-542c-8e76-c34dcc619dfd
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Período (clave hacia dim_periodo).
+	column id_periodo
+		dataType: string
+		isHidden
+		lineageTag: 2a8083c3-387b-596c-9787-e6639d425868
+		summarizeBy: none
+		sourceColumn: id_periodo
+
+		annotation SummarizationSetBy = User
+
+	/// Etiqueta del período.
+	column periodo
+		dataType: string
+		lineageTag: 312430fd-a3d4-574f-b871-fcc27a8b2b48
+		summarizeBy: none
+		sourceColumn: periodo
+
+		annotation SummarizationSetBy = User
+
+	/// anio_completo, anio_parcial o movil_12m.
+	column tipo_periodo
+		dataType: string
+		lineageTag: 2f56f797-df7c-5062-ba65-73ed30f5761c
+		summarizeBy: none
+		sourceColumn: tipo_periodo
+
+		annotation SummarizationSetBy = User
+
+	/// Año (vacío para movil_12m).
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a6bf79f-86eb-57db-bec9-da7d72e5c85d
+		summarizeBy: none
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = User
+
+	/// Días del período.
+	column n_dias_periodo
+		dataType: int64
+		formatString: 0
+		lineageTag: d1564a93-447c-5d99-b59a-6e305eb98a16
+		summarizeBy: none
+		sourceColumn: n_dias_periodo
+
+		annotation SummarizationSetBy = User
+
+	/// Días con dato válido de 24 h.
+	column n_dias_con_dato
+		dataType: int64
+		formatString: 0
+		lineageTag: 6e40ccdd-643f-5e41-b6de-6f6a0e2b71bd
+		summarizeBy: none
+		sourceColumn: n_dias_con_dato
+
+		annotation SummarizationSetBy = User
+
+	/// n_dias_con_dato / n_dias_periodo.
+	column completitud
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 2e76efa5-ab43-53ec-85da-98e99501dc06
+		summarizeBy: none
+		sourceColumn: completitud
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si completitud >= 75%.
+	column es_valido
+		dataType: boolean
+		lineageTag: 9b2d61d9-2b97-5009-a169-6e13dc25b43d
+		summarizeBy: none
+		sourceColumn: es_valido
+
+		annotation SummarizationSetBy = User
+
+	/// Completitud del trimestre con menos datos dentro del período.
+	column completitud_peor_trimestre
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 05030fee-61c7-58a6-8c8f-c99070fb0bb0
+		summarizeBy: none
+		sourceColumn: completitud_peor_trimestre
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si todos los trimestres tienen >= 75% de días con dato (advertencia, no excluye).
+	column cumple_criterio_trimestral
+		dataType: boolean
+		lineageTag: f42d37ae-4e0c-5800-9827-b78acfa97492
+		summarizeBy: none
+		sourceColumn: cumple_criterio_trimestral
+
+		annotation SummarizationSetBy = User
+
+	/// 'valido' o 'no_valido'.
+	column estado_indicador
+		dataType: string
+		lineageTag: 77353f4e-84e8-5649-aaa1-3e8175923cdb
+		summarizeBy: none
+		sourceColumn: estado_indicador
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad de la guía.
+	column unidad
+		dataType: string
+		lineageTag: 9aa05e14-3626-56ee-95a2-6a50be0057a2
+		summarizeBy: none
+		sourceColumn: unidad
+
+		annotation SummarizationSetBy = User
+
+	/// Promedio de los valores diarios (vacío si no es válido).
+	column promedio_anual
+		dataType: double
+		lineageTag: 8a3a4247-14b5-5bd3-9323-99b77d113e14
+		summarizeBy: none
+		sourceColumn: promedio_anual
+
+		annotation SummarizationSetBy = User
+
+	/// El mismo promedio calculado aunque no sea válido. Solo para transparencia.
+	column promedio_referencial
+		dataType: double
+		lineageTag: cb31036d-b953-55d7-869b-fcf095fab525
+		summarizeBy: none
+		sourceColumn: promedio_referencial
+
+		annotation SummarizationSetBy = User
+
+	/// Guía anual OMS (vacía para CO, que no tiene).
+	column guia_anual
+		dataType: double
+		lineageTag: ded4d1a0-547c-5f78-a66f-cfb6f5e09ca3
+		summarizeBy: none
+		sourceColumn: guia_anual
+
+		annotation SummarizationSetBy = User
+
+	/// promedio_anual / guia_anual.
+	column veces_guia_anual
+		dataType: double
+		lineageTag: 785cfbcf-049d-5d26-9217-9adb1f489646
+		summarizeBy: none
+		sourceColumn: veces_guia_anual
+
+		annotation SummarizationSetBy = User
+
+	/// Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1').
+	column nivel_oms
+		dataType: string
+		lineageTag: bf78f3e1-4c52-589b-94ba-2ffcc8deba87
+		summarizeBy: none
+		sourceColumn: nivel_oms
+		sortByColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1').
+	column orden_nivel_oms
+		dataType: int64
+		formatString: 0
+		lineageTag: 8d6581ed-edcf-5f96-a079-546c4809b677
+		summarizeBy: none
+		sourceColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// Escalón al que se llega bajando ug_para_proximo_nivel.
+	column proximo_nivel
+		dataType: string
+		lineageTag: 3bde0d80-74ac-5b0d-8bec-d2238abb8085
+		summarizeBy: none
+		sourceColumn: proximo_nivel
+
+		annotation SummarizationSetBy = User
+
+	/// Cuánto tendría que bajar el promedio anual para subir un escalón.
+	column ug_para_proximo_nivel
+		dataType: double
+		lineageTag: eab3cf37-00f7-538d-ada6-8de199b2699d
+		summarizeBy: none
+		sourceColumn: ug_para_proximo_nivel
+
+		annotation SummarizationSetBy = User
+
+	/// Percentil 99 de los valores diarios (definición formal de la guía de 24 h). Vacío si no es válido.
+	column p99_24h
+		dataType: double
+		lineageTag: 2f1dc1a3-a1af-5288-8d8a-2b05db6ee9c0
+		summarizeBy: none
+		sourceColumn: p99_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Guía OMS de 24 h.
+	column guia_24h
+		dataType: double
+		lineageTag: c6cfe9af-5155-5929-bac7-be56e38bf433
+		summarizeBy: none
+		sourceColumn: guia_24h
+
+		annotation SummarizationSetBy = User
+
+	/// p99_24h / guia_24h.
+	column p99_veces_guia_24h
+		dataType: double
+		lineageTag: 5e9ca89b-4a86-5304-ac2f-f72b7b218dc4
+		summarizeBy: none
+		sourceColumn: p99_veces_guia_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si el P99 supera la guía de 24 h (no se cumple la guía en sentido formal).
+	column p99_supera_guia_24h
+		dataType: boolean
+		lineageTag: fe69fdf4-c4b9-5d9b-af67-90f640a82c76
+		summarizeBy: none
+		sourceColumn: p99_supera_guia_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Máximo valor diario del período.
+	column maximo_diario
+		dataType: double
+		lineageTag: af0657bf-1a7f-5c88-918c-2f1285464021
+		summarizeBy: none
+		sourceColumn: maximo_diario
+
+		annotation SummarizationSetBy = User
+
+	/// Días por encima de la guía de 24 h.
+	column n_dias_supera_24h
+		dataType: int64
+		formatString: 0
+		lineageTag: 151deaac-bb44-5d7f-8081-3880fb2b0e72
+		summarizeBy: none
+		sourceColumn: n_dias_supera_24h
+
+		annotation SummarizationSetBy = User
+
+	/// n_dias_supera_24h / n_dias_con_dato (0 a 1).
+	column pct_dias_supera_24h
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 614c1ba3-59f6-5324-9f0d-41d680dadf7b
+		summarizeBy: none
+		sourceColumn: pct_dias_supera_24h
+
+		annotation SummarizationSetBy = User
+
+	partition agg_anual = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_anual.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

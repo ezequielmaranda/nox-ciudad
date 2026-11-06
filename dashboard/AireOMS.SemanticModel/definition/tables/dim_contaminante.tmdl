@@ -1,0 +1,135 @@
+/// Una fila por contaminante, con unidades y factor de conversión a masa.
+table dim_contaminante
+	lineageTag: b9207842-29c4-54f2-a810-847618ebf5a4
+
+	/// Clave del contaminante ('no2', 'pm10', 'co', 'no', 'nox').
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: cb976804-00e5-5531-b633-4370276e3814
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Nombre como figura en la fuente ('NO2', 'PM10').
+	column codigo_fuente
+		dataType: string
+		lineageTag: 11d685c0-2350-5893-a852-b1cc80f15aae
+		summarizeBy: none
+		sourceColumn: codigo_fuente
+		sortByColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	/// Nombre completo.
+	column nombre
+		dataType: string
+		lineageTag: 419a4533-4dad-59e6-a8fe-97f71d5cfaed
+		summarizeBy: none
+		sourceColumn: nombre
+		sortByColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad en que se mide y publica (ppb, ppm o µg/m³).
+	column unidad_medicion
+		dataType: string
+		lineageTag: f9483ee5-bca2-5190-a3cd-d6fb4a177b05
+		summarizeBy: none
+		sourceColumn: unidad_medicion
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad de la guía OMS (µg/m³ o mg/m³).
+	column unidad_masa
+		dataType: string
+		lineageTag: f9f6443d-12a9-55f1-8e7b-339a8d4f2d69
+		summarizeBy: none
+		sourceColumn: unidad_masa
+
+		annotation SummarizationSetBy = User
+
+	/// Peso molecular en g/mol (vacío para PM10).
+	column peso_molecular
+		dataType: double
+		lineageTag: 53d0e604-ce23-5c40-b47d-84c6e8fbfa33
+		summarizeBy: none
+		sourceColumn: peso_molecular
+
+		annotation SummarizationSetBy = User
+
+	/// Multiplicador de unidad_medicion a unidad_masa: peso_molecular / 24,45 (25 °C, 1 atm).
+	column factor_masa
+		dataType: double
+		lineageTag: 1a681ffb-6bc1-53ee-ad0e-15bb41b24c3f
+		summarizeBy: none
+		sourceColumn: factor_masa
+
+		annotation SummarizationSetBy = User
+
+	/// Tolerancia por redondeo para las reglas de coherencia (2 ppb o µg/m³; 0,2 ppm para CO).
+	column tolerancia_coherencia
+		dataType: double
+		lineageTag: 184d3d56-3d58-542f-b705-0b045900914a
+		summarizeBy: none
+		sourceColumn: tolerancia_coherencia
+
+		annotation SummarizationSetBy = User
+
+	/// Máximo físicamente posible para un promedio urbano (regla fuera_de_rango).
+	column maximo_fisico
+		dataType: double
+		lineageTag: 4b36661a-5595-5314-9e3f-a4597a9aa368
+		summarizeBy: none
+		sourceColumn: maximo_fisico
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si la OMS tiene guía de 24 h para el contaminante.
+	column tiene_guia_24h
+		dataType: boolean
+		lineageTag: 74a6829a-66a1-5a20-97ee-e646f4c01b71
+		summarizeBy: none
+		sourceColumn: tiene_guia_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si la OMS tiene guía anual para el contaminante.
+	column tiene_guia_anual
+		dataType: boolean
+		lineageTag: 53f48fd1-ffef-56cb-ab9f-bbd42322bc06
+		summarizeBy: none
+		sourceColumn: tiene_guia_anual
+
+		annotation SummarizationSetBy = User
+
+	/// Orden para gráficos (NO2 primero).
+	column orden
+		dataType: int64
+		formatString: 0
+		lineageTag: d9895d24-4ab1-55fb-a4f0-55380752b5d5
+		summarizeBy: none
+		sourceColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	/// Qué es, de dónde sale y por qué importa.
+	column descripcion
+		dataType: string
+		lineageTag: 4ea5ec66-0348-5765-9670-bee432f9f359
+		summarizeBy: none
+		sourceColumn: descripcion
+
+		annotation SummarizationSetBy = User
+
+	partition dim_contaminante = m
+		mode: import
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_contaminante.parquet"))
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+

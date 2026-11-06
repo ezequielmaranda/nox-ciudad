@@ -3,7 +3,7 @@
 
 PY ?= .venv/bin/python
 
-.PHONY: all install extract etl test eda docs clean
+.PHONY: all install extract etl test eda docs pbip clean
 
 ## make all: ETL completo + tests + notebook de EDA (todo desde los datos crudos)
 all: etl test eda
@@ -30,6 +30,10 @@ test:
 ## make eda: ejecuta el notebook de EDA y regenera las figuras de reports/figures
 eda:
 	$(PY) -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb
+
+## make pbip: regenera el proyecto de Power BI (dashboard/AireOMS.pbip) a partir de data/final y de dbt
+pbip:
+	$(PY) -m src.generar_pbip
 
 ## make docs: documentación navegable de dbt (linaje de tablas) en http://localhost:8080
 docs:

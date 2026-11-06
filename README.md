@@ -23,8 +23,25 @@ EDA en Python → dashboard en Power BI.
 - **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂.
 - **H3:** los domingos y feriados la brecha se reduce de forma visible.
 
-Son las expectativas previas al análisis: el NO₂ sale sobre todo de los motores (en especial diésel) y Córdoba es la
-estación que la APrA describe con flujo vehicular alto.
+**De dónde salen las hipótesis.** Una hipótesis es una respuesta tentativa a la pregunta. Se fundamenta con lo que se
+sabe **antes** de analizar los datos (un mecanismo conocido, antecedentes, normas, la descripción de las estaciones) y
+tiene que poder resultar falsa. No se arma mirando los resultados, porque sería circular.
+
+Las tres nuestras salen de una misma premisa: **en la Ciudad, el NO₂ proviene sobre todo del tránsito**. Bogo, Negri
+y San Román (1999) midieron un año de CO y NOx sobre una avenida porteña y encontraron que el tránsito es la fuente
+principal. Cada hipótesis aplica esa premisa a uno de los cortes de la pregunta:
+
+| | Corte | Por qué la esperábamos | Qué otra respuesta era posible |
+|---|---|---|---|
+| **H1** | Contaminante | La OMS 2021 endureció el NO₂ mucho más que el resto: su guía anual pasó de 40 a 10 µg/m³ (4 veces más exigente) y se agregó una guía diaria de 25. La del PM10 pasó de 20 a 15 (anual) y de 50 a 45 (diaria). Además, las tres estaciones están en zonas con tránsito, la fuente del NO₂. | El PM10: en muchas ciudades el material particulado es el contaminante crítico. El CO era poco probable, porque los autos con catalizador emiten mucho menos. |
+| **H2** | Estación | Si la fuente es el tránsito, la peor debería ser la estación con más tránsito. La APrA describe a Córdoba con "flujo vehicular alto y muy escasa incidencia de fuentes fijas", a Parque Centenario con flujo medio y a La Boca con flujo "medio-bajo e incidencia de fuentes fijas". En Europa, casi todas las superaciones del límite de NO₂ ocurren en estaciones de tránsito (EEA). | La Boca, si las fuentes fijas cercanas (puerto, polo de Dock Sud, tránsito pesado de acceso) pesan más que el tránsito de la avenida. |
+| **H3** | Tipo de día | Si la fuente es el tránsito, cuando el tránsito baja (domingos y feriados) el NO₂ tiene que bajar. El "efecto fin de semana" del NO₂ está documentado, incluso desde satélite (Beirle et al., 2003). | Que baje poco, porque las fuentes fijas no descansan el domingo. |
+
+El cuarto corte, **período**, quedó sin hipótesis: sin meteorología no hay base para anticipar un cambio ni para
+atribuirlo, así que se trata como pregunta exploratoria (subpreguntas 5 y 6).
+
+Como las tres comparten la premisa, el resultado conjunto también dice algo de ella. H1 se sostiene, H3 a medias y
+H2 no, así que el tránsito explica buena parte del NO₂, pero no todo.
 
 **Por qué importa:** la OMS actualizó sus guías en 2021 y las hizo mucho más exigentes (la de NO₂ anual pasó de 40 a
 10 µg/m³). La norma de la Ciudad sigue valores más laxos, así que "cumplir la norma" no dice cuán lejos se está de
@@ -90,7 +107,7 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 | 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
 | 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
 | 8. Visualizaciones e indicadores | `reports/figures/`, `indicadores.*` (cumplimiento diario, anual, escalones, rachas) |
-| 9. Dashboard en Power BI | `data/final/` + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (modelo, medidas DAX, 3 páginas, colores) |
+| 9. Dashboard en Power BI | [`dashboard/AireOMS.pbip`](dashboard/) (modelo, relaciones y medidas DAX listos) + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (qué gráficos van en cada página) |
 | 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §11 y presentación |
 
 **Entregables:** dashboard (Power BI), notebook, scripts (`src/`, `dbt/`), consultas SQL, archivos procesados
@@ -173,10 +190,12 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── extract.py                 extracción: PDF de la APrA → data/raw/aire_publico.csv
 │   ├── etl.py                     orquesta extract → dbt build → export → consultas → diccionario
 │   ├── calidad.py                 perfil del crudo y resumen de calidad
-│   └── diccionario.py             genera docs/diccionario_datos.md
+│   ├── diccionario.py             genera docs/diccionario_datos.md
+│   └── generar_pbip.py            genera el proyecto de Power BI (dashboard/)
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
+├── dashboard/AireOMS.pbip         proyecto de Power BI: modelo, relaciones y medidas listos (se abre con Power BI Desktop)
 ├── presentacion/                 presentación (.pptx, 19 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)
@@ -278,5 +297,20 @@ con el qué y el por qué.
   <https://www.who.int/publications/i/item/9789240034228>. Valores de `data/reference/oms_2021.csv`: resumen
   ejecutivo, Tabla 0.1, *Recommended AQG levels and interim targets*.
 - Agencia de Protección Ambiental, GCBA. Calidad del aire, estaciones Parque Centenario, Córdoba y La Boca.
-  <https://buenosaires.gob.ar/calidad-del-aire>.
+  <https://buenosaires.gob.ar/calidad-del-aire>. Descripción de cada estación (flujo vehicular, fuentes fijas):
+  <https://buenosaires.gob.ar/gcaba_historico/calidad-del-aire/estacion-cordoba>,
+  <https://buenosaires.gob.ar/gcaba_historico/calidad-del-aire/estacion-la-boca> y
+  <https://buenosaires.gob.ar/gcaba_historico/calidad-del-aire/estacion-parque-centenario>.
+
+Fundamentación de las hipótesis:
+
+- Bogo, H., Negri, R. M. y San Román, E. (1999). Continuous measurement of gaseous pollutants in Buenos Aires city.
+  *Atmospheric Environment*, 33(16), 2587-2598. Un año de CO, NO, NO₂ y O₃ sobre una avenida principal cerca del
+  centro: el tránsito es la fuente principal de CO y NOx.
+- Beirle, S., Platt, U., Wenig, M. y Wagner, T. (2003). Weekly cycle of NO2 by GOME measurements: a signature of
+  anthropogenic sources. *Atmospheric Chemistry and Physics*, 3, 2225-2232. <https://acp.copernicus.org/articles/3/2225/2003/>.
+- European Environment Agency (2025). *Air quality status report 2025: nitrogen dioxide.* En 2024, todas las
+  estaciones europeas sobre el valor límite anual de NO₂ eran de tránsito.
+  <https://www.eea.europa.eu/en/analysis/publications/air-quality-status-report-2025/nitrogen-dioxide>.
+- OMS 2021 (arriba): Tabla 0.1 del resumen ejecutivo, con los valores de 2005 al lado de los de 2021.
 - ArgentinaDatos. API de feriados nacionales. <https://api.argentinadatos.com/v1/feriados/>.

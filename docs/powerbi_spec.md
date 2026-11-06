@@ -3,6 +3,32 @@
 Guía para armar el dashboard a mano. El trabajo técnico ya está hecho: Power BI **comunica** los resultados del
 ETL y el EDA, no recalcula reglas. Público: funcionarios, prensa y ciudadanía (no técnico).
 
+## 0. Proyecto listo para abrir: `dashboard/AireOMS.pbip`
+
+El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: las 14 tablas de `data/final` (más la
+tabla `_Medidas`), las 20 relaciones de la sección 2, las 18 medidas DAX de la sección 3, el orden de las columnas de
+texto, los formatos, las descripciones de cada tabla y columna (las mismas del diccionario de datos) y el tema de
+colores de la sección 6. El informe trae las 3 páginas vacías: **los gráficos se arman a mano** con las secciones 4 y 5.
+
+Lo genera `python -m src.generar_pbip` (o `make pbip`) a partir de `data/final` y de dbt. El modelo se validó con la
+librería oficial de Microsoft para el formato TMDL y los JSON del informe con los esquemas oficiales, pero **no se
+abrió en Power BI Desktop** (no corre en el entorno donde se generó): si al abrirlo aparece un error, Power BI dice en
+qué archivo y línea.
+
+**Cómo abrirlo:**
+1. Power BI Desktop actualizado (versión de **agosto de 2026 o posterior**; el informe usa el tema base de esa versión).
+2. Abrir `dashboard/AireOMS.pbip` (*Archivo → Abrir*). Abre el informe y el modelo, todavía sin datos.
+3. *Transformar datos → Editar parámetros*: poner en **RutaDatos** la ruta completa a la carpeta `data/final` del
+   repo, **con la barra final**. Por ejemplo `C:\Users\nombre\nox-ciudad\data\final\`.
+4. *Inicio → Actualizar*. Carga los Parquet (sin problemas de separador decimal).
+5. Armar los gráficos de cada página y guardar (*Archivo → Guardar*): se guarda en el mismo formato de proyecto, en
+   archivos de texto que se pueden versionar en git. Para entregar un `.pbix`: *Archivo → Guardar como → .pbix*.
+
+Si se vuelve a correr `make pbip`, el generador reescribe el modelo y las páginas vacías: **no correrlo después de
+armar los gráficos** (se perderían). Los cambios posteriores del modelo se hacen directamente en Power BI.
+
+Si se prefiere armar todo desde cero, las secciones siguientes describen el mismo modelo paso a paso.
+
 ## 1. Datos a importar
 
 Desde `data/final/`. **Se recomienda Parquet** (*Obtener datos → Parquet*): conserva tipos de fecha, número y
