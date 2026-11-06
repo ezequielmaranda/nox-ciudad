@@ -147,6 +147,28 @@ LIMIT 5;
 -- PARTE B · CUÁN LEJOS ESTAMOS DE LA OMS
 -- =====================================================================================================
 
+-- B0 · ¿En qué escalón de la OMS cae cada día?
+-- PREGUNTA  Subpregunta 1 y H1: ¿hasta qué objetivo intermedio cumple el NO2 (y el PM10) día a día?
+-- POR QUÉ   La guía es muy exigente; los objetivos intermedios (IT) miden en qué escalón se está. H1 dice
+--           que la mayoría de los días se cumple el IT2 diario del NO2 (50 µg/m³).
+-- TÉCNICA   GROUP BY + dos funciones de ventana: el % de cada nivel (SUM ... OVER PARTITION) y el %
+--           ACUMULADO de días que cumplen ese nivel o uno más exigente (SUM ... OVER ... ORDER BY ...
+--           ROWS UNBOUNDED PRECEDING). En la fila IT2 del NO2, el acumulado es el % de días que cumple el IT2.
+SELECT
+    id_contaminante,
+    id_estacion,
+    nivel_oms,
+    count(*) AS dias,
+    round(100.0 * count(*) / sum(count(*)) OVER (PARTITION BY id_contaminante, id_estacion), 1) AS pct_dias,
+    round(100.0 * sum(count(*)) OVER (PARTITION BY id_contaminante, id_estacion ORDER BY orden_nivel_oms
+                                      ROWS UNBOUNDED PRECEDING)
+                / sum(count(*)) OVER (PARTITION BY id_contaminante, id_estacion), 1) AS pct_cumple_este_nivel_o_mejor
+FROM indicadores.agg_cumplimiento_diario
+WHERE id_contaminante IN ('no2', 'pm10')
+GROUP BY id_contaminante, id_estacion, nivel_oms, orden_nivel_oms
+ORDER BY id_contaminante, id_estacion, orden_nivel_oms;
+
+
 -- B1 · % de días por encima de la guía diaria (24 h)
 -- PREGUNTA  Subpregunta 1: ¿qué porcentaje de días se supera la guía diaria, por estación y contaminante?
 -- POR QUÉ   Es el indicador más fácil de comunicar ("9 de cada 10 días").

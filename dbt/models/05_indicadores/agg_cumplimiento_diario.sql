@@ -38,6 +38,15 @@ select
         when d.valor_masa <= g.it1      then 'IT1'
         else '> IT1'
     end                                       as nivel_oms,
+    -- Orden del nivel para gráficos (1 = cumple la guía … 6 = no cumple ni el IT1)
+    case
+        when d.valor_masa <= g.guia_oms then 1
+        when d.valor_masa <= g.it4      then 2
+        when d.valor_masa <= g.it3      then 3
+        when d.valor_masa <= g.it2      then 4
+        when d.valor_masa <= g.it1      then 5
+        else 6
+    end                                       as orden_nivel_oms,
     d.es_outlier
 from diario as d
 join guia as g using (id_contaminante)

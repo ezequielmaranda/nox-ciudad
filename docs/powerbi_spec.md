@@ -43,7 +43,8 @@ Notas:
 - `agg_completitud_mensual` tiene su propio `anio_mes`: usarlo directamente en el heatmap.
 - Ordenar columnas de texto por su columna de orden (*Herramientas de columna → Ordenar por columna*):
   `tipo_dia_etiqueta` por `orden_tipo_dia`, `estacion_del_anio` por `orden_estacion_del_anio`,
-  `nombre_mes` por `mes`, `dim_periodo[etiqueta]` por `orden`, `dim_contaminante[nombre]` por `orden`.
+  `nombre_mes` por `mes`, `dim_periodo[etiqueta]` por `orden`, `dim_contaminante[nombre]` por `orden`,
+  `nivel_oms` por `orden_nivel_oms` (en `agg_cumplimiento_diario` y en `agg_anual`).
 - Ocultar las columnas de clave (`id_*`) en la vista de informe.
 
 ## 3. Medidas DAX
@@ -102,6 +103,13 @@ P99 veces la guía = DIVIDE ( [Percentil 99], [Guía OMS 24 h] )
 -- Racha más larga de días seguidos sobre la guía (calculada en SQL con gaps and islands)
 Racha máxima = MAX ( agg_rachas[dias] )
 
+-- % de días que cumplen el objetivo intermedio IT2 diario o uno más exigente (NO2: 50 µg/m³). Para H1.
+% Días que cumplen IT2 =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[orden_nivel_oms] <= 4 ),
+    COUNTROWS ( agg_cumplimiento_diario )
+)
+
 -- Variación contra el día hábil (para la matriz por tipo de día)
 Variación vs. hábil =
 VAR habil = CALCULATE ( [Promedio diario], dim_calendario[tipo_dia] = "habil" )
@@ -125,15 +133,20 @@ Formato: `% Días sobre guía`, `Completitud %` y `Variación vs. hábil` como p
 
 ### Página 1 · Resumen ("¿Cuán lejos estamos de la OMS?")
 
-Mensaje: **el NO₂ supera la guía de la OMS casi todos los días en La Boca y Córdoba.**
+Mensaje: **ninguna estación cumple la guía de NO₂ de la OMS; Parque Centenario y Córdoba están en escalones
+intermedios y La Boca no alcanza ni el primero.**
 
 - **Fila de 4 tarjetas** (filtro de página: contaminante = NO2):
-  1. `% Días sobre guía` de las tres estaciones, con subtítulo "días con NO₂ por encima de 25 µg/m³".
-  2. `Veces sobre guía anual` de La Boca, últimos 12 meses ("4,6 veces la guía anual").
-  3. `Estación más comprometida`.
+  1. `Nivel OMS anual` por estación, últimos 12 meses ("IT2 · IT1 · > IT1"), con el color del nivel.
+  2. `% Días que cumplen IT2` por estación ("98,6% · 87,7% · 49,7%").
+  3. `Veces sobre guía anual` de La Boca, últimos 12 meses ("4,6 veces la guía anual").
   4. `Racha máxima` ("216 días seguidos sobre la guía").
-- **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `% Días sobre guía`,
-  `Promedio anual` (últimos 12 meses), `Nivel OMS anual` con el color del nivel (sección 6).
+- **Barras 100% apiladas "en qué escalón cae cada día"**: eje `dim_estacion[nombre]`, leyenda
+  `agg_cumplimiento_diario[nivel_oms]` (ordenada por `orden_nivel_oms`), valores = recuento de filas, mostrado
+  como % del total. Colores por nivel (sección 6). Es el gráfico que responde H1 (figura
+  `reports/figures/06_niveles_oms_diarios.png` del EDA).
+- **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `Nivel OMS anual`,
+  `Promedio anual` (últimos 12 meses), `% Días sobre guía`.
 - **Mapa** (visual Mapa o Azure Maps) con `latitud_aprox` / `longitud_aprox` de `dim_estacion`; tamaño de la burbuja
   = `% Días sobre guía`. Aclarar en la nota al pie que la ubicación es aproximada. Si el mapa no aporta, reemplazarlo
   por las tarjetas por estación.
@@ -201,6 +214,7 @@ Antes de presentar, comparar el dashboard con las vistas SQL (`analisis.v_resume
 | Indicador | La Boca | Córdoba | Parque Centenario |
 |---|---|---|---|
 | % de días con NO₂ sobre 25 µg/m³ (todo el período) | 94,7% (944 días) | 84,4% (910) | 50,3% (662) |
+| % de días que cumplen el IT2 diario de NO₂ (50 µg/m³) | 49,7% | 87,7% | 98,6% |
 | NO₂ promedio, últimos 12 meses | 45,9 µg/m³ (4,6×, > IT1) | 35,0 (3,5×, IT1) | 26,2 (2,6×, IT2) |
 | % de días con PM10 sobre 45 µg/m³ | 4,1% | 3,3% | 2,3% |
 | Racha máxima de NO₂ sobre la guía | 216 días | 111 días | 22 días |

@@ -104,6 +104,15 @@ select
         when promedio_anual <= it1_anual  then 'IT1'
         else '> IT1'
     end                                                         as nivel_oms,
+    case
+        when promedio_anual is null or guia_anual is null then null
+        when promedio_anual <= guia_anual then 1
+        when promedio_anual <= it4_anual  then 2
+        when promedio_anual <= it3_anual  then 3
+        when promedio_anual <= it2_anual  then 4
+        when promedio_anual <= it1_anual  then 5
+        else 6
+    end                                                         as orden_nivel_oms,
     -- Próximo escalón: el umbral más alto que el promedio todavía supera
     case
         when promedio_anual > it1_anual  then 'IT1'

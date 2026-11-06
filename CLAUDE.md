@@ -10,6 +10,13 @@ el aire de la Ciudad de Buenos Aires de las guías de la OMS 2021, y cómo varí
 de día y período? El enunciado completo está en `PROYECTO_TP_AIRE_OMS.md`; la consigna de la cátedra pide flujo
 completo (SQL, limpieza, ETL, EDA en Python, dashboard en **Power BI**) y poder justificar cada decisión.
 
+Hipótesis (H1 reformulada por el equipo: en vez de "supera la guía la mayoría de los días", hasta qué escalón cumple):
+- **H1:** el NO₂ no alcanza la guía OMS pero se mantiene dentro de los objetivos intermedios: la mayoría de los días
+  cumple el IT2 diario (50 µg/m³) y el promedio anual cumple al menos el IT1 (40 µg/m³). El PM10 cumple la guía
+  diaria casi siempre. → Se sostiene en Centenario y Córdoba, no en La Boca.
+- **H2:** La Boca es la estación más comprometida en NO₂. → Se sostiene.
+- **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
+
 Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
 noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
 
@@ -26,7 +33,10 @@ noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `8
 ## Stack y comandos
 
 Python 3.11+ con `requirements.txt` (`make install`). DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
-las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, pytest.
+las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest.
+El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; correrlo dentro de `plt.rc_context()`
+porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
+heatmap) y matplotlib.
 
 - `make etl` (= `python -m src.etl`): perfil del crudo → `dbt build` (en subproceso) → export a `data/final/`
   (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
@@ -66,6 +76,8 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 - % días NO₂ > 25 µg/m³: La Boca 94,7% (944 d), Córdoba 84,4% (910), Centenario 50,3% (662). PM10 > 45: 2,3-4,1%.
   CO: 0%. El enunciado decía ~91/75/33%: dividía por todas las filas.
 - NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,0 (3,5×, IT1), Centenario 26,2 (2,6×, IT2).
+- Días que cumplen el IT2 diario de NO₂ (50): Centenario 98,6%, Córdoba 87,7%, La Boca 49,7%. IT1 diario (120):
+  todos los días salvo uno en La Boca (124). PM10 cumple la guía diaria el 95,9-97,7% de los días.
   La Boca 2024: 56,5. PM10: 21,9-26,6 (1,5-1,8×, IT3); P99 de PM10 > 45 en todas las estaciones y años.
 - No válidos por el 75%: NO₂ Centenario 2024 (18,9%), CO Córdoba 2024 (66,1%).
 - Racha máxima NO₂: La Boca 216 días (25/03 a 26/10/2025), Córdoba 111, Centenario 22.

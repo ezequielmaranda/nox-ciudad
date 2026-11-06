@@ -188,6 +188,7 @@ Cumplimiento diario de la guía OMS de 24 h. Grano: fecha × estación × contam
 | `supera_guia` | BOOLEAN | Verdadero si valor > guía. |
 | `veces_guia` | DOUBLE | valor / guía (1 = justo en la guía). |
 | `nivel_oms` | VARCHAR | Escalón OMS del día (AQG, IT4 … IT1, '> IT1'). |
+| `orden_nivel_oms` | INTEGER | Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1'). |
 | `es_outlier` | BOOLEAN | Marca de valor atípico heredada de la fact. |
 
 ## agg_anual
@@ -213,6 +214,7 @@ Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 
 | `guia_anual` | DOUBLE | Guía anual OMS (vacía para CO, que no tiene). |
 | `veces_guia_anual` | DOUBLE | promedio_anual / guia_anual. |
 | `nivel_oms` | VARCHAR | Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1'). |
+| `orden_nivel_oms` | INTEGER | Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1'). |
 | `proximo_nivel` | VARCHAR | Escalón al que se llega bajando ug_para_proximo_nivel. |
 | `ug_para_proximo_nivel` | DOUBLE | Cuánto tendría que bajar el promedio anual para subir un escalón. |
 | `p99_24h` | DOUBLE | Percentil 99 de los valores diarios (definición formal de la guía de 24 h). Vacío si no es válido. |

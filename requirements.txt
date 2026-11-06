@@ -10,7 +10,8 @@ dbt-duckdb>=1.10,<2       # modelos SQL, tests de calidad y documentación del l
 pandas>=2.2
 pyarrow>=16
 matplotlib>=3.8
-seaborn>=0.13
+seaborn>=0.13            # gráficos estadísticos (boxplot, barras con IC, heatmap)
+sweetviz>=2.3            # perfil automático del EDA (reportes HTML)
 
 # Notebook
 ipykernel>=6.29

@@ -18,12 +18,21 @@ EDA en Python → dashboard en Power BI.
 5. ¿Hay estacionalidad (invierno vs. verano)?
 6. ¿Cuánto condiciona la calidad o completitud de los datos a las conclusiones?
 
-**Hipótesis:** H1, el NO₂ supera la guía diaria la mayoría de los días y el PM10 casi nunca. H2, La Boca es la
-estación más comprometida en NO₂. H3, los domingos y feriados la brecha se reduce de forma visible.
+**Hipótesis:**
+- **H1:** el NO₂ no alcanza la guía de la OMS, pero se mantiene dentro de sus objetivos intermedios: la mayoría de
+  los días cumple el objetivo intermedio diario IT2 (50 µg/m³) y el promedio anual cumple al menos el IT1
+  (40 µg/m³). El PM10 cumple la guía diaria casi todos los días.
+- **H2:** La Boca es la estación más comprometida en NO₂.
+- **H3:** los domingos y feriados la brecha se reduce de forma visible.
 
 **Por qué importa:** la OMS actualizó sus guías en 2021 y las hizo mucho más exigentes (la de NO₂ anual pasó de 40 a
 10 µg/m³). La norma de la Ciudad sigue valores más laxos, así que "cumplir la norma" no dice cuán lejos se está de
 lo que la evidencia en salud considera seguro.
+
+**Los escalones de la OMS.** La guía (AQG) es el nivel sin riesgo apreciable y es muy exigente; por eso la OMS
+define **objetivos intermedios** para medir el avance: IT1 (el menos exigente) … IT4 (el más cercano a la guía).
+NO₂: guía diaria 25 µg/m³, IT2 50, IT1 120; guía anual 10, IT3 20, IT2 30, IT1 40. La pregunta no es solo
+"¿cumple o no?", sino **"¿en qué escalón está?"**.
 
 ## Hallazgos
 
@@ -31,16 +40,18 @@ Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Bo
 
 | | NO₂ | PM10 | CO |
 |---|---|---|---|
-| Días sobre la guía de 24 h | **50% (Centenario) a 95% (La Boca)** | 2% a 4% | 0% |
-| Promedio de los últimos 12 meses vs. guía anual | **2,6 a 4,6 veces** | 1,5 a 1,8 veces | sin guía anual |
-| Escalón OMS (últimos 12 meses) | IT2 (Centenario) · IT1 (Córdoba) · **> IT1 (La Boca)** | IT3 en las tres | — |
+| Escalón OMS anual (últimos 12 meses) | **IT2** (Centenario) · **IT1** (Córdoba) · **> IT1** (La Boca) | IT3 en las tres | — |
+| Días que cumplen el IT2 diario (50 µg/m³) | 98,6% (Centenario) · 87,7% (Córdoba) · 49,7% (La Boca) | — | — |
+| Días que cumplen la guía de 24 h | 50% (Centenario) · 16% (Córdoba) · 5% (La Boca) | 96% a 98% | 100% |
+| Promedio de los últimos 12 meses vs. guía anual | 2,6 a 4,6 veces | 1,5 a 1,8 veces | sin guía anual |
 | Percentil 99 anual vs. guía de 24 h | 1,7 a 4,2 veces | 1,0 a 1,4 veces | menos de 0,4 veces |
 
-1. **El problema es el NO₂.** En La Boca el NO₂ supera la guía diaria el **94,7%** de los días (894 de 944), en
-   Córdoba el **84,4%** y en Parque Centenario el **50,3%**. La Boca llegó a **216 días seguidos** por encima de la
-   guía (marzo a octubre de 2025).
-2. **La Boca no alcanza ni el objetivo intermedio menos exigente:** su NO₂ de los últimos 12 meses es 45,9 µg/m³,
-   **4,6 veces la guía anual** (10 µg/m³) y por encima del IT1 (40 µg/m³). En 2024 llegó a 56,5 µg/m³.
+1. **Ninguna estación cumple la guía de NO₂, pero dos están en escalones intermedios.** Parque Centenario cumple el
+   IT2 anual (26,2 µg/m³) y el IT2 diario el 98,6% de los días; Córdoba cumple el IT1 anual (35,0 µg/m³) y el IT2
+   diario el 87,7% de los días. A cada una le faltan 5 a 6 µg/m³ de promedio anual para subir un escalón.
+2. **La Boca no alcanza ni el primer escalón:** su NO₂ de los últimos 12 meses es 45,9 µg/m³ (4,6 veces la guía
+   anual), por encima del IT1 (40 µg/m³), y solo la mitad de los días cumple el IT2 diario. En 2024 llegó a
+   56,5 µg/m³. Estuvo **216 días seguidos** por encima de la guía diaria (marzo a octubre de 2025).
 3. **El PM10 casi nunca supera la guía diaria, pero tampoco cumple:** su promedio anual está 1,5 a 1,8 veces por
    encima de la guía y su percentil 99 (la definición formal de la guía de 24 h) también la supera.
 4. **Los domingos el NO₂ baja entre 17% y 27%, pero la brecha no se cierra:** en La Boca el 90% de los domingos
@@ -51,8 +62,9 @@ Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Bo
    está inflada porque en 2024 casi no hay datos de Centenario, la estación más limpia. Por estación: La Boca −20%,
    Córdoba −14% y Centenario sin tendencia. Y sin controlar la meteorología no se puede atribuir a una mejora real.
 
-**Hipótesis:** H1 se sostiene con un matiz (el PM10 no cumple la guía anual ni el P99). H2 se sostiene con todos
-los indicadores. H3 se sostiene a medias: baja el nivel, pero el incumplimiento sigue.
+**Hipótesis:** H1 se sostiene en Parque Centenario y Córdoba, no en La Boca (que es justamente lo que plantea H2);
+el PM10 cumple la guía diaria casi siempre, pero no la anual ni el P99. H2 se sostiene con todos los indicadores.
+H3 se sostiene a medias: baja el nivel, pero en La Boca el incumplimiento sigue.
 
 Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (las mismas respuestas en SQL).
@@ -138,7 +150,9 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
-└── reports/figures/               figuras del EDA (PNG)
+└── reports/
+    ├── figures/                   figuras del EDA (PNG)
+    └── sweetviz_*.html            perfil automático del EDA (Sweetviz)
 ```
 
 ## Datos
@@ -176,6 +190,7 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 
 | Decisión | Por qué |
 |---|---|
+| **EDA en dos pasos:** perfil automático con **Sweetviz** y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Sweetviz da un barrido rápido de tipos, nulos, distribuciones y asociaciones, pero no conoce la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
 | **Partir de los PDF públicos** y no de una tabla ya procesada | La consigna pide un flujo completo y desaconseja datasets ya procesados. Desde el PDF aparecen los problemas reales: `s/d`, `<4`, coma decimal, archivos de otra estación, valores incoherentes |
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV/Parquet y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
 | **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 76 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
@@ -247,4 +262,7 @@ Se priorizaron los datos sobre lo que decía el documento:
   valor válido. En la fuente cada estación tiene fila los 1.004 días; los huecos son por contaminante.
 - **NO₂ de enero a septiembre 26,1 → 20,8 → 18,9 ppb:** se reproduce (26,1 → 20,9 → 18,9), pero está inflado por la
   falta de Centenario en 2024 (sección Hallazgos, punto 6).
+- **H1 reformulada en términos de objetivos intermedios.** El enunciado decía "el NO₂ supera la guía diaria la
+  mayoría de los días". Se reformuló para preguntar hasta qué escalón de la OMS se cumple, que es para lo que la OMS
+  define los objetivos intermedios. No se ajustó para "dar bien": La Boca no la cumple.
 - **Extensión de meteorología:** fuera del alcance, por decisión del equipo (se simplificó el TP a calidad del aire).

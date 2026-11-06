@@ -35,6 +35,8 @@ models:
           - accepted_values:
               arguments:
                 values: ["AQG", "IT4", "IT3", "IT2", "IT1", "> IT1"]
+      - name: orden_nivel_oms
+        description: Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1').
       - name: es_outlier
         description: Marca de valor atípico heredada de la fact.
     data_tests:
@@ -81,6 +83,8 @@ models:
         description: promedio_anual / guia_anual.
       - name: nivel_oms
         description: Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1').
+      - name: orden_nivel_oms
+        description: Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1').
       - name: proximo_nivel
         description: Escalón al que se llega bajando ug_para_proximo_nivel.
       - name: ug_para_proximo_nivel
