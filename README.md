@@ -1,111 +1,249 @@
-# nox-ciudad
+# ¿Cuán lejos está el aire porteño de las guías de la OMS?
 
-TP integrador de Análisis de Datos 1: ¿qué le pasa al aire porteño cuando paran los colectivos?
+Trabajo Práctico Integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Flujo completo: datos
+públicos de calidad del aire → extracción → modelo en DuckDB → limpieza y calidad → ETL con dbt → consultas SQL →
+EDA en Python → dashboard en Power BI.
 
-Cruza calidad del aire (informes públicos de la APrA: Centenario, Córdoba y La Boca), transacciones SUBE por línea,
-meteorología (registro diario del SMN) y un calendario de paros 2024-2026.
+**Rol:** equipo de datos de una agencia de calidad ambiental. **Público:** funcionarios, prensa y ciudadanía.
+
+## Pregunta
+
+> ¿Cuán lejos está la calidad del aire de la Ciudad de Buenos Aires de las guías de calidad del aire de la OMS
+> (2021), y cómo varía esa brecha entre estaciones, contaminantes, tipo de día y período?
+
+1. ¿Qué porcentaje de días se supera la guía diaria de la OMS, por estación y contaminante?
+2. ¿Cuántas veces por encima de la guía anual están los promedios anuales?
+3. ¿Qué estación tiene la peor situación y con qué contaminante?
+4. ¿Cambia el cumplimiento entre días hábiles, sábados, domingos y feriados?
+5. ¿Hay estacionalidad (invierno vs. verano)?
+6. ¿Cuánto condiciona la calidad o completitud de los datos a las conclusiones?
+
+**Hipótesis:** H1, el NO₂ supera la guía diaria la mayoría de los días y el PM10 casi nunca. H2, La Boca es la
+estación más comprometida en NO₂. H3, los domingos y feriados la brecha se reduce de forma visible.
+
+**Por qué importa:** la OMS actualizó sus guías en 2021 y las hizo mucho más exigentes (la de NO₂ anual pasó de 40 a
+10 µg/m³). La norma de la Ciudad sigue valores más laxos, así que "cumplir la norma" no dice cuán lejos se está de
+lo que la evidencia en salud considera seguro.
+
+## Hallazgos
+
+Período 2024-01-01 a 2026-09-30, estaciones Parque Centenario, Córdoba y La Boca de la APrA.
+
+| | NO₂ | PM10 | CO |
+|---|---|---|---|
+| Días sobre la guía de 24 h | **50% (Centenario) a 95% (La Boca)** | 2% a 4% | 0% |
+| Promedio de los últimos 12 meses vs. guía anual | **2,6 a 4,6 veces** | 1,5 a 1,8 veces | sin guía anual |
+| Escalón OMS (últimos 12 meses) | IT2 (Centenario) · IT1 (Córdoba) · **> IT1 (La Boca)** | IT3 en las tres | — |
+| Percentil 99 anual vs. guía de 24 h | 1,7 a 4,2 veces | 1,0 a 1,4 veces | menos de 0,4 veces |
+
+1. **El problema es el NO₂.** En La Boca el NO₂ supera la guía diaria el **94,7%** de los días (894 de 944), en
+   Córdoba el **84,4%** y en Parque Centenario el **50,3%**. La Boca llegó a **216 días seguidos** por encima de la
+   guía (marzo a octubre de 2025).
+2. **La Boca no alcanza ni el objetivo intermedio menos exigente:** su NO₂ de los últimos 12 meses es 45,9 µg/m³,
+   **4,6 veces la guía anual** (10 µg/m³) y por encima del IT1 (40 µg/m³). En 2024 llegó a 56,5 µg/m³.
+3. **El PM10 casi nunca supera la guía diaria, pero tampoco cumple:** su promedio anual está 1,5 a 1,8 veces por
+   encima de la guía y su percentil 99 (la definición formal de la guía de 24 h) también la supera.
+4. **Los domingos el NO₂ baja entre 17% y 27%, pero la brecha no se cierra:** en La Boca el 90% de los domingos
+   sigue sobre la guía.
+5. **Estacionalidad fuerte:** en invierno el NO₂ de La Boca es 1,8 veces el del verano y supera la guía el 99,6%
+   de los días.
+6. **Los huecos de datos cambian conclusiones:** la "caída" del NO₂ de 2024 a 2026 (−28% juntando las estaciones)
+   está inflada porque en 2024 casi no hay datos de Centenario, la estación más limpia. Por estación: La Boca −20%,
+   Córdoba −14% y Centenario sin tendencia. Y sin controlar la meteorología no se puede atribuir a una mejora real.
+
+**Hipótesis:** H1 se sostiene con un matiz (el PM10 no cumple la guía anual ni el P99). H2 se sostiene con todos
+los indicadores. H3 se sostiene a medias: baja el nivel, pero el incumplimiento sigue.
+
+Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
+[`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (las mismas respuestas en SQL).
+
+## Cómo correrlo
+
+Requisitos: Python 3.11 o superior y Git. Todo corre local, sin servidores.
+
+```bash
+git clone https://github.com/ezequielmaranda/nox-ciudad
+```
+
+```bash
+cd nox-ciudad
+```
+
+```bash
+make install
+```
+
+```bash
+make all
+```
+
+`make all` corre el ETL (crudo → DuckDB → `data/final/`), los tests y el notebook de EDA (regenera
+`reports/figures/`). Tarda menos de un minuto. Por partes: `make etl`, `make test`, `make eda`; `make docs` abre la
+documentación de dbt con el linaje de las tablas; `make extract` vuelve a bajar los PDF de la APrA (opcional: el
+CSV crudo ya está en el repo).
+
+**En Windows** (sin `make`), desde la raíz del repo:
+
+```bash
+python -m venv .venv
+```
+
+```bash
+.venv\Scripts\pip install -r requirements.txt
+```
+
+```bash
+.venv\Scripts\python -m src.etl
+```
+
+```bash
+.venv\Scripts\python -m pytest -q
+```
+
+```bash
+.venv\Scripts\python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb
+```
+
+Para explorar la base con SQL: abrir `data/warehouse/aire.duckdb` en DBeaver o DataGrip (driver DuckDB 1.x) o con la
+CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 
 ## Estructura
 
 ```
-data/            fuera de git (tamaño)
-  raw/           archivos originales, no se modifican: aire_publico/, smn/, sube/
-  landing/       CSV en formato largo generados por extract/
-  nox.duckdb     base con schemas bronze, silver y gold
-extract/         crudo -> landing (un script por fuente)
-dbt/             landing -> bronze -> silver -> gold
-  seeds/         tablas chicas versionadas (eventos.csv, feriados.csv)
-  tests/         tests de coherencia física y de negocio
-analysis/        notebooks de EDA y consultas sueltas; leen gold
-export/          gold exportado a Parquet para Looker Studio y Colab
+.
+├── README.md                      este archivo
+├── PROYECTO_TP_AIRE_OMS.md        enunciado del proyecto (instrucciones originales)
+├── requirements.txt · Makefile · pytest.ini
+├── data/
+│   ├── raw/                       crudo de la extracción (no se modifica a mano)
+│   │   ├── aire_publico.csv           83.010 valores de 279 PDF de la APrA, todo texto
+│   │   └── aire_publico_manifiesto.csv  estado de cada PDF (procesado, aviso, descartado)
+│   ├── reference/                 tablas mantenidas a mano: guías OMS, estaciones, contaminantes, feriados, eventos
+│   ├── warehouse/aire.duckdb      base generada por el ETL (fuera de git)
+│   └── final/                     17 tablas en CSV y Parquet para Power BI y el EDA
+├── dbt/                           transformaciones SQL (dbt + DuckDB)
+│   ├── models/01_staging/         tipar, normalizar, reglas de validación física
+│   ├── models/02_dimensiones/     calendario, estación, contaminante, período, evento, referencias OMS
+│   ├── models/03_hechos/          fact_medicion_diaria (formato largo, grilla completa)
+│   ├── models/04_calidad/         completitud, regla del 75%, violaciones, outliers
+│   ├── models/05_indicadores/     cumplimiento diario, indicadores anuales, rachas
+│   └── tests/                     tests de calidad (singulares y genéricos)
+├── sql/99_consultas_analisis.sql  consultas comentadas que responden cada subpregunta + vistas
+├── src/
+│   ├── config.py                  rutas relativas a la raíz y tablas a exportar
+│   ├── extract.py                 extracción: PDF de la APrA → data/raw/aire_publico.csv
+│   ├── etl.py                     orquesta extract → dbt build → export → consultas → diccionario
+│   ├── calidad.py                 perfil del crudo y resumen de calidad
+│   └── diccionario.py             genera docs/diccionario_datos.md
+├── notebooks/eda.ipynb            EDA ordenado por subpregunta
+├── tests/test_etl.py              tests de pytest (incluye idempotencia)
+├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
+└── reports/figures/               figuras del EDA (PNG)
 ```
 
-## Arquitectura medallón
+## Datos
 
-- **bronze**: los CSV de landing cargados tal cual (texto), con archivo de origen y fecha de carga.
-- **silver**: tipado, normalizado y con flags de calidad (no se borran filas).
-- **gold**: tablas analíticas para el EDA y el dashboard.
-
-| Capa | Modelo | Grano | Para qué |
-|---|---|---|---|
-| bronze | bronze_aire, bronze_aire_manifiesto, bronze_sube, bronze_smn | igual que la fuente | carga cruda, todo texto |
-| silver | silver_aire | estación × día × contaminante × estadístico | tipado + flags (estado_valor, fuera_de_rango, nox_incoherente, fuera_de_max_min) |
-| silver | silver_sube, silver_colectivos_caba_linea_dia | línea × día | universo de colectivos que circulan por CABA |
-| silver | silver_sube_actividad_diaria | día | usos por modo y `es_dia_normal` |
-| silver | silver_smn_diario | estación × día | registro diario del SMN, una columna por variable |
-| silver | dim_calendario | día | tipo de día, feriado, día normal, evento |
-| gold | gold_aire_diario | estación × día | bloque 8-16 h, NOx/CO, promedios 24 h |
-| gold | gold_sube_diario | día | dosis de paro y actividad vs. día hábil típico |
-| gold | gold_meteo_diario | día | viento, temperatura, humedad y lluvia (SMN, promedio de 2 estaciones) |
-| gold | **gold_analitico** | estación × día | **la tabla del análisis**: todo lo anterior unido |
-
-## Cómo correrlo
-
-```
-uv sync                                   # instala todo según pyproject.toml / uv.lock
-# SMN (manual): bajar el zip de datos diarios y descomprimirlo en data/raw/smn/ (ver Fuentes)
-uv run python run.py --extraer            # extract -> dbt build -> export/*.parquet
-uv run python run.py                      # lo mismo sin volver a descargar (lo más común)
-uv run python run.py --analisis           # además ejecuta los notebooks y deja los resultados para Looker Studio
-```
-
-Por partes, si hace falta:
-
-```
-uv run python extract/aire_publico.py     # PDF de la APrA -> data/landing/aire_publico.csv
-uv run python extract/sube_descarga.py    # CSV de SUBE -> data/raw/sube/
-uv run python extract/smn_to_csv.py       # .lst del SMN -> data/landing/smn.csv
-cd dbt
-uv run dbt build --profiles-dir .         # seeds + modelos + tests -> data/nox.duckdb
-uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-dir .   # documentación y linaje
-```
-
-`export/` (fuera de git) queda con `gold_analitico.parquet` y el resto de gold: es lo que leen
-Looker Studio y los notebooks de EDA.
-
-Documentación: [`docs/modelo_datos.md`](docs/modelo_datos.md) (arquitectura, modelo, decisiones y diccionario),
-[`docs/proceso.md`](docs/proceso.md) (fichas de datasets, problemas de calidad y soluciones, tests) y
-[`analysis/consultas.sql`](analysis/consultas.sql) (preguntas respondidas con SQL).
-
-Dashboard en **Looker Studio**: ver [`dashboard/README.md`](dashboard/README.md) (fuentes, campos calculados, páginas y colores).
-`run.py` deja siempre en `export/looker/` los CSV planos que se suben a Looker Studio.
-
-## Notebooks (`analysis/`)
-
-| Notebook | Qué responde |
+| | |
 |---|---|
-| `01_eda_aire.ipynb` | Cuántos datos hay, cómo se distribuyen, niveles (contexto normativo), estacionalidad y ciclo semanal |
-| `02_eda_sube.ipynb` | Cuánta gente viaja, qué es un día normal, cuántas líneas pararon en cada paro y si falta algún paro |
-| `03_eda_meteo.ipynb` | Viento, temperatura y lluvia: calidad del dato, estacionalidad, colinealidad y el tiempo en cada evento |
-| `04_bivariado.ipynb` | Gradiente de actividad de colectivos contra NOx/CO, efecto del viento, eventos sin ajustar |
-| `05_eventos.ipynb` | Regresión en días normales + prueba placebo: ¿cada paro cambió el aire más de lo esperable? |
+| **Fuente** | Agencia de Protección Ambiental (APrA), Gobierno de la Ciudad de Buenos Aires: informes mensuales de las estaciones de monitoreo ([buenosaires.gob.ar/calidad-del-aire](https://buenosaires.gob.ar/calidad-del-aire)) |
+| **Formato original** | PDF, uno por mes, contaminante y estación (281 enlazados; 279 procesados, 2 descartados) |
+| **Volumen** | 83.010 valores crudos → fact de 30.120 filas (1.004 días × 3 estaciones × 5 contaminantes × 2 ventanas) |
+| **Variables** | NO, NO₂, NOx (ppb), CO (ppm), PM10 (µg/m³); por día: promedio de 24 h, bloques de 8 h, máximo y mínimo horario |
+| **Granularidad** | estación × día (los datos horarios no son públicos) |
+| **Período** | 2024-01-01 a 2026-09-30 (2026 parcial) |
+| **Referencia** | Guías OMS 2021 (`data/reference/oms_2021.csv`), usadas siempre vía JOIN |
+| **Complementos** | Feriados nacionales (API ArgentinaDatos) y días de paro de transporte (notas de prensa) |
 
-Se abren con VS Code (extensión Jupyter, kernel del `.venv`) o con `uv run --with jupyterlab jupyter lab`, y leen `export/*.parquet`. En Colab: subir los `.parquet`
-de `export/` con el panel de archivos y correr el notebook tal cual.
+## Flujo técnico
 
-## Notas de datos
+```mermaid
+flowchart LR
+    A["PDF APrA"] -- "src/extract.py" --> B["data/raw<br/>CSV crudo"]
+    B -- "dbt: staging" --> C["validación<br/>y tipado"]
+    C -- "dbt" --> D["modelo estrella<br/>dims + fact"]
+    D -- "dbt" --> E["calidad e<br/>indicadores OMS"]
+    E -- "src/etl.py" --> F["data/final<br/>CSV + Parquet"]
+    F --> G["Power BI"]
+    F --> H["EDA<br/>notebook"]
+```
 
-- Calidad del aire: PDF mensuales públicos de la APrA, valores diarios y por bloques de 8 h.
-  Los links originales dan 404: se descargan desde static.buenosaires.gob.ar.
-- Meteorología: solo el registro diario del SMN (Aeroparque y Observatorio). Se probó Meteostat horario
-  (ventana 8-16 h) y los resultados no cambian, así que se descartó.
-- SMN diario: PRECIP falta en muchos días; VTO_MDIR está en decenas de grado.
+Detalle de cada paso: [`docs/diagrama_etl.md`](docs/diagrama_etl.md). Modelo y decisiones:
+[`docs/modelo_datos.md`](docs/modelo_datos.md). Calidad: [`docs/calidad_datos.md`](docs/calidad_datos.md).
+Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
+[`docs/powerbi_spec.md`](docs/powerbi_spec.md).
+
+## Decisiones técnicas clave
+
+| Decisión | Por qué |
+|---|---|
+| **Partir de los PDF públicos** y no de una tabla ya procesada | La consigna pide un flujo completo y desaconseja datasets ya procesados. Desde el PDF aparecen los problemas reales: `s/d`, `<4`, coma decimal, archivos de otra estación, valores incoherentes |
+| **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV/Parquet y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
+| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 74 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
+| **Fact como grilla completa** (calendario × estación × contaminante) | Distingue "la fuente no publicó" de "publicó `s/d`" y de "lo descartó una regla"; la completitud es un promedio |
+| **No se borra nada:** se marca | Cada problema queda en una columna (`motivo_sin_dato`, `es_outlier`); el análisis decide |
+| **Umbrales en tablas** | Guías OMS, tolerancias, factores de conversión y parámetros (75%, 3·IQR) en `data/reference/` y `dbt_project.yml`, nunca escritos en el SQL |
+| **`<límite de detección` → límite / 2** | El valor real está entre 0 y el límite; descartarlo sesgaría los promedios hacia arriba |
+| **La incoherencia NOx ≠ NO + NO₂ descarta NO y NOx, no NO₂** | Se concentra en el día 8 de cada mes con el NO "trabado"; el NO₂ pasa sus propios controles |
+| **Outliers: Q3 + 3·IQR, marcados** | Los más extremos ocurren a la vez en las tres estaciones: son episodios reales, justo lo que la guía de 24 h quiere detectar |
+| **Regla del 75%** para indicadores anuales | Un promedio con meses faltantes puede estar sesgado por la estación del año |
+| **% de días sobre la guía con denominador = días con dato** | Un día sin dato no es un día limpio |
+| **Dos métricas para la guía de 24 h:** % de días y percentil 99 | La OMS define la guía de 24 h como el P99 anual; el % de días es más fácil de comunicar |
+| **Últimos 12 meses** además de los años calendario | 2026 llega a septiembre: sin primavera ni verano no es comparable con un año completo |
+
+## Limitaciones
+
+- **Solo 3 estaciones:** no representan a toda la Ciudad (no hay estaciones en el sudoeste ni en el norte).
+- **Huecos de datos:** el NO₂ de Parque Centenario falta de marzo a noviembre de 2024 y en julio de 2025; los
+  indicadores anuales con menos de 75% de días no se calculan.
+- **2026 es parcial** (enero a septiembre).
+- **Sin control meteorológico:** las diferencias entre períodos o épocas del año pueden deberse al clima (viento,
+  lluvia, inversiones térmicas).
+- **El "% de días sobre la guía" es una simplificación:** la guía de 24 h de la OMS es estadísticamente un
+  percentil 99 anual (se reportan las dos métricas).
+- **Datos agregados aguas arriba:** la APrA mide cada hora y publica promedios diarios y por bloques de 8 h,
+  redondeados. El ETL del TP arranca de esos informes; no hay acceso a los datos horarios ni a los registros de
+  calibración que explicarían el patrón del día 8.
+- **Conversión de unidades** a 25 °C y 1 atm (convención OMS); la temperatura real cambia levemente los µg/m³.
+- **Ubicación de las estaciones aproximada** (geocodificada a mano desde la dirección).
+
+**Mejoras futuras:** sumar meteorología (viento, lluvia, temperatura) para separar clima de emisiones; pedir a la
+APrA los datos horarios; agregar O₃ y PM2.5 si se publican; automatizar la extracción mensual.
+
+## Exposición (20 minutos, 4 integrantes)
+
+| Bloque de la consigna | Contenido | Material | Quién (propuesta) |
+|---|---|---|---|
+| 1-2. Caso, pregunta e hipótesis | Por qué la OMS 2021, rol y público | este README | Integrante 1 |
+| 3. Dataset | PDF de la APrA, grano, período, limitaciones iniciales | `docs/calidad_datos.md` §1 | Integrante 1 |
+| 4-5. Flujo técnico y calidad | Extracción, dbt, esquema estrella, reglas, día 8, regla del 75%, heatmap | `docs/diagrama_etl.md`, `docs/modelo_datos.md`, figura 01 | Integrante 2 |
+| 6. EDA | Distribuciones, series, tipo de día, estacionalidad, efecto de los huecos | `notebooks/eda.ipynb` | Integrante 3 |
+| 7-8. Dashboard e insights | Las 3 páginas de Power BI y los 6 hallazgos | `docs/powerbi_spec.md` | Integrante 4 |
+| 9. Limitaciones y mejoras | Sección anterior | este README | Integrante 4 |
+
+Cualquier integrante tiene que poder explicar cualquier parte: cada archivo SQL y Python está comentado en español
+con el qué y el por qué.
 
 ## Fuentes
 
-| Dato | Fuente | Cómo se obtiene |
-|---|---|---|
-| Calidad del aire (CO, NO, NO2, NOx, PM10) | Agencia de Protección Ambiental (APrA), informes mensuales por estación: https://buenosaires.gob.ar/calidad-del-aire | `extract/aire_publico.py` (descarga desde static.buenosaires.gob.ar) |
-| Usos SUBE por línea y día | Secretaría de Transporte, datos.transporte.gob.ar (dataset SUBE, `dat-ab-usos-<año>.csv`) | `extract/sube_descarga.py` |
-| Meteorología diaria (Aeroparque y Observatorio Central) | Servicio Meteorológico Nacional, Descarga de datos: https://www.smn.gob.ar/descarga-de-datos | Manual: aceptar términos y condiciones y bajar https://ssl.smn.gob.ar/dpd/zipopendata.php?dato=datosdiarios20212026 (zip con el `.lst`) |
-| Feriados 2024-2026 | API ArgentinaDatos | seed `dbt/seeds/feriados.csv` |
-| Paros | Prensa + verificación con SUBE | seed `dbt/seeds/eventos.csv` |
+- World Health Organization (2021). *WHO global air quality guidelines: particulate matter (PM2.5 and PM10), ozone,
+  nitrogen dioxide, sulfur dioxide and carbon monoxide.* Ginebra: OMS. ISBN 978-92-4-003422-8.
+  <https://www.who.int/publications/i/item/9789240034228>. Valores de `data/reference/oms_2021.csv`: resumen
+  ejecutivo, Tabla 0.1, *Recommended AQG levels and interim targets*.
+- Agencia de Protección Ambiental, GCBA. Calidad del aire, estaciones Parque Centenario, Córdoba y La Boca.
+  <https://buenosaires.gob.ar/calidad-del-aire>.
+- ArgentinaDatos. API de feriados nacionales. <https://api.argentinadatos.com/v1/feriados/>.
 
-## Antecedentes
+## Diferencias con el enunciado (`PROYECTO_TP_AIRE_OMS.md`)
 
-| Estudio | Qué paró | Resultado |
-|---|---|---|
-| Bauernschuster, Hener y Rainer (2017), *AEJ: Economic Policy* 9(1):1-37. Alemania. [Link](https://ideas.repec.org/a/aea/aejpol/v9y2017i1p1-37.html) | Transporte público | Horas de auto +11-13%, PM10 +14% |
-| Basagaña, Querol y otros (2018), *Science of the Total Environment*. Barcelona. [Link](https://repositori.upf.edu/items/6f83549c-bd68-4b34-894c-a9cc83ffd38b) | Metro, tren y colectivo | NO2 +4%; con paro de metro, NO hasta +48% |
-| González, Perdiguero y Sanz (2021), *Transportation Research Part D* 98:102952. Barcelona. [Link](https://ddd.uab.cat/pub/artpub/2021/249261/trares_a2021n102952iENG.pdf) | Colectivos | A nivel ciudad: NOx sin efecto significativo, CO +11,9% |
-| Krecl, Targino y otros (2020), *Environmental Pollution* 265:114883. San Pablo. [Link](https://pmc.ncbi.nlm.nih.gov/articles/PMC7259904) | Camioneros (mayo 2018) | NOx entre −40 y −70% |
+Se priorizaron los datos sobre lo que decía el documento:
+
+- **Entrada:** el enunciado partía de `gold_aire_diario.parquet` (la tabla diaria del proyecto anterior). Se partió
+  un paso antes, del CSV que sale de los PDF públicos, para que la limpieza sea visible y el flujo completo.
+- **% de días sobre la guía de NO₂:** el enunciado decía ~91 / 75 / 33%. Esos valores dividían por todas las filas,
+  incluidos los días sin dato. Con el denominador correcto (días con dato): **94,7 / 84,4 / 50,3%**.
+- **Filas faltantes (991 / 988 / 971):** eran un efecto de la tabla anterior, que solo tenía fila cuando había algún
+  valor válido. En la fuente cada estación tiene fila los 1.004 días; los huecos son por contaminante.
+- **NO₂ de enero a septiembre 26,1 → 20,8 → 18,9 ppb:** se reproduce (26,1 → 20,9 → 18,9), pero está inflado por la
+  falta de Centenario en 2024 (sección Hallazgos, punto 6).
+- **Extensión de meteorología:** fuera del alcance, por decisión del equipo (se simplificó el TP a calidad del aire).
