@@ -14,7 +14,7 @@ subconjunto idéntico de calidad-aire.csv, así que alcanza con este.
 
 Qué hace: descarga el CSV (con reintentos, porque el portal a veces responde 502), verifica que
 tenga las columnas esperadas y lo guarda tal como viene en data/raw/calidad-aire.csv. No
-transforma nada: la conversión de tipos y las reglas de calidad viven en SQL (dbt, staging).
+transforma nada: la conversión de tipos y las reglas de calidad viven en SQL (dbt, capa silver).
 
 Este paso es opcional para correr el TP: el CSV crudo ya está en el repo. Sirve para
 actualizarlo con los meses nuevos.
@@ -28,7 +28,7 @@ import urllib.request
 
 from src.config import DIR_RAW, RAW_AIRE, URL_CALIDAD_AIRE
 
-# Columnas que el staging de dbt necesita (las de Palermo también vienen, pero vacías desde 2010)
+# Columnas que la capa bronze/silver de dbt necesita (las de Palermo también vienen, pero vacías desde 2010)
 COLUMNAS_ESPERADAS = [
     "FECHA", "HORA",
     "CO_CENTENARIO", "NO2_CENTENARIO", "PM10_CENTENARIO",

@@ -22,18 +22,6 @@ relationship 1729176a-6503-55b9-adb4-c24ab58f0880
 	fromColumn: fact_medicion_horaria.id_contaminante
 	toColumn: dim_contaminante.id_contaminante
 
-relationship 1d993040-775e-509f-becf-247a2b19e356
-	fromColumn: agg_cumplimiento_diario.fecha
-	toColumn: dim_calendario.fecha
-
-relationship a715b563-4841-50a3-94a6-200157232059
-	fromColumn: agg_cumplimiento_diario.id_estacion
-	toColumn: dim_estacion.id_estacion
-
-relationship a2f84743-77d0-515c-81dd-614965f9cc73
-	fromColumn: agg_cumplimiento_diario.id_contaminante
-	toColumn: dim_contaminante.id_contaminante
-
 relationship 5b543e07-1c84-5e08-b0ae-35186752943c
 	fromColumn: agg_anual.id_estacion
 	toColumn: dim_estacion.id_estacion
@@ -42,52 +30,8 @@ relationship e24e3cf1-9bd4-57c8-b551-cd8391e0a8a4
 	fromColumn: agg_anual.id_contaminante
 	toColumn: dim_contaminante.id_contaminante
 
-relationship 900cf319-4262-5926-882f-8fd5a87b6450
-	fromColumn: agg_anual.id_periodo
-	toColumn: dim_periodo.id_periodo
-
-relationship 1f354592-80ac-5e79-8d0e-87d36236f6fe
-	fromColumn: agg_cumplimiento_niveles.id_estacion
-	toColumn: dim_estacion.id_estacion
-
-relationship c242238a-2cbf-5aae-ad4a-7699ddd4243c
-	fromColumn: agg_cumplimiento_niveles.id_contaminante
-	toColumn: dim_contaminante.id_contaminante
-
-relationship d9293d12-463e-5fbd-bdd9-c4260d0a217d
-	fromColumn: agg_cumplimiento_niveles.id_periodo
-	toColumn: dim_periodo.id_periodo
-
-relationship 0a1b51a0-beeb-57ec-a942-4a6d7c3e9ef1
-	fromColumn: agg_rachas.id_estacion
-	toColumn: dim_estacion.id_estacion
-
-relationship b396c35c-3a32-5df7-8d89-a13774296d1c
-	fromColumn: agg_rachas.id_contaminante
-	toColumn: dim_contaminante.id_contaminante
-
-relationship 8ed5360d-7ec4-5c11-a053-25374170cf18
-	fromColumn: agg_contexto_anual.id_estacion
-	toColumn: dim_estacion.id_estacion
-
-relationship a134e3af-5fa8-5784-9bf9-e22b89f9fb35
-	fromColumn: agg_contexto_anual.id_contaminante
-	toColumn: dim_contaminante.id_contaminante
-
-relationship be077bd2-8a22-577c-b2e9-5e237848e9f5
-	fromColumn: agg_completitud_mensual.id_estacion
-	toColumn: dim_estacion.id_estacion
-
-relationship f44fb1c3-3f20-5cc2-8729-8b86259d2b60
-	fromColumn: agg_completitud_mensual.id_contaminante
-	toColumn: dim_contaminante.id_contaminante
-
-relationship 02928c86-2d1a-551c-a25d-8e8314bc1d61
-	fromColumn: ref_oms.id_contaminante
-	toColumn: dim_contaminante.id_contaminante
-
-relationship 639a1d89-c5e3-508f-b3c5-6f2b17ea4957
-	fromColumn: ref_oms_niveles.id_contaminante
+relationship b2ecf45a-5f67-590a-a81a-05672fe1b013
+	fromColumn: guia_oms.id_contaminante
 	toColumn: dim_contaminante.id_contaminante
 
 relationship 1f634fea-fd77-5496-83b9-b34657a80a4b

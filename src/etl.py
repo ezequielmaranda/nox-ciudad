@@ -1,11 +1,11 @@
 """ETL del TP: del CSV crudo de calidad del aire a las tablas finales para Power BI.
 
     EXTRACT    verifica que esté data/raw/calidad-aire.csv (el CSV horario de BA Data)
-    TRANSFORM  dbt build: referencias -> staging -> dimensiones y fact -> calidad -> indicadores,
-    + LOAD     todo dentro de data/warehouse/aire.duckdb, con los tests de calidad de dbt
-    EXPORT     tablas finales -> data/final/*.csv
-    ANALIZAR   ejecuta sql/99_consultas_analisis.sql (verifica que todas las consultas corran y
-               crea las vistas del schema `analisis`)
+    TRANSFORM  dbt build en arquitectura medallón: bronze (el CSV tal cual y las referencias)
+    + LOAD     -> silver (valores horarios limpios y valor diario) -> gold (modelo estrella e
+               indicadores), todo dentro de data/warehouse/aire.duckdb, con los tests de dbt
+    EXPORT     capa gold -> data/final/*.csv
+    ANALIZAR   ejecuta sql/99_consultas_analisis.sql (verifica que todas las consultas corran)
     DOCUMENTAR docs/diccionario_datos.md a partir de las descripciones de dbt
 
 Es idempotente: cada corrida reconstruye las tablas desde cero y sobrescribe las salidas, así
@@ -49,7 +49,7 @@ def transformar_y_cargar() -> None:
 
 
 def exportar() -> None:
-    """EXPORT: tablas finales a CSV (UTF-8, separador ',', decimal '.')."""
+    """EXPORT: tablas de gold a CSV (UTF-8, separador ',', decimal '.')."""
     config.DIR_FINAL.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)
     for tabla in config.TABLAS_FINALES:
@@ -65,7 +65,7 @@ def exportar() -> None:
 def ejecutar_consultas_analisis() -> None:
     """ANALIZAR: corre una por una las consultas de sql/99_consultas_analisis.sql."""
     texto = (config.DIR_SQL / "99_consultas_analisis.sql").read_text(encoding="utf-8")
-    con = duckdb.connect(config.BASE_DUCKDB.as_posix())  # lectura y escritura: crea vistas
+    con = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)  # solo consultas de lectura
     sentencias = duckdb.extract_statements(texto)
     for sentencia in sentencias:
         con.execute(sentencia.query)
@@ -83,7 +83,7 @@ def main() -> None:
     log.info("2/5 TRANSFORM + LOAD: dbt build")
     transformar_y_cargar()
 
-    log.info("3/5 EXPORT: tablas finales")
+    log.info("3/5 EXPORT: capa gold")
     exportar()
 
     log.info("4/5 ANALIZAR: consultas SQL de análisis")

@@ -1,0 +1,76 @@
+version: 2
+
+# Capa SILVER: los datos limpios. Tipados, en formato largo y con las reglas de calidad aplicadas.
+# No se borra ninguna fila: lo que no se usa queda marcado con su motivo.
+models:
+  - name: medicion_horaria
+    description: >
+      Valores horarios del CSV de BA Data en formato largo, tipados y validados: una fila por
+      fecha × hora × estación × contaminante (sin Palermo, desactivada desde 2010), para toda la
+      serie. Lo que no se usa queda con es_valido = falso y el motivo en motivo_invalido.
+    columns:
+      - name: fecha
+        description: Fecha del dato.
+        data_tests: [not_null]
+      - name: hora
+        description: Hora que termina (1 = de 00:00 a 01:00 … 24 = de 23:00 a 24:00). La fuente trae algunas fuera de 1-24.
+      - name: id_estacion
+        description: Código de la estación ('centenario', 'cordoba', 'la_boca').
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["centenario", "cordoba", "la_boca"]
+      - name: id_contaminante
+        description: Código del contaminante ('no2', 'pm10', 'co').
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["no2", "pm10", "co"]
+      - name: valor_crudo
+        description: Texto original de la celda (vacía = nulo).
+      - name: estado_valor
+        description: Clasificación del texto original.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["valido", "sin_dato", "bajo_limite_deteccion", "invalido"]
+      - name: valor
+        description: Valor en la unidad original (ppb, ppm o µg/m³); imputado como límite / 2 si era '<x'.
+      - name: es_imputado
+        description: Verdadero si el valor era '<límite' y se imputó como límite / 2.
+      - name: motivo_invalido
+        description: Por qué no se usa el valor (vacío = válido).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["hora_invalida", "sin_dato_fuente", "texto_invalido", "fuera_de_rango", "fila_en_cero", "valor_trabado"]
+      - name: es_valido
+        description: Verdadero si el valor pasa todas las reglas y se usa en el análisis.
+        data_tests: [not_null]
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [fecha, hora, id_estacion, id_contaminante]
+
+  - name: medicion_diaria
+    description: >
+      Valor diario (promedio de 24 h, en la unidad original) por fecha × estación × contaminante,
+      para toda la serie y solo los días presentes en la fuente. NO2: promedio de las horas válidas
+      con al menos 18; PM10: promedio móvil de la hora 24; CO: promedio de las horas 8, 16 y 24.
+    columns:
+      - name: n_horas_validas
+        description: Horas con valor válido ese día.
+      - name: valor_diario
+        description: Promedio de 24 h en la unidad original. Nulo si no alcanza la información del día.
+      - name: tiene_dato
+        description: Verdadero si hay valor diario.
+      - name: motivo_sin_dato
+        description: "'sin_dato_fuente' (todas las horas en s/d) o 'incompleto'. Vacío si tiene_dato."
+      - name: es_imputado
+        description: Verdadero si el valor diario usa alguna hora imputada ('<límite').
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [fecha, id_estacion, id_contaminante]

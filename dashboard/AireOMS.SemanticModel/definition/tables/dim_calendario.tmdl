@@ -1,4 +1,4 @@
-/// Un registro por día del período (2024-01-01 a 2026-09-30), haya o no datos.
+/// Un registro por día del período de estudio (2024-01-01 a 2026-09-30), haya o no datos.
 table dim_calendario
 	lineageTag: ef1cf36a-a8bf-5c7b-8996-8811af3577ab
 
@@ -125,75 +125,12 @@ table dim_calendario
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si es feriado nacional o puente.
-	column es_feriado
-		dataType: boolean
-		lineageTag: 55cb65d1-2e23-532c-aee1-f1e1d2126fdb
-		summarizeBy: none
-		sourceColumn: es_feriado
-
-		annotation SummarizationSetBy = User
-
 	/// Nombre del feriado (vacío si no es feriado; nulo estructural, no faltante).
 	column nombre_feriado
 		dataType: string
 		lineageTag: 629e30ba-0fb9-5c8e-be75-59150627f3fa
 		summarizeBy: none
 		sourceColumn: nombre_feriado
-
-		annotation SummarizationSetBy = User
-
-	/// inamovible, trasladable o puente.
-	column tipo_feriado
-		dataType: string
-		lineageTag: 49bbc128-bdb6-5aa9-9ba3-9192c5802dd2
-		summarizeBy: none
-		sourceColumn: tipo_feriado
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si es sábado o domingo.
-	column es_fin_de_semana
-		dataType: boolean
-		lineageTag: c8633700-60fc-5086-a8c0-2e865b3a752d
-		summarizeBy: none
-		sourceColumn: es_fin_de_semana
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero para los días del último año, que no está completo (2026).
-	column es_anio_parcial
-		dataType: boolean
-		lineageTag: cb1b1b6f-5b31-59b9-9adc-80bb520966c1
-		summarizeBy: none
-		sourceColumn: es_anio_parcial
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si hubo un paro de transporte ese día.
-	column es_dia_evento
-		dataType: boolean
-		lineageTag: 52c6886b-920a-5ebf-a8a0-02b05769a805
-		summarizeBy: none
-		sourceColumn: es_dia_evento
-
-		annotation SummarizationSetBy = User
-
-	/// Descripción del paro (vacío en el 99% de los días; nulo estructural).
-	column evento
-		dataType: string
-		lineageTag: 4c99db36-9210-5f8d-be46-cad5f2bec356
-		summarizeBy: none
-		sourceColumn: evento
-
-		annotation SummarizationSetBy = User
-
-	/// sin_colectivos o trenes_subte.
-	column grupo_evento
-		dataType: string
-		lineageTag: 16bf02c3-958c-509c-aa27-7edc1e3f8257
-		summarizeBy: none
-		sourceColumn: grupo_evento
 
 		annotation SummarizationSetBy = User
 
@@ -204,7 +141,7 @@ table dim_calendario
 				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_calendario.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"nombre_mes", type text}, {"anio_mes", type date}, {"estacion_del_anio", type text}, {"orden_estacion_del_anio", Int64.Type}, {"dia_semana", Int64.Type}, {"nombre_dia", type text}, {"tipo_dia", type text}, {"tipo_dia_etiqueta", type text}, {"orden_tipo_dia", Int64.Type}, {"es_feriado", type logical}, {"nombre_feriado", type text}, {"tipo_feriado", type text}, {"es_fin_de_semana", type logical}, {"es_anio_parcial", type logical}, {"es_dia_evento", type logical}, {"evento", type text}, {"grupo_evento", type text}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"nombre_mes", type text}, {"anio_mes", type date}, {"estacion_del_anio", type text}, {"orden_estacion_del_anio", Int64.Type}, {"dia_semana", Int64.Type}, {"nombre_dia", type text}, {"tipo_dia", type text}, {"tipo_dia_etiqueta", type text}, {"orden_tipo_dia", Int64.Type}, {"nombre_feriado", type text}}, "en-US")
 				in
 				    Tipos
 

@@ -1,21 +1,52 @@
 # Modelo de datos
 
 Cómo están organizados los datos para poder consultarlos: una base **DuckDB** (`data/warehouse/aire.duckdb`)
-construida con **dbt**, con un **esquema estrella** en el centro. El detalle de cada columna está en
-[`diccionario_datos.md`](diccionario_datos.md).
+construida con **dbt** en **arquitectura medallón** (bronze → silver → gold), con un **esquema estrella** en la
+capa gold. El detalle de cada columna está en [`diccionario_datos.md`](diccionario_datos.md).
 
-## 1. Capas (schemas)
+## 1. Capas: bronze, silver y gold
 
-| Schema | Qué tiene | Modelos dbt |
-|---|---|---|
-| `referencia` | Tablas mantenidas a mano en `data/reference/` (seeds) | `oms_2021`, `contaminantes`, `estaciones`, `feriados`, `eventos` |
-| `staging` | El crudo horario en formato largo, tipado y validado (una fila por celda del CSV), y el valor diario | `stg_aire_horario`, `stg_aire_horario_validado`, `stg_aire_diario` |
-| `modelo` | **Esquema estrella**: dimensiones, referencias OMS y dos tablas de hechos (diaria y horaria) | `dim_*`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria`, `fact_medicion_horaria` |
-| `calidad` | Completitud, violaciones a las reglas y outliers | `agg_completitud_*`, `calidad_*` |
-| `indicadores` | Los indicadores contra la OMS y la serie larga de contexto | `agg_cumplimiento_diario`, `agg_anual`, `agg_cumplimiento_niveles`, `agg_rachas`, `agg_contexto_anual` |
-| `analisis` | Vistas de `sql/99_consultas_analisis.sql` (para verificar el dashboard) | `v_resumen_estacion`, `v_cumplimiento_por_tipo_dia`, `v_indicadores_excluidos` |
+Cada capa es un schema de la base y una carpeta de `dbt/models/`. Los datos solo van hacia adelante: bronze no
+sabe nada de silver, y gold se arma solo con silver y las referencias.
 
-## 2. Esquema estrella
+| Capa | Qué tiene | Tablas | Filas |
+|---|---|---|---|
+| **bronze** | El dato tal como llega: el CSV de BA Data sin tocar (todo texto, formato ancho) y las tablas de referencia mantenidas a mano en `data/reference/` (seeds) | `calidad_aire`, `oms_2021`, `contaminantes`, `estaciones`, `feriados` | 147.470 (el CSV) |
+| **silver** | El dato limpio y en formato largo: valores horarios tipados con las reglas de calidad aplicadas (nada se borra: se marca) y el valor diario de cada contaminante. Toda la serie, desde 2009 | `medicion_horaria`, `medicion_diaria` | 1.327.230 y 55.872 |
+| **gold** | Lo que se analiza y se muestra: el esquema estrella del período de estudio, las guías OMS y los indicadores. Es lo único que se exporta a `data/final/` | 3 dimensiones, `guia_oms`, 2 tablas de hechos, `agg_anual`, `calidad_resumen` | ver abajo |
+
+Por qué tres capas y no una sola consulta enorme: cada paso se puede revisar por separado. Si un número de gold
+sorprende, se mira el valor diario en silver; si el valor diario sorprende, se miran las horas en silver y el texto
+original en bronze. Y un test de dbt verifica que no se pierde nada en el camino: silver tiene exactamente 9 filas
+por cada fila del CSV (3 estaciones × 3 contaminantes).
+
+```mermaid
+flowchart LR
+    subgraph BRONZE["bronze"]
+        B1["calidad_aire<br/>CSV tal cual"]
+        B2["oms_2021 · contaminantes<br/>estaciones · feriados"]
+    end
+    subgraph SILVER["silver"]
+        S1["medicion_horaria<br/>UNPIVOT · tipos · reglas"]
+        S2["medicion_diaria<br/>horas → día"]
+    end
+    subgraph GOLD["gold"]
+        G1["dim_calendario · dim_estacion<br/>dim_contaminante · guia_oms"]
+        G2["fact_medicion_diaria<br/>fact_medicion_horaria"]
+        G3["agg_anual<br/>calidad_resumen"]
+    end
+    B1 --> S1 --> S2
+    B2 --> S1
+    B2 --> G1
+    S2 --> G2
+    S1 --> G2
+    G1 --> G2
+    S2 --> G3
+    S1 --> G3
+    G1 --> G3
+```
+
+## 2. Esquema estrella (gold)
 
 ```mermaid
 erDiagram
@@ -24,24 +55,23 @@ erDiagram
     dim_contaminante ||--o{ fact_medicion_diaria : "id_contaminante"
     dim_calendario ||--o{ fact_medicion_horaria : "fecha"
     dim_estacion ||--o{ fact_medicion_horaria : "id_estacion"
-    dim_contaminante ||--o{ ref_oms : "id_contaminante"
-    dim_calendario ||--o{ agg_cumplimiento_diario : "fecha"
-    dim_estacion ||--o{ agg_cumplimiento_diario : "id_estacion"
-    dim_contaminante ||--o{ agg_cumplimiento_diario : "id_contaminante"
-    dim_periodo ||--o{ agg_anual : "id_periodo"
+    dim_contaminante ||--o{ fact_medicion_horaria : "id_contaminante"
     dim_estacion ||--o{ agg_anual : "id_estacion"
     dim_contaminante ||--o{ agg_anual : "id_contaminante"
+    dim_contaminante ||--o{ guia_oms : "id_contaminante"
+    dim_contaminante ||--o{ calidad_resumen : "id_contaminante"
 
     fact_medicion_diaria {
         date fecha PK
         varchar id_estacion PK
         varchar id_contaminante PK
         int n_horas_validas
-        double valor "promedio 24 h, unidad original"
-        double valor_masa "unidad OMS"
-        boolean tiene_fila
         boolean tiene_dato
         varchar motivo_sin_dato
+        double valor "promedio 24 h, unidad original"
+        double valor_masa "unidad OMS"
+        boolean supera_guia
+        varchar nivel_oms
         boolean es_outlier
     }
     fact_medicion_horaria {
@@ -59,14 +89,15 @@ erDiagram
         int mes
         varchar estacion_del_anio
         varchar tipo_dia "habil | sabado | domingo | feriado"
-        boolean es_feriado
-        varchar evento
+        varchar nombre_feriado
     }
     dim_estacion {
         varchar id_estacion PK
         varchar nombre
         varchar entorno
         varchar flujo_vehicular
+        double latitud
+        double longitud
     }
     dim_contaminante {
         varchar id_contaminante PK
@@ -75,67 +106,56 @@ erDiagram
         varchar unidad_masa
         double factor_masa
     }
-    ref_oms {
+    guia_oms {
         varchar id_contaminante PK
         varchar promedio PK "24h | anual"
-        double guia_oms
-        double it1
-        double it2
-        double it3
-        double it4
-    }
-    dim_periodo {
-        varchar id_periodo PK "2024 | 2025 | 2026 | movil_12m"
-        date fecha_desde
-        date fecha_hasta
-        varchar tipo_periodo
-    }
-    agg_cumplimiento_diario {
-        date fecha PK
-        varchar id_estacion PK
-        varchar id_contaminante PK
-        double valor
-        boolean supera_guia
-        double veces_guia
-        varchar nivel_oms
+        varchar nivel PK "AQG | IT4 ... IT1"
+        double umbral
     }
     agg_anual {
         varchar id_estacion PK
         varchar id_contaminante PK
-        varchar id_periodo PK
+        varchar id_periodo PK "2010 ... 2026 | movil_12m"
+        boolean es_periodo_estudio
         double completitud
         boolean es_valido
         double promedio_anual
-        double veces_guia_anual
+        varchar nivel_oms
         double p99_24h
         double pct_dias_supera_24h
+        double pct_cumple_it2_24h
+        int racha_maxima_dias
+    }
+    calidad_resumen {
+        varchar id_contaminante PK
+        varchar categoria PK "valido | motivo"
+        int n_valores
+        double proporcion
     }
 ```
 
 | Tabla | Qué representa | Clave | Filas |
 |---|---|---|---|
-| `fact_medicion_diaria` | El promedio de 24 h de un contaminante, en una estación, un día | `fecha, id_estacion, id_contaminante` | 9.036 |
+| `fact_medicion_diaria` | El promedio de 24 h de un contaminante, en una estación, un día, comparado con la guía de 24 h | `fecha, id_estacion, id_contaminante` | 9.036 |
 | `fact_medicion_horaria` | Una hora de NO2 en una estación (segunda tabla de hechos, otro grano) | `fecha, hora, id_estacion` | 70.704 |
-| `dim_calendario` | Un día del período, haya o no datos (tipo de día, feriado, estación del año, evento) | `fecha` | 1.004 |
+| `dim_calendario` | Un día del período, haya o no datos (tipo de día, feriado, estación del año) | `fecha` | 1.004 |
 | `dim_estacion` | Una estación de monitoreo (ubicación, entorno, flujo vehicular) | `id_estacion` | 3 |
 | `dim_contaminante` | Un contaminante (unidades, factor de conversión, cómo lo publica la red, máximo plausible) | `id_contaminante` | 3 |
-| `ref_oms` | Una guía OMS: contaminante × período de promedio, con objetivos intermedios | `id_contaminante, promedio` | 5 |
-| `ref_oms_niveles` | La misma guía en formato largo, una fila por nivel (para líneas de referencia) | `id_contaminante, promedio, nivel` | 19 |
-| `dim_periodo` | Un período de indicadores anuales | `id_periodo` | 4 |
-| `agg_cumplimiento_diario` | Un día con dato de NO2, PM10 o CO comparado con su guía de 24 h | `fecha, id_estacion, id_contaminante` | 7.615 |
-| `agg_anual` | Indicadores de un período por estación y contaminante | `id_estacion, id_contaminante, id_periodo` | 36 |
+| `guia_oms` | Un escalón de la OMS 2021: contaminante × período de promedio × nivel (guía u objetivo intermedio) | `id_contaminante, promedio, nivel` | 19 |
+| `agg_anual` | Indicadores de un período (año 2010-2026 o últimos 12 meses) por estación y contaminante | `id_estacion, id_contaminante, id_periodo` | 162 |
+| `calidad_resumen` | Qué pasó con los valores horarios del período: válidos o descartados, y por qué regla | `id_contaminante, categoria` | 17 |
 
 **Relaciones:** todas son uno a muchos desde la dimensión hacia la tabla de hechos o el agregado. Los tests de dbt
-`relationships` verifican que toda clave de la fact exista en su dimensión (integridad referencial).
+`relationships` verifican que toda clave exista en su dimensión (integridad referencial).
 
 ## 3. Decisiones de modelado
 
 ### Formato largo y no ancho
 
 El crudo de BA Data viene en formato **ancho**: una columna por estación y contaminante (`NO2_LA_BOCA`,
-`PM10_CORDOBA`, etc.). El staging lo pasa a formato **largo** con `UNPIVOT` (una fila por contaminante) porque:
+`PM10_CORDOBA`, etc.). Silver lo pasa a formato **largo** con `UNPIVOT` (una fila por contaminante) porque:
 
-- **El JOIN con la OMS es por contaminante:** `fact JOIN ref_oms USING (id_contaminante)` resuelve todos los
+- **El JOIN con la OMS es por contaminante:** `fact JOIN oms USING (id_contaminante)` resuelve todos los
   contaminantes con la misma consulta. En formato ancho habría que escribir una comparación por columna.
 - **En Power BI** un solo segmentador elige el contaminante y todas las medidas DAX sirven para todos.
 - **Agregar un contaminante** (por ejemplo, O3) no cambia la estructura de ninguna tabla.
@@ -148,26 +168,34 @@ fila por estación y día). Cuando hace falta, se pivotea en el momento (el note
 
 La fact tiene todas las combinaciones calendario × estación × contaminante, aunque no haya dato. Así:
 los días faltantes se cuentan con un `COUNT` (no hay que "buscar lo que no está"), la completitud es un promedio
-de `tiene_dato` y Power BI puede mostrar huecos en las series. El costo es tener filas con valor nulo (16% de la
-fact), marcadas con `tiene_dato = false` y su motivo.
+de `tiene_dato` (también la mensual, que se calcula en el momento) y Power BI puede mostrar huecos en las series.
+El costo es tener filas con valor nulo (16% de la fact), marcadas con `tiene_dato = false` y su motivo. Para
+calcular indicadores se filtra `tiene_dato`.
 
 ### Dos tablas de hechos: diaria y horaria
 
-La OMS define sus guías de corto plazo sobre el **promedio de 24 h**: todos los indicadores usan la fact diaria. El
-valor diario se arma en `stg_aire_diario` según cómo publica la red cada contaminante (NO2 horario con 18 horas o
-más; PM10 con el móvil de 24 h de la hora 24; CO con los bloques de 8 h). La **fact horaria** guarda solo el NO2,
+La OMS define sus guías de corto plazo sobre el **promedio de 24 h**: todos los indicadores usan el valor diario.
+Se arma en `silver.medicion_diaria` según cómo publica la red cada contaminante (NO2 horario con 18 horas o más;
+PM10 con el móvil de 24 h de la hora 24; CO con los bloques de 8 h). La **fact horaria** guarda solo el NO2,
 el único publicado como promedio de cada hora, para el perfil horario por tipo de día. Las dos comparten
 dimensiones (calendario, estación, contaminante): es un esquema estrella con dos tablas de hechos de distinto grano
 (a veces llamado "constelación"). Un test de dbt verifica que el promedio diario de la fact diaria coincida con el
 de las horas de la fact horaria.
 
+### Una sola tabla de indicadores
+
+`agg_anual` junta todo lo que se calcula por período: completitud y regla del 75%, promedio anual contra la guía
+anual y su escalón, P99 y % de días contra la guía de 24 h, % de días que cumplen cada escalón (la "matriz de
+escalones") y la racha más larga. Tiene una fila por año desde 2010 (los años 2010-2023 son contexto; 2024 a 2026
+y los últimos 12 meses, el período de estudio, marcado con `es_periodo_estudio`). Así el contexto y el estudio salen
+de la misma consulta y con las mismas reglas.
+
 ### Umbrales en tablas, no en el código
 
-Las guías OMS (`ref_oms`), los máximos plausibles de las reglas de calidad y los factores de conversión
-(`dim_contaminante`) y los parámetros del estudio (período, regla del 75%, horas mínimas por día, factor del IQR,
-en `dbt_project.yml`)
-están en tablas o variables. El SQL los trae con un JOIN o con `var()`: cambiar un umbral no obliga a tocar
-consultas.
+Las guías OMS (`guia_oms`, desde el seed `oms_2021`), los máximos plausibles de las reglas de calidad y los factores
+de conversión (`dim_contaminante`) y los parámetros del estudio (período, regla del 75%, horas mínimas por día,
+factor del IQR, en `dbt_project.yml`) están en tablas o variables. El SQL los trae con un JOIN o con `var()`:
+cambiar un umbral no obliga a tocar consultas.
 
 ### Valores en dos unidades
 
@@ -183,8 +211,8 @@ consultas.
   corre los tests de calidad en cada build y genera la documentación con el linaje de las tablas (`dbt docs`).
   No agrega infraestructura: es una librería de Python que corre contra el mismo archivo DuckDB.
 
-## 4. Vistas para Power BI
+## 4. Verificación del dashboard
 
-Power BI importa los CSV de `data/final/` (no se conecta a la base). Las vistas del schema `analisis`
-(`sql/99_consultas_analisis.sql`, parte D) calculan en SQL lo mismo que las medidas DAX del
-modelo de Power BI y sirven para verificar que el dashboard muestre los números correctos.
+Power BI importa los CSV de `data/final/` (no se conecta a la base). La parte D de
+`sql/99_consultas_analisis.sql` calcula en SQL lo mismo que las medidas DAX del modelo de Power BI y sirve para
+verificar que el dashboard muestre los números correctos.

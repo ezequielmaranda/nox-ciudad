@@ -44,11 +44,15 @@ def test_etl_es_idempotente():
     assert primera == segunda
 
 
-def test_vistas_de_analisis_existen():
-    # El ETL corre sql/99 entero (si una consulta falla, se frena): acá se mira que haya creado las vistas
+def test_consultas_de_analisis_son_de_solo_lectura():
+    # sql/99 se tiene que poder correr sobre la base sin modificarla (conexión de solo lectura)
+    texto = (config.DIR_SQL / "99_consultas_analisis.sql").read_text(encoding="utf-8")
     c = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)
-    assert c.execute("select count(*) from analisis.v_resumen_estacion").fetchone()[0] == 9
+    sentencias = duckdb.extract_statements(texto)
+    resultados = [c.execute(s.query).fetchall() for s in sentencias]
     c.close()
+    assert len(sentencias) > 20
+    assert len(resultados[-2]) == 9   # D1: 3 estaciones × 3 contaminantes
 
 
 # --- Extractor (funciones puras, no necesitan red) ---------------------------------------------

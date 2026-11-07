@@ -50,16 +50,18 @@ El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; corr
 porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
 heatmap) y matplotlib.
 
-- `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export a `data/final/`
-  (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
+- `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export de gold a `data/final/`
+  (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` (solo lectura) → genera
+  `docs/diccionario_datos.md`.
 - `python -m pytest -q`: 4 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
-  (idempotencia, vistas de `sql/99`, verificación de formato del extractor). No duplicar tests de datos en pytest. El
+  (idempotencia, `sql/99` corre en conexión de solo lectura, verificación de formato del extractor). No duplicar tests de datos en pytest. El
   EDA se ejecuta con `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
-- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con 15 tablas + `_Medidas`,
-  24 relaciones, 20 medidas DAX, orden de columnas, lat/long como categoría de mapa, descripciones de dbt, tema;
+- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con las 8 tablas de gold + `_Medidas`,
+  10 relaciones, 18 medidas DAX, orden de columnas, lat/long como categoría de mapa, descripciones de dbt, tema;
   informe PBIR con 3 páginas vacías; lee los CSV con configuración regional en-US).
   Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
-  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. Después pasó de Parquet a CSV (`Csv.Document` + tipos en-US): ese cambio no se revalidó. El tema base
+  su reserialización) y con los esquemas de microsoft/json-schemas, también después del cambio a medallón; no se
+  abrió en Power BI Desktop. Lee los CSV con `Csv.Document` + tipos en-US. El tema base
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
 - `python -m src.extract`: baja `calidad-aire.csv` de la CDN de BA Data
   (`cdn.buenosaires.gob.ar/datosabiertos/datasets/agencia-de-proteccion-ambiental/calidad-aire/`), con reintentos, y
@@ -77,17 +79,21 @@ heatmap) y matplotlib.
   subconjunto idéntico.
 - `data/reference/`: `oms_2021.csv` (Tabla 0.1 del resumen ejecutivo OMS 2021), `contaminantes.csv` (peso molecular,
   `promedio_fuente`, `maximo_plausible`: NO2 500, PM10 1000, CO 15), `estaciones.csv` (coordenadas de
-  `estaciones-ambientales.csv` de BA Data), `feriados.csv` (ArgentinaDatos), `eventos.csv` (paros, solo contexto).
+  `estaciones-ambientales.csv` de BA Data), `feriados.csv` (ArgentinaDatos). `eventos.csv` (paros) se sacó: no se usaba.
 - En git: crudo, referencias y `data/final/`. Fuera de git: `data/warehouse/`.
 
-## Modelo (dbt, `data/warehouse/aire.duckdb`)
+## Modelo (dbt, `data/warehouse/aire.duckdb`): arquitectura medallón
 
-Schemas: `referencia` (seeds) → `staging` (`stg_aire_horario` UNPIVOT a largo, `stg_aire_horario_validado` reglas
-por hora, `stg_aire_diario` valor diario de toda la serie) → `modelo` (`dim_calendario`, `dim_estacion`,
-`dim_contaminante`, `dim_periodo`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria`,
-`fact_medicion_horaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_resumen/violaciones/outliers`; `agg_completitud_anual` no se exporta) →
-`indicadores` (`agg_cumplimiento_diario`, `agg_anual`, `agg_cumplimiento_niveles`, `agg_rachas`,
-`agg_contexto_anual`). `sql/99` crea vistas en `analisis`.
+Simplificado en noviembre 2026 (antes: 6 schemas y 21 modelos). Tres schemas = tres carpetas de `dbt/models/`:
+- `bronze`: `calidad_aire` (el CSV con `read_csv(all_varchar)`, sin tocar) + seeds `oms_2021`, `contaminantes`,
+  `estaciones`, `feriados`.
+- `silver`: `medicion_horaria` (UNPIVOT a largo, tipos, reglas por hora, `motivo_invalido`, toda la serie: 1.327.230
+  filas = CSV × 9) y `medicion_diaria` (valor diario de toda la serie).
+- `gold` (lo único que se exporta a `data/final`): `dim_calendario`, `dim_estacion`, `dim_contaminante`, `guia_oms`
+  (OMS en largo, una fila por nivel), `fact_medicion_diaria`, `fact_medicion_horaria`, `agg_anual` (por año
+  2010-2026 + `movil_12m`: regla del 75%, promedio anual y escalón, P99, % de días por escalón, racha máxima;
+  `es_periodo_estudio` separa estudio de contexto) y `calidad_resumen`. La completitud mensual se calcula de la fact.
+`sql/99` son solo consultas (no crea vistas).
 
 - Reglas por hora: hora_invalida, sin_dato_fuente, texto_invalido, fuera_de_rango, fila_en_cero, valor_trabado
   (NO2 igual ≥ 10 h). `<x` → x/2 (`es_imputado`).
@@ -97,10 +103,10 @@ por hora, `stg_aire_diario` valor diario de toda la serie) → `modelo` (`dim_ca
 - Fact diaria: grilla completa, 1.004 × 3 × 3 = 9.036 filas, sin ventanas; `motivo_sin_dato` = sin_fila,
   sin_dato_fuente o incompleto; `n_horas_validas`. Fact horaria: solo NO2, 70.704 filas.
 - Outliers: Q3 + 3·IQR por estación × contaminante, marcados.
-- Regla del 75% sobre días por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
+- Regla del 75% sobre días por período (`agg_anual.id_periodo`: años, 2026 parcial, `movil_12m`).
 - Rachas: un día con dato bajo la guía corta; huecos sin dato de hasta 7 días (`dias_hueco_maximo_racha`) no cortan.
-- Contexto 2010-2025 (`agg_contexto_anual`): NO2 y PM10 anual con la misma regla del 75%.
-- Último build: 21 modelos, 89 tests + 5 seeds, PASS 114, WARN 1 (`stg_reglas_de_calidad`, esperado: 239 violaciones).
+- Contexto 2010-2025: filas de `agg_anual` con `es_periodo_estudio = false`, misma regla del 75%.
+- Último build: 11 modelos, 4 seeds, 88 tests: PASS 102, WARN 1 (`silver_valores_descartados`, esperado: 239).
 
 ## Resultados verificados
 

@@ -37,7 +37,7 @@ def generar() -> None:
         "> Archivo generado por `python -m src.etl` a partir de las descripciones de los `.yml` de dbt.",
         "> No editar a mano: cambiar la descripción en `dbt/models/` y volver a correr el ETL.",
         "",
-        "Tablas finales que se exportan a `data/final/` (CSV) y se cargan en Power BI.",
+        "Capa gold de la base: las tablas que se exportan a `data/final/` (CSV) y se cargan en Power BI.",
         "",
         "| Tabla | Schema | Filas | Descripción |",
         "|---|---|---|---|",

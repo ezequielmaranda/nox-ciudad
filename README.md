@@ -1,8 +1,9 @@
 # ¿Cuán lejos está el aire porteño de las guías de la OMS?
 
 Trabajo Práctico Integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Flujo completo: datos
-públicos horarios de calidad del aire (BA Data) → extracción → modelo en DuckDB → limpieza y calidad → ETL con dbt →
-consultas SQL → EDA en Python → dashboard en Power BI.
+públicos horarios de calidad del aire (BA Data) → extracción → ETL con dbt sobre DuckDB en arquitectura medallón
+(bronze: el crudo · silver: limpieza y calidad · gold: modelo estrella e indicadores) → consultas SQL → EDA en
+Python → dashboard en Power BI.
 
 **Rol:** equipo de datos de una agencia de calidad ambiental. **Público:** funcionarios, prensa y ciudadanía.
 
@@ -112,10 +113,10 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 | 2. Selección, recolección y comprensión del dataset | Sección [Datos](#datos) y [`docs/calidad_datos.md`](docs/calidad_datos.md) §1 (fuente, formato, registros, columnas, granularidad, período, limitaciones) |
 | 3. Almacenamiento y modelado | DuckDB + [`docs/modelo_datos.md`](docs/modelo_datos.md) (qué representa cada tabla, claves, relaciones, decisiones) |
 | 4. Consultas SQL | [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (cada consulta dice qué responde, por qué y qué técnica usa) y los modelos de `dbt/models/` |
-| 5. Limpieza, calidad y normalización | [`docs/calidad_datos.md`](docs/calidad_datos.md) (nulos, duplicados, tipos, fechas, categorías, atípicos, redundancias, formato, unidades) y `dbt/models/01_staging/` |
+| 5. Limpieza, calidad y normalización | [`docs/calidad_datos.md`](docs/calidad_datos.md) (nulos, duplicados, tipos, fechas, categorías, atípicos, redundancias, formato, unidades) y `dbt/models/silver/` |
 | 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
 | 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
-| 8. Visualizaciones e indicadores | `reports/figures/`, `indicadores.*` (cumplimiento diario, anual, escalones, rachas) |
+| 8. Visualizaciones e indicadores | `reports/figures/`, `gold.fact_medicion_diaria` (cumplimiento diario) y `gold.agg_anual` (anual, escalones, rachas, contexto) |
 | 9. Dashboard en Power BI | [`dashboard/AireOMS.pbip`](dashboard/) (modelo, relaciones y medidas DAX listos) + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (qué gráficos van en cada página) |
 | 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §12 y presentación |
 
@@ -161,17 +162,15 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ├── requirements.txt · pytest.ini
 ├── data/
 │   ├── raw/calidad-aire.csv       CSV horario de BA Data tal como se publica (2009-2026, no se modifica a mano)
-│   ├── reference/                 tablas mantenidas a mano: guías OMS, estaciones, contaminantes, feriados, eventos
+│   ├── reference/                 tablas mantenidas a mano: guías OMS, estaciones, contaminantes, feriados
 │   ├── warehouse/aire.duckdb      base generada por el ETL (fuera de git)
-│   └── final/                     17 tablas en CSV para Power BI y el EDA
-├── dbt/                           transformaciones SQL (dbt + DuckDB)
-│   ├── models/01_staging/         de ancho a largo, tipar, reglas por hora, de horas a días
-│   ├── models/02_dimensiones/     calendario, estación, contaminante, período, referencias OMS
-│   ├── models/03_hechos/          fact_medicion_diaria (grilla completa) y fact_medicion_horaria (NO2)
-│   ├── models/04_calidad/         completitud, regla del 75%, violaciones, outliers
-│   ├── models/05_indicadores/     cumplimiento diario, indicadores anuales, rachas, contexto 2010-2025
+│   └── final/                     las 8 tablas de gold en CSV, para Power BI y el EDA
+├── dbt/                           transformaciones SQL (dbt + DuckDB), arquitectura medallón
+│   ├── models/bronze/             el CSV tal cual (todo texto) + las tablas de referencia (seeds)
+│   ├── models/silver/             valores horarios limpios (UNPIVOT, tipos, reglas) y valor diario
+│   ├── models/gold/               dimensiones, guías OMS, facts diaria y horaria, indicadores anuales, resumen de calidad
 │   └── tests/                     tests de calidad (singulares y genéricos)
-├── sql/99_consultas_analisis.sql  consultas comentadas que responden cada subpregunta + vistas
+├── sql/99_consultas_analisis.sql  consultas comentadas que responden cada subpregunta
 ├── src/
 │   ├── config.py                  rutas relativas a la raíz y tablas a exportar
 │   ├── extract.py                 descarga: BA Data → data/raw/calidad-aire.csv
@@ -200,7 +199,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 | **Período** | 2024-01-01 a 2026-09-30 (2026 parcial); 2010-2025 solo como contexto |
 | **Validación** | El valor diario coincide con los informes mensuales en PDF de la APrA en el 94% al 98% de los días (`docs/calidad_datos.md` §2.5) |
 | **Referencia** | Guías OMS 2021 (`data/reference/oms_2021.csv`), usadas siempre vía JOIN |
-| **Complementos** | Guías OMS, estaciones, contaminantes, feriados y paros: ver abajo |
+| **Complementos** | Guías OMS, estaciones, contaminantes y feriados: ver abajo |
 
 ### De dónde sale cada tabla de referencia
 
@@ -211,7 +210,6 @@ Están en `data/reference/`. No las descarga el ETL: se armaron una vez y se ver
 | `oms_2021.csv` | OMS, *WHO global air quality guidelines* (2021), Tabla 0.1 del resumen ejecutivo | Transcripción manual de la tabla | Solo NO₂, PM10 y CO: los que mide la red de la APrA y tienen guía |
 | `estaciones.csv` | Páginas de cada estación en el sitio de la APrA ([Centenario](https://buenosaires.gob.ar/calidad-del-aire/estacion-parque-centenario), [Córdoba](https://buenosaires.gob.ar/calidad-del-aire/estacion-cordoba), [La Boca](https://buenosaires.gob.ar/calidad-del-aire/estacion-la-boca)) | Carga manual de dirección, entorno, flujo vehicular y fuentes fijas; inicio de operación y coordenadas, del archivo `estaciones-ambientales.csv` del dataset de BA Data | `descripcion` es redacción del equipo y suma contexto que no está en esas páginas (por ejemplo, Dock Sud) |
 | `feriados.csv` | API pública [ArgentinaDatos](https://api.argentinadatos.com/v1/feriados/2024) (`/v1/feriados/<año>`) | Descarga de 2024, 2025 y 2026: 59 feriados | Feriados nacionales con puentes; no incluye días no laborables optativos como el Jueves Santo |
-| `eventos.csv` | Notas de prensa: el link de cada paro está en la columna `fuente_prensa` | Armado a mano por el equipo: 7 paros de transporte | Solo da contexto a días atípicos; no interviene en los indicadores |
 | `contaminantes.csv` | Pesos moleculares de la química; tipo de promedio de cada contaminante (horario, móvil de 8 h o de 24 h), del `contaminantes.csv` de BA Data; el resto, criterio del equipo | Armado a mano | Los máximos plausibles son decisiones nuestras; su uso está en [`docs/calidad_datos.md`](docs/calidad_datos.md) |
 
 ## Flujo técnico
@@ -219,9 +217,9 @@ Están en `data/reference/`. No las descarga el ETL: se armaron una vez y se ver
 ```mermaid
 flowchart LR
     A["BA Data<br/>CSV horario"] -- "src/extract.py" --> B["data/raw<br/>CSV crudo"]
-    B -- "dbt: staging" --> C["de ancho a largo<br/>validación por hora<br/>horas → día"]
-    C -- "dbt" --> D["modelo estrella<br/>dims + facts"]
-    D -- "dbt" --> E["calidad e<br/>indicadores OMS"]
+    B -- "dbt" --> C["bronze<br/>el CSV tal cual<br/>+ referencias"]
+    C -- "dbt" --> D["silver<br/>de ancho a largo<br/>reglas por hora<br/>horas → día"]
+    D -- "dbt" --> E["gold<br/>modelo estrella<br/>indicadores OMS"]
     E -- "src/etl.py" --> F["data/final<br/>CSV"]
     F --> G["Power BI"]
     F --> H["EDA<br/>notebook"]
@@ -239,9 +237,10 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 | **EDA en dos pasos:** perfil automático con **Sweetviz** y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Sweetviz da un barrido rápido de tipos, nulos, distribuciones y asociaciones, pero no conoce la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
 | **Partir de los datos horarios de BA Data** y no de los informes mensuales en PDF | Es lo más crudo que publica la APrA: los PDF son agregados diarios de esos mismos datos (se verificó que coinciden en el 94% al 98% de los días). Con las horas, el promedio diario lo arma el TP (regla de 18 de 24 horas), se pueden aplicar controles hora por hora y ver el perfil horario. Y simplifica: no hace falta extraer tablas de PDF. Aparecen igual los problemas reales: formato ancho, fecha en formato SAS, `s/d`, `#REF!`, horas inválidas, huecos de exportación |
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
-| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 89 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 88 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **Arquitectura medallón:** bronze → silver → gold, 11 tablas en 3 schemas | Cada capa responde una pregunta: qué llegó (bronze, sin tocar), qué es válido (silver, limpio y en formato largo) y qué se analiza (gold, lo único que se exporta). Si un número sorprende, se puede seguir hacia atrás capa por capa hasta el texto original del CSV |
 | **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
-| **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, las consultas de `sql/99` y la verificación de formato del extractor |
+| **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, que las consultas de `sql/99` corran sin modificar la base y la verificación de formato del extractor |
 | **El valor diario según cómo publica cada contaminante** | NO₂ horario: promedio con 18 de 24 horas (criterio de la UE); PM10 (móvil de 24 h): el valor de la hora 24; CO (móvil de 8 h): los tres bloques de 8 h. Promediar las 24 horas de un promedio móvil daría otra cosa |
 | **Dos tablas de hechos** (diaria y horaria de NO₂) | La guía de 24 h usa el día; el perfil horario necesita la hora. Solo el NO₂ es horario de verdad: CO y PM10 no van a la fact horaria |
 | **Fact como grilla completa** (calendario × estación × contaminante) | Distingue "la fuente no publicó" de "publicó `s/d`" y de "lo descartó una regla"; la completitud es un promedio |
@@ -284,7 +283,7 @@ Presentación: [`presentacion/presentacion_tp_aire_oms.pptx`](presentacion/prese
 |---|---|---|---|
 | 1-2. Caso, pregunta e hipótesis | Por qué la OMS 2021, rol y público | este README | Integrante 1 |
 | 3. Dataset | CSV horario de BA Data, grano, período, limitaciones iniciales | `docs/calidad_datos.md` §1 | Integrante 1 |
-| 4-5. Flujo técnico y calidad | Descarga, dbt, esquema estrella, reglas por hora, de horas a días, regla del 75%, heatmap | `docs/diagrama_etl.md`, `docs/modelo_datos.md`, figura 01 | Integrante 2 |
+| 4-5. Flujo técnico y calidad | Descarga, dbt en capas bronze → silver → gold, esquema estrella, reglas por hora, de horas a días, regla del 75%, heatmap | `docs/diagrama_etl.md`, `docs/modelo_datos.md`, figura 01 | Integrante 2 |
 | 6. EDA | Distribuciones, series, tipo de día, perfil horario, estacionalidad, efecto de los huecos, contexto 2010-2025 | `notebooks/eda.ipynb` | Integrante 3 |
 | 7-8. Dashboard e insights | Las 3 páginas de Power BI y los hallazgos | `docs/powerbi_spec.md` | Integrante 4 |
 | 9. Limitaciones y mejoras | Sección anterior | este README | Integrante 4 |
