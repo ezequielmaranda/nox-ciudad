@@ -31,14 +31,8 @@ TEMA_BASE = "Fluent2-CY26SU08"  # tema base de Power BI (copiado de un proyecto 
 TEMA_PROPIO = "TemaAireOMS.json"
 RUTA_POR_DEFECTO = r"C:\nox-ciudad\data\final" + "\\"
 
-# Tablas del modelo, en el orden en que aparecen en Power BI
-TABLAS = [
-    "dim_estacion", "dim_contaminante", "dim_calendario", "dim_periodo",
-    "ref_oms", "ref_oms_niveles",
-    "fact_medicion_diaria", "fact_medicion_horaria",
-    "agg_cumplimiento_diario", "agg_anual", "agg_cumplimiento_niveles", "agg_rachas", "agg_contexto_anual",
-    "agg_completitud_mensual", "calidad_resumen",
-]
+# Tablas del modelo: toda la capa gold (config.TABLAS_FINALES), en el mismo orden
+TABLAS = [t.split(".")[1] for t in config.TABLAS_FINALES]
 
 # Columnas con categoría de datos (para que el visual de mapa las reconozca)
 CATEGORIA = {("dim_estacion", "latitud"): "Latitude", ("dim_estacion", "longitud"): "Longitude"}
@@ -52,18 +46,17 @@ ORDENAR_POR = {
     ("dim_calendario", "nombre_dia"): "dia_semana",
     ("dim_calendario", "tipo_dia_etiqueta"): "orden_tipo_dia",
     ("dim_calendario", "estacion_del_anio"): "orden_estacion_del_anio",
-    ("dim_periodo", "etiqueta"): "orden",
-    ("ref_oms_niveles", "nivel"): "orden_exigencia",
-    ("ref_oms_niveles", "nivel_etiqueta"): "orden_exigencia",
-    ("agg_cumplimiento_diario", "nivel_oms"): "orden_nivel_oms",
+    ("guia_oms", "nivel"): "orden_exigencia",
+    ("guia_oms", "nivel_etiqueta"): "orden_exigencia",
+    ("fact_medicion_diaria", "nivel_oms"): "orden_nivel_oms",
+    ("agg_anual", "periodo"): "orden_periodo",
     ("agg_anual", "nivel_oms"): "orden_nivel_oms",
-    ("agg_cumplimiento_niveles", "nivel"): "orden_exigencia",
-    ("agg_cumplimiento_niveles", "nivel_etiqueta"): "orden_exigencia",
 }
 
 # Columnas que se muestran como porcentaje
-PORCENTAJES = {"completitud", "completitud_peor_trimestre", "pct_dias_supera_24h", "pct_dias_cumple",
-               "pct_referencial", "proporcion"}
+PORCENTAJES = {"completitud", "completitud_peor_trimestre", "pct_dias_supera_24h", "pct_cumple_guia_24h",
+               "pct_cumple_it4_24h", "pct_cumple_it3_24h", "pct_cumple_it2_24h", "pct_cumple_it1_24h",
+               "proporcion"}
 
 # Relaciones 1 a varios: (tabla del lado "varios", columna) → (dimensión, columna). Filtro en una dirección.
 RELACIONES = [
@@ -73,51 +66,42 @@ RELACIONES = [
     ("fact_medicion_horaria", "fecha", "dim_calendario", "fecha"),
     ("fact_medicion_horaria", "id_estacion", "dim_estacion", "id_estacion"),
     ("fact_medicion_horaria", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("agg_cumplimiento_diario", "fecha", "dim_calendario", "fecha"),
-    ("agg_cumplimiento_diario", "id_estacion", "dim_estacion", "id_estacion"),
-    ("agg_cumplimiento_diario", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("agg_anual", "id_estacion", "dim_estacion", "id_estacion"),
     ("agg_anual", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("agg_anual", "id_periodo", "dim_periodo", "id_periodo"),
-    ("agg_cumplimiento_niveles", "id_estacion", "dim_estacion", "id_estacion"),
-    ("agg_cumplimiento_niveles", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("agg_cumplimiento_niveles", "id_periodo", "dim_periodo", "id_periodo"),
-    ("agg_rachas", "id_estacion", "dim_estacion", "id_estacion"),
-    ("agg_rachas", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("agg_contexto_anual", "id_estacion", "dim_estacion", "id_estacion"),
-    ("agg_contexto_anual", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("agg_completitud_mensual", "id_estacion", "dim_estacion", "id_estacion"),
-    ("agg_completitud_mensual", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("ref_oms", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("ref_oms_niveles", "id_contaminante", "dim_contaminante", "id_contaminante"),
+    ("guia_oms", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("calidad_resumen", "id_contaminante", "dim_contaminante", "id_contaminante"),
 ]
+
+# Filtro "días con dato" de la fact diaria (las filas sin dato existen porque la fact es una grilla completa)
+CON_DATO = "fact_medicion_diaria[tiene_dato] = TRUE ()"
 
 # Medidas DAX: (nombre, formato, descripción, expresión)
 MEDIDAS = [
     ("Días válidos", "#,0",
      "Días con dato válido del promedio de 24 h. Mostrar siempre junto a un porcentaje.",
-     """CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[tiene_dato] = TRUE () )"""),
+     f"""CALCULATE ( COUNTROWS ( fact_medicion_diaria ), {CON_DATO} )"""),
     ("Completitud %", "0.0%",
-     "Días con dato / días del calendario (la fact es una grilla completa).",
+     "Días con dato / días del calendario (la fact es una grilla completa). Con dim_calendario[anio_mes] en "
+     "columnas arma el heatmap de completitud mensual.",
      """DIVIDE ( [Días válidos], COUNTROWS ( fact_medicion_diaria ) )"""),
     ("Días sobre guía", "#,0",
      "Días cuyo promedio de 24 h supera la guía OMS.",
-     """CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[supera_guia] = TRUE () )"""),
+     """CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[supera_guia] = TRUE () )"""),
     ("% Días sobre guía", "0.0%",
      "Días sobre la guía / días con dato (un día sin dato no cuenta como día limpio).",
-     """DIVIDE ( [Días sobre guía], COUNTROWS ( agg_cumplimiento_diario ) )"""),
+     """DIVIDE ( [Días sobre guía], [Días válidos] )"""),
     ("% Días que cumplen IT2", "0.0%",
      "Días que cumplen el objetivo intermedio IT2 diario o uno más exigente (NO2: 50 µg/m³). No aplica al CO.",
-     """DIVIDE (
-    CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[orden_nivel_oms] <= 4 ),
-    COUNTROWS ( agg_cumplimiento_diario )
+     f"""DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[orden_nivel_oms] <= 4, {CON_DATO} ),
+    [Días válidos]
 )"""),
     ("Promedio diario", "#,0.0",
      "Promedio de los valores diarios en la unidad de la guía (µg/m³; mg/m³ para el CO).",
-     """AVERAGE ( agg_cumplimiento_diario[valor] )"""),
+     """AVERAGE ( fact_medicion_diaria[valor_masa] )"""),
     ("Promedio anual", "#,0.0",
-     "Promedio anual de agg_anual con la regla del 75% aplicada. Usar con una estación, un contaminante y un período.",
+     "Promedio anual de agg_anual con la regla del 75% aplicada. Usar con una estación, un contaminante y un "
+     "período (agg_anual[periodo]); sirve también para la serie de contexto 2010-2025.",
      """CALCULATE ( AVERAGE ( agg_anual[promedio_anual] ), agg_anual[es_valido] = TRUE () )"""),
     ("Veces sobre guía anual", "0.0",
      "Promedio anual / guía anual de la OMS.",
@@ -127,22 +111,23 @@ MEDIDAS = [
      """SELECTEDVALUE ( agg_anual[nivel_oms], "—" )"""),
     ("Percentil 99", "#,0.0",
      "Percentil 99 de los valores diarios (definición formal de la guía de 24 h). Vacío si la completitud es menor a 75%.",
-     """IF (
+     f"""IF (
     [Completitud %] >= 0.75,
-    PERCENTILE.INC ( agg_cumplimiento_diario[valor], 0.99 )
+    CALCULATE ( PERCENTILE.INC ( fact_medicion_diaria[valor_masa], 0.99 ), {CON_DATO} )
 )"""),
     ("Guía OMS 24 h", "#,0.##",
      "Guía OMS de 24 h del contaminante filtrado.",
-     """CALCULATE ( MAX ( ref_oms[guia_oms] ), ref_oms[promedio] = "24h" )"""),
+     """CALCULATE ( MAX ( guia_oms[umbral] ), guia_oms[promedio] = "24h", guia_oms[nivel] = "AQG" )"""),
     ("Guía OMS anual", "#,0.##",
      "Guía OMS anual del contaminante filtrado (vacía para el CO).",
-     """CALCULATE ( MAX ( ref_oms[guia_oms] ), ref_oms[promedio] = "anual" )"""),
+     """CALCULATE ( MAX ( guia_oms[umbral] ), guia_oms[promedio] = "anual", guia_oms[nivel] = "AQG" )"""),
     ("P99 veces la guía", "0.00",
      "Percentil 99 / guía de 24 h.",
      """DIVIDE ( [Percentil 99], [Guía OMS 24 h] )"""),
     ("Racha máxima", "#,0",
-     "Racha más larga de días con dato seguidos sobre la guía (gaps and islands en SQL; huecos de hasta 7 días sin dato no la cortan).",
-     """MAX ( agg_rachas[dias] )"""),
+     "Racha más larga de días con dato seguidos sobre la guía en el período de estudio (gaps and islands en SQL; "
+     "huecos de hasta 7 días sin dato no la cortan).",
+     """CALCULATE ( MAX ( agg_anual[racha_maxima_dias] ), agg_anual[es_periodo_estudio] = TRUE () )"""),
     ("Variación vs. hábil", "+0.0%;-0.0%;0.0%",
      "Diferencia del promedio diario contra el día hábil, para la matriz por tipo de día.",
      """VAR habil =
@@ -161,17 +146,10 @@ RETURN
     MAXX ( TOPN ( 1, t, [@pct], DESC ), dim_estacion[nombre] )"""),
     ("% Días sobre guía (texto)", None,
      "Texto para tarjetas, por ejemplo: 95,0% de 900 días.",
-     """FORMAT ( [% Días sobre guía], "0.0%" ) & " de "
-    & FORMAT ( COUNTROWS ( agg_cumplimiento_diario ), "#,0" ) & " días\""""),
-    ("Completitud mensual", "0.0%",
-     "Completitud promedio de agg_completitud_mensual (heatmap de la página de calidad).",
-     """AVERAGE ( agg_completitud_mensual[completitud] )"""),
+     'FORMAT ( [% Días sobre guía], "0.0%" ) & " de " & FORMAT ( [Días válidos], "#,0" ) & " días"'),
     ("NO₂ horario promedio", "#,0.0",
      "Promedio de las horas válidas de NO2 en µg/m³ (perfil horario por tipo de día, eje = fact_medicion_horaria[hora]).",
      """CALCULATE ( AVERAGE ( fact_medicion_horaria[valor_masa] ), fact_medicion_horaria[es_valido] = TRUE () )"""),
-    ("Promedio anual (contexto)", "#,0.0",
-     "Promedio anual 2010-2025 de agg_contexto_anual, solo años con 75% de días o más (gráfico de contexto).",
-     """AVERAGE ( agg_contexto_anual[promedio_anual] )"""),
 ]
 
 TIPOS = {"VARCHAR": "string", "BIGINT": "int64", "INTEGER": "int64", "DOUBLE": "double",
@@ -179,7 +157,7 @@ TIPOS = {"VARCHAR": "string", "BIGINT": "int64", "INTEGER": "int64", "DOUBLE": "
 # Cómo se le dice a Power Query cada tipo del modelo al leer el CSV
 TIPOS_M = {"string": "type text", "int64": "Int64.Type", "double": "type number",
            "boolean": "type logical", "dateTime": "type date"}
-ESQUEMAS = {t.split(".")[1]: t for t in config.TABLAS_FINALES}  # dim_estacion -> modelo.dim_estacion
+ESQUEMAS = {t.split(".")[1]: t for t in config.TABLAS_FINALES}  # dim_estacion -> gold.dim_estacion
 
 
 def guid(*partes) -> str:

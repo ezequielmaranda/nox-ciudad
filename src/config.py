@@ -24,24 +24,15 @@ DIR_DBT = RAIZ / "dbt"
 DIR_SQL = RAIZ / "sql"
 DIR_DOCS = RAIZ / "docs"
 
-# Tablas que se exportan a data/final (schema.tabla de la base DuckDB).
-# El orden es el que conviene seguir al importarlas en Power BI: dimensiones, hechos, agregados.
+# Tablas que se exportan a data/final: toda la capa gold de la base DuckDB (schema.tabla).
+# El orden es el que conviene seguir al importarlas en Power BI: dimensiones, hechos, indicadores.
 TABLAS_FINALES = [
-    "modelo.dim_estacion",
-    "modelo.dim_contaminante",
-    "modelo.dim_calendario",
-    "modelo.dim_periodo",
-    "modelo.ref_oms",
-    "modelo.ref_oms_niveles",
-    "modelo.fact_medicion_diaria",
-    "modelo.fact_medicion_horaria",
-    "indicadores.agg_cumplimiento_diario",
-    "indicadores.agg_anual",
-    "indicadores.agg_cumplimiento_niveles",
-    "indicadores.agg_rachas",
-    "indicadores.agg_contexto_anual",
-    "calidad.agg_completitud_mensual",
-    "calidad.calidad_resumen",
-    "calidad.calidad_violaciones",
-    "calidad.calidad_outliers",
+    "gold.dim_estacion",
+    "gold.dim_contaminante",
+    "gold.dim_calendario",
+    "gold.guia_oms",
+    "gold.fact_medicion_diaria",
+    "gold.fact_medicion_horaria",
+    "gold.agg_anual",
+    "gold.calidad_resumen",
 ]

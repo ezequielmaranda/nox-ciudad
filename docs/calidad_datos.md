@@ -12,11 +12,11 @@ Todo está en SQL (`dbt/models/`) y se prueba en cada corrida (tests de dbt y de
 | **Archivo** | `calidad-aire.csv`, que baja `src/extract.py` a `data/raw/calidad-aire.csv` tal como se publica (8,5 MB, UTF-8 con BOM). El portal también publica archivos por año (`calidad_aire_2025.csv`, ...): se verificó que son un subconjunto idéntico de este |
 | **Formato** | **Ancho**: una fila por fecha y hora (147.470 filas, de octubre de 2009 a octubre de 2026) y una columna por estación × contaminante (CO, NO2 y PM10 de Centenario, Córdoba, La Boca y Palermo), todo texto |
 | **Qué publica cada columna** | **NO2**: promedio de la hora (ppb). **CO**: promedio móvil de las 8 horas anteriores (ppm). **PM10**: promedio móvil de las 24 horas anteriores (µg/m³). Según `contaminantes.csv` del mismo dataset |
-| **Período del estudio** | 2024-01-01 a 2026-09-30 (1.004 días; 2026 parcial). La serie 2010-2025 se usa solo como contexto (`agg_contexto_anual`) |
+| **Período del estudio** | 2024-01-01 a 2026-09-30 (1.004 días; 2026 parcial). La serie 2010-2025 se usa solo como contexto (los años 2010-2025 de `gold.agg_anual`) |
 | **Fuera del alcance** | Palermo: la estación está desactivada desde el 30/06/2010 (`estaciones-ambientales.csv` de BA Data) y sus columnas vienen vacías. NO y NOx: la fuente horaria no los publica |
 
 Perfil del crudo (sobre el CSV completo; en el TP lo cubren las consultas A1 a A4 de `sql/99` y los tests de dbt sobre
-el staging): 0 duplicados por fecha + hora, 284 filas con hora fuera de 1-24; en las 12 columnas de mediciones,
+silver): 0 duplicados por fecha + hora, 284 filas con hora fuera de 1-24; en las 12 columnas de mediciones,
 1.010.455 números, 469.968 celdas vacías (casi todas de Palermo), 278.459 `s/d`, 10.459 `<límite de detección`,
 288 `#REF!` y 11 `x/d`.
 
@@ -27,15 +27,16 @@ el staging): 0 duplicados por fecha + hora, 284 filas con hora fuera de 1-24; en
 | Problema | Solución | Dónde |
 |---|---|---|
 | La página del dataset a veces responde 502 | Se baja el archivo directo de la CDN del portal (`cdn.buenosaires.gob.ar`), con reintentos y espera creciente | `src/extract.py` |
-| El formato podría cambiar sin aviso | Antes de guardar, se verifica que estén las 11 columnas que usa el staging; si falta alguna, no se pisa el crudo | `src/extract.py`, tests `test_extractor_*` |
+| El formato podría cambiar sin aviso | Antes de guardar, se verifica que estén las 11 columnas que usa el modelo; si falta alguna, no se pisa el crudo | `src/extract.py`, tests `test_extractor_*` |
 
-### 2.2 En el staging (texto ancho → valores tipados en formato largo)
+### 2.2 De bronze a silver (texto ancho → valores tipados en formato largo)
 
-`dbt/models/01_staging/stg_aire_horario.sql`
+Bronze (`dbt/models/bronze/calidad_aire.sql`) carga el CSV tal cual, todo como texto. La limpieza está en
+`dbt/models/silver/medicion_horaria.sql`.
 
 | Problema | Ejemplo | Solución |
 |---|---|---|
-| Formato ancho | Una columna por estación × contaminante | `UNPIVOT` (SQL estándar) a una fila por fecha × hora × estación × contaminante, con `INCLUDE NULLS` para no perder las celdas vacías (el test `stg_conserva_filas_del_crudo` verifica filas del CSV × 9) |
+| Formato ancho | Una columna por estación × contaminante | `UNPIVOT` (SQL estándar) a una fila por fecha × hora × estación × contaminante, con `INCLUDE NULLS` para no perder las celdas vacías (el test `silver_conserva_celdas_del_crudo` verifica filas del CSV × 9) |
 | Fecha en formato SAS | `12FEB2011:00:00:00` | `strptime(fecha, '%d%b%Y:%H:%M:%S')` → `DATE` |
 | Sin dato | `s/d`, `S/d` o celda vacía (11,9% de los valores del período) | `estado_valor = 'sin_dato'`, valor nulo |
 | Bajo el límite de detección | `<0.05`, `< 0.05` (solo en el CO de 2010 a 2017; ninguno en el período) | `estado_valor = 'bajo_limite_deteccion'`, valor **imputado = límite / 2**, `es_imputado = true`. Descartarlos sesgaría los promedios hacia arriba |
@@ -46,9 +47,10 @@ el staging): 0 duplicados por fecha + hora, 284 filas con hora fuera de 1-24; en
 
 ### 2.3 Reglas de validación sobre cada valor horario
 
-`dbt/models/01_staging/stg_aire_horario_validado.sql`. Los máximos plausibles están en
+También en `dbt/models/silver/medicion_horaria.sql`: cada regla es una columna booleana y la primera que se cumple
+queda en `motivo_invalido`. Los máximos plausibles están en
 `data/reference/contaminantes.csv` y los umbrales, en las variables de `dbt_project.yml` (no en el código).
-Recuento completo del período: `calidad.calidad_violaciones`.
+Recuento del período: `gold.calidad_resumen` (y la consulta A6 de `sql/99`).
 
 | Regla | Qué detecta | Casos en el período | Se descarta |
 |---|---|---|---|
@@ -59,11 +61,11 @@ Recuento completo del período: `calidad.calidad_violaciones`.
 | `valor_trabado` | NO2 idéntico durante 10 horas seguidas o más (`horas_valor_trabado`): un analizador que no varía ni 1 ppb en medio día. Solo para el NO2: CO y PM10 son promedios móviles y es normal que repitan valores | 0 en el período (sí aparece en la serie histórica) | el valor |
 
 Resultado en el período: **87,8% de los valores horarios válidos, 11,9% sin dato en la fuente y 0,3% descartados
-por reglas** (`calidad.calidad_resumen`).
+por reglas** (`gold.calidad_resumen`).
 
 ### 2.4 De horas a días
 
-`dbt/models/01_staging/stg_aire_diario.sql`. La guía OMS de 24 h se compara con el promedio de 00 a 24 h. Cada
+`dbt/models/silver/medicion_diaria.sql`. La guía OMS de 24 h se compara con el promedio de 00 a 24 h. Cada
 contaminante se publica con un promedio distinto, así que el valor diario se arma distinto:
 
 | Contaminante | Qué publica la fuente | Valor diario | Cuándo no hay valor |
@@ -135,12 +137,13 @@ situaciones (`motivo_sin_dato`):
 
 ### 3.2 Completitud y regla del 75%
 
-Implementada en `dbt/models/04_calidad/agg_completitud_mensual.sql` y `agg_completitud_anual.sql`.
+Implementada en `dbt/models/gold/agg_anual.sql` (una fila por período). La completitud mensual del heatmap se
+calcula en el momento sobre la fact (`tiene_dato`), que tiene todos los días.
 
 - **completitud** = días con promedio de 24 h válido / días del período.
 - **Indicadores anuales** (promedio anual, percentil 99, matriz de escalones por año): solo si el período tiene
   **≥ 75%** de días con dato (variable `umbral_completitud` de `dbt_project.yml`). Si no, `es_valido = false` y el
-  valor no se publica (queda en `promedio_referencial` / `pct_referencial` solo por transparencia).
+  valor no se publica (el promedio queda en `promedio_referencial` solo por transparencia).
 - **Indicadores diarios de todo el período** (% de días sobre la guía): usan todos los días con dato válido e
   informan siempre el `n`. El denominador son los **días con dato**, no todos los días.
 - **2026 es parcial** (enero a septiembre). Para compararlo con un año completo se calcula también el período
@@ -168,9 +171,10 @@ Dos usos en el TP:
 
 ### 3.3 Rachas y huecos
 
-Una racha es una sucesión de días con dato sobre la guía de 24 h (`indicadores.agg_rachas`). Un día **con dato** que
+Una racha es una sucesión de días con dato sobre la guía de 24 h (la más larga de cada período está en
+`gold.agg_anual`: `racha_maxima_dias`, `racha_desde`, `racha_hasta`). Un día **con dato** que
 cumple la guía la corta. Los huecos sin dato de hasta 7 días seguidos (`dias_hueco_maximo_racha`) no la cortan ni la
-alargan, y se informan en `dias_sin_dato`. Un hueco más largo sí la corta. Motivo: los huecos cortos son casi siempre
+alargan (los días sin dato son la diferencia entre los días de calendario de la racha y `racha_maxima_dias`). Un hueco más largo sí la corta. Motivo: los huecos cortos son casi siempre
 de la exportación (sección 2.4); cortar la racha en cada uno la subestimaría. Ejemplo: La Boca, 14/02 a 28/11/2024,
 **254 días con dato, todos sobre la guía**, en 289 días de calendario (35 sin dato, en huecos de 1 a 5 días).
 
@@ -220,7 +224,8 @@ WHO global air quality guidelines (2021).
 **Criterio:** promedio diario > Q3 + 3·IQR de su estación × contaminante (variable `factor_iqr`). Se usa 3·IQR (y no
 1,5) porque las concentraciones son asimétricas: con 1,5 se marcarían como atípicos muchos días de invierno normales.
 **Se marcan (`es_outlier`), no se borran**: un pico real de contaminación es justo lo que la guía de 24 h quiere
-detectar. Lista con contexto: `calidad.calidad_outliers` (31 valores: 16 de CO, 11 de PM10 y 4 de NO2).
+detectar. Lista: `gold.fact_medicion_diaria` filtrada por `es_outlier` (31 valores: 16 de CO, 11 de PM10 y 4 de NO2; consulta
+C5 de `sql/99` y sección 2 del notebook).
 
 **Revisión manual de los casos extremos:**
 
@@ -247,5 +252,5 @@ El factor sale del peso molecular (`data/reference/contaminantes.csv`) y del vol
 
 | Dónde | Qué | Cantidad |
 |---|---|---|
-| Tests de dbt (`dbt build`): **los datos** | Claves únicas (también en el staging horario: sin duplicados por fecha + hora), no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, el staging conserva todas las celdas del crudo, el NO2 diario sale de 18 horas o más, el promedio diario coincide con las horas de la fact horaria, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 89 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 239 violaciones del período) |
-| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que las vistas de `sql/99` existan y que el extractor reconozca el formato del CSV y detecte un cambio de formato | 4 tests |
+| Tests de dbt (`dbt build`): **los datos** | Claves únicas (también en silver horario: sin duplicados por fecha + hora), no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, silver conserva todas las celdas del crudo, el NO2 diario sale de 18 horas o más, el promedio diario coincide con las horas de la fact horaria, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 88 tests + 4 seeds; 1 aviso esperado (`silver_valores_descartados`: describe los 239 valores descartados del período) |
+| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que las consultas de `sql/99` corran en una conexión de solo lectura y que el extractor reconozca el formato del CSV y detecte un cambio de formato | 4 tests |

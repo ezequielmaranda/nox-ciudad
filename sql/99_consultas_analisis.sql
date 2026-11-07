@@ -11,9 +11,12 @@
 --   POR QUÉ   por qué hace falta
 --   TÉCNICA   qué herramienta de SQL muestra
 --
--- Schemas de la base:  staging (crudo horario tipado y validado, valor diario) · modelo (dimensiones y
---                      facts diaria y horaria) · calidad · indicadores
---                      analisis (las vistas que se crean al final de este archivo)
+-- Capas de la base (arquitectura medallón):
+--   bronze  el CSV tal como viene (todo texto) y las tablas de referencia
+--   silver  valores horarios limpios (silver.medicion_horaria) y valor diario (silver.medicion_diaria)
+--   gold    modelo estrella (dimensiones, fact diaria y horaria), guías OMS e indicadores
+--           (gold.agg_anual, gold.calidad_resumen): lo que se exporta a data/final
+-- Son todas consultas de lectura: no crean ni modifican tablas.
 -- Funciones propias de DuckDB (comentadas donde aparecen): FILTER, quantile_cont, fecha - entero.
 -- =====================================================================================================
 
@@ -26,15 +29,17 @@
 -- PREGUNTA  ¿Cuántos datos hay, de cuándo a cuándo y de cuántas estaciones?
 -- POR QUÉ   Es la "ficha" del dataset: lo primero que se presenta. El CSV de BA Data trae toda la serie
 --           (desde 2009); el estudio usa 2024 a septiembre de 2026.
--- TÉCNICA   SELECT con funciones de agregación (COUNT, COUNT DISTINCT, MIN, MAX) y FILTER.
+-- TÉCNICA   SELECT con funciones de agregación (COUNT, COUNT DISTINCT, MIN, MAX) y FILTER, más una
+--           subconsulta escalar para contar las filas del CSV en bronze (cada fila tiene 9 valores).
 SELECT
+    (SELECT count(*) FROM bronze.calidad_aire)       AS filas_csv,
     count(*)                                         AS valores_horarios,
     count(DISTINCT id_estacion)                      AS estaciones,
     count(DISTINCT id_contaminante)                  AS contaminantes,
     min(fecha)                                       AS desde,
     max(fecha)                                       AS hasta,
     count(*) FILTER (WHERE fecha BETWEEN '2024-01-01' AND '2026-09-30') AS valores_del_periodo
-FROM staging.stg_aire_horario;
+FROM silver.medicion_horaria;
 
 
 -- A2 · Nulos y valores especiales por contaminante
@@ -46,7 +51,7 @@ SELECT
     estado_valor,
     count(*) AS n,
     round(100.0 * count(*) / sum(count(*)) OVER (PARTITION BY id_contaminante), 2) AS pct
-FROM staging.stg_aire_horario
+FROM silver.medicion_horaria
 WHERE fecha BETWEEN '2024-01-01' AND '2026-09-30'
 GROUP BY id_contaminante, estado_valor
 ORDER BY id_contaminante, n DESC;
@@ -57,7 +62,7 @@ ORDER BY id_contaminante, n DESC;
 -- POR QUÉ   Un duplicado contaría dos veces la misma hora en los promedios. Resultado esperado: 0 filas.
 -- TÉCNICA   GROUP BY + HAVING.
 SELECT fecha, hora, id_estacion, id_contaminante, count(*) AS repeticiones
-FROM staging.stg_aire_horario
+FROM silver.medicion_horaria
 GROUP BY fecha, hora, id_estacion, id_contaminante
 HAVING count(*) > 1;
 
@@ -69,13 +74,13 @@ HAVING count(*) > 1;
 -- TÉCNICA   CROSS JOIN (todas las combinaciones) + LEFT JOIN + filtro IS NULL (anti-join).
 WITH esperado AS (
     SELECT c.fecha, e.id_estacion, k.id_contaminante
-    FROM modelo.dim_calendario c
-    CROSS JOIN modelo.dim_estacion e
-    CROSS JOIN modelo.dim_contaminante k
+    FROM gold.dim_calendario c
+    CROSS JOIN gold.dim_estacion e
+    CROSS JOIN gold.dim_contaminante k
 ),
 publicado AS (
     SELECT DISTINCT id_estacion, fecha, id_contaminante
-    FROM staging.stg_aire_horario
+    FROM silver.medicion_horaria
     WHERE hora BETWEEN 1 AND 24
 )
 SELECT
@@ -96,7 +101,7 @@ ORDER BY dias_sin_fila DESC;
 -- PREGUNTA  ¿Qué indicadores anuales se pueden calcular y cuáles no? (subpregunta 6)
 -- POR QUÉ   Un promedio anual con la mitad de los días puede estar sesgado (p. ej. si falta el invierno).
 -- TÉCNICA   GROUP BY + COUNT con condición (COUNT(CASE WHEN ...)) + CASE para clasificar. El umbral no se
---           escribe acá: es_valido viene de agg_completitud_anual (variable umbral_completitud de dbt).
+--           escribe acá: es_valido viene de gold.agg_anual (variable umbral_completitud de dbt).
 SELECT
     f.id_estacion,
     f.id_contaminante,
@@ -108,9 +113,9 @@ SELECT
         WHEN v.es_valido THEN 'válido'
         ELSE 'NO válido (< 75%)'
     END                                              AS regla_75
-FROM modelo.fact_medicion_diaria f
-JOIN modelo.dim_calendario c ON c.fecha = f.fecha
-JOIN calidad.agg_completitud_anual v
+FROM gold.fact_medicion_diaria f
+JOIN gold.dim_calendario c ON c.fecha = f.fecha
+JOIN gold.agg_anual v
   ON v.id_estacion = f.id_estacion AND v.id_contaminante = f.id_contaminante
  AND v.id_periodo = CAST(c.anio AS VARCHAR)
 GROUP BY f.id_estacion, f.id_contaminante, c.anio, v.es_valido
@@ -120,18 +125,21 @@ ORDER BY f.id_contaminante, f.id_estacion, c.anio;
 -- A6 · Qué descartaron las reglas de calidad
 -- PREGUNTA  ¿Cuántos valores horarios se descartaron por cada regla y en qué contaminante?
 -- POR QUÉ   Mostrar que la limpieza es acotada y explicable (no se "tiraron datos" a ciegas).
+--           's/d' no cuenta: es un dato que la fuente no tiene, no algo que se descartó.
 -- TÉCNICA   Agregación condicional con FILTER (estándar SQL; en motores sin FILTER: SUM(CASE ...)).
 SELECT
-    regla,
-    count(*)                                          AS violaciones,
+    motivo_invalido                                   AS regla,
+    count(*)                                          AS descartados,
     count(*) FILTER (WHERE id_contaminante = 'no2')   AS en_no2,
     count(*) FILTER (WHERE id_contaminante = 'pm10')  AS en_pm10,
     count(*) FILTER (WHERE id_contaminante = 'co')    AS en_co,
     min(fecha)                                        AS primera,
     max(fecha)                                        AS ultima
-FROM calidad.calidad_violaciones
-GROUP BY regla
-ORDER BY violaciones DESC;
+FROM silver.medicion_horaria
+WHERE fecha BETWEEN '2024-01-01' AND '2026-09-30'
+  AND motivo_invalido <> 'sin_dato_fuente'
+GROUP BY motivo_invalido
+ORDER BY descartados DESC;
 
 
 -- A7 · De horas a días: cuántas horas válidas tiene cada día de NO2
@@ -148,7 +156,7 @@ WITH tramos AS (
             WHEN n_horas_validas >= 1 THEN '3. 1 a 17 horas (no alcanza)'
             ELSE '4. ninguna hora válida'
         END AS horas_validas
-    FROM modelo.fact_medicion_diaria
+    FROM gold.fact_medicion_diaria
     WHERE id_contaminante = 'no2'
 )
 SELECT
@@ -181,8 +189,9 @@ SELECT
     round(100.0 * sum(count(*)) OVER (PARTITION BY id_contaminante, id_estacion ORDER BY orden_nivel_oms
                                       ROWS UNBOUNDED PRECEDING)
                 / sum(count(*)) OVER (PARTITION BY id_contaminante, id_estacion), 1) AS pct_cumple_este_nivel_o_mejor
-FROM indicadores.agg_cumplimiento_diario
-WHERE id_contaminante IN ('no2', 'pm10')
+FROM gold.fact_medicion_diaria
+WHERE tiene_dato
+  AND id_contaminante IN ('no2', 'pm10')
 GROUP BY id_contaminante, id_estacion, nivel_oms, orden_nivel_oms
 ORDER BY id_contaminante, id_estacion, orden_nivel_oms;
 
@@ -191,24 +200,22 @@ ORDER BY id_contaminante, id_estacion, orden_nivel_oms;
 -- PREGUNTA  Subpreguntas 1, 2 y 3: ¿hasta qué escalón cumple cada estación, año por año?
 -- POR QUÉ   Es la tabla que va a la presentación: muestra en una sola vista la guía, los objetivos
 --           intermedios y el escalón del promedio anual. Celdas vacías = período con menos de 75% de días.
--- TÉCNICA   "Pivot" con agregación condicional (MAX ... FILTER): las filas de nivel pasan a columnas.
---           LEFT JOIN con agg_anual para sumar el escalón del promedio anual.
+-- TÉCNICA   Lectura de la tabla de indicadores (gold.agg_anual): dbt ya contó, para cada período, los
+--           días que cumplen cada escalón (COUNT ... FILTER) y los dejó en columnas. Si el período no
+--           llega al 75% de días con dato, esas columnas vienen vacías (NULL).
 SELECT
-    e.nombre                                                                         AS estacion,
-    p.etiqueta                                                                       AS periodo,
-    round(100 * max(n.pct_dias_cumple) FILTER (WHERE n.nivel = 'AQG'), 1)             AS pct_cumple_guia_25,
-    round(100 * max(n.pct_dias_cumple) FILTER (WHERE n.nivel = 'IT2'), 1)             AS pct_cumple_it2_50,
-    round(100 * max(n.pct_dias_cumple) FILTER (WHERE n.nivel = 'IT1'), 1)             AS pct_cumple_it1_120,
-    max(a.nivel_oms)                                                                 AS escalon_promedio_anual,
-    bool_and(n.cumple_criterio_trimestral)                                           AS todos_los_trimestres_75
-FROM indicadores.agg_cumplimiento_niveles n
-JOIN modelo.dim_estacion e ON e.id_estacion = n.id_estacion
-JOIN modelo.dim_periodo p  ON p.id_periodo = n.id_periodo
-LEFT JOIN indicadores.agg_anual a
-       ON a.id_estacion = n.id_estacion AND a.id_contaminante = n.id_contaminante AND a.id_periodo = n.id_periodo
-WHERE n.id_contaminante = 'no2'
-GROUP BY e.nombre, p.etiqueta, p.orden
-ORDER BY e.nombre, p.orden;
+    e.nombre                                      AS estacion,
+    a.periodo,
+    round(100 * a.pct_cumple_guia_24h, 1)         AS pct_cumple_guia_25,
+    round(100 * a.pct_cumple_it2_24h, 1)          AS pct_cumple_it2_50,
+    round(100 * a.pct_cumple_it1_24h, 1)          AS pct_cumple_it1_120,
+    a.nivel_oms                                   AS escalon_promedio_anual,
+    a.cumple_criterio_trimestral                  AS todos_los_trimestres_75
+FROM gold.agg_anual a
+JOIN gold.dim_estacion e ON e.id_estacion = a.id_estacion
+WHERE a.id_contaminante = 'no2'
+  AND a.es_periodo_estudio
+ORDER BY e.nombre, a.orden_periodo;
 
 
 -- B1 · % de días por encima de la guía diaria (24 h)
@@ -216,21 +223,22 @@ ORDER BY e.nombre, p.orden;
 --           ¿El NO2 es el que más se aleja de la guía?
 -- POR QUÉ   Es el indicador más fácil de comunicar ("9 de cada 10 días").
 --           Denominador = días CON DATO (no todos los días): un día sin dato no es un día "limpio".
--- TÉCNICA   JOIN de la fact con la tabla de referencia OMS (el umbral no está escrito en el SQL).
+-- TÉCNICA   JOIN de la fact con la tabla de guías (gold.guia_oms, en formato largo: una fila por
+--           contaminante × promedio × nivel). El umbral no está escrito en el SQL.
 SELECT
     e.nombre                                           AS estacion,
     k.codigo_fuente                                    AS contaminante,
     count(*)                                           AS dias_con_dato,
-    sum(CASE WHEN f.valor_masa > r.guia_oms THEN 1 ELSE 0 END) AS dias_sobre_guia,
-    round(100.0 * avg(CASE WHEN f.valor_masa > r.guia_oms THEN 1 ELSE 0 END), 1) AS pct_dias_sobre_guia,
-    r.guia_oms                                         AS guia_24h,
+    sum(CASE WHEN f.valor_masa > r.umbral THEN 1 ELSE 0 END) AS dias_sobre_guia,
+    round(100.0 * avg(CASE WHEN f.valor_masa > r.umbral THEN 1 ELSE 0 END), 1) AS pct_dias_sobre_guia,
+    r.umbral                                           AS guia_24h,
     r.unidad
-FROM modelo.fact_medicion_diaria f
-JOIN modelo.ref_oms r          ON r.id_contaminante = f.id_contaminante AND r.promedio = '24h'
-JOIN modelo.dim_estacion e     ON e.id_estacion = f.id_estacion
-JOIN modelo.dim_contaminante k ON k.id_contaminante = f.id_contaminante
+FROM gold.fact_medicion_diaria f
+JOIN gold.guia_oms r           ON r.id_contaminante = f.id_contaminante AND r.promedio = '24h' AND r.nivel = 'AQG'
+JOIN gold.dim_estacion e     ON e.id_estacion = f.id_estacion
+JOIN gold.dim_contaminante k ON k.id_contaminante = f.id_contaminante
 WHERE f.tiene_dato
-GROUP BY e.nombre, k.codigo_fuente, k.orden, r.guia_oms, r.unidad
+GROUP BY e.nombre, k.codigo_fuente, k.orden, r.umbral, r.unidad
 ORDER BY k.orden, pct_dias_sobre_guia DESC;
 
 
@@ -238,32 +246,32 @@ ORDER BY k.orden, pct_dias_sobre_guia DESC;
 -- PREGUNTA  Subpregunta 2: ¿cuántas veces por encima de la guía anual están los promedios anuales?
 -- POR QUÉ   La guía anual mide la exposición de largo plazo (la que más pesa en la salud).
 --           Solo años con >= 75% de días con dato (regla del 75%). 2026 está marcado como parcial.
--- TÉCNICA   CTE (WITH) + AVG que ignora NULL + JOIN con la referencia + filtro sobre un agregado.
+-- TÉCNICA   CTE (WITH) + AVG que ignora NULL + JOIN con las guías y con la tabla de indicadores (de
+--           ahí salen la regla del 75% y si el año es parcial).
 WITH anual AS (
     SELECT
         f.id_estacion,
         f.id_contaminante,
         c.anio,
-        bool_or(c.es_anio_parcial)              AS es_parcial,
         avg(f.valor_masa)                       AS promedio,      -- AVG ignora los días sin dato (NULL)
         count(f.valor_masa) * 1.0 / count(*)    AS completitud
-    FROM modelo.fact_medicion_diaria f
-    JOIN modelo.dim_calendario c ON c.fecha = f.fecha
+    FROM gold.fact_medicion_diaria f
+    JOIN gold.dim_calendario c ON c.fecha = f.fecha
     GROUP BY f.id_estacion, f.id_contaminante, c.anio
 )
 SELECT
     a.id_estacion,
-    r.contaminante,
+    a.id_contaminante,
     a.anio,
-    CASE WHEN a.es_parcial THEN 'parcial (ene-sep)' ELSE 'completo' END AS anio_tipo,
+    CASE WHEN v.tipo_periodo = 'anio_parcial' THEN 'parcial (ene-sep)' ELSE 'completo' END AS anio_tipo,
     round(100 * a.completitud, 1)          AS completitud_pct,
     round(a.promedio, 1)                   AS promedio_anual,
-    r.guia_oms                             AS guia_anual,
-    round(a.promedio / r.guia_oms, 1)      AS veces_la_guia,
+    r.umbral                               AS guia_anual,
+    round(a.promedio / r.umbral, 1)        AS veces_la_guia,
     r.unidad
 FROM anual a
-JOIN modelo.ref_oms r ON r.id_contaminante = a.id_contaminante AND r.promedio = 'anual'
-JOIN calidad.agg_completitud_anual v
+JOIN gold.guia_oms r ON r.id_contaminante = a.id_contaminante AND r.promedio = 'anual' AND r.nivel = 'AQG'
+JOIN gold.agg_anual v
   ON v.id_estacion = a.id_estacion AND v.id_contaminante = a.id_contaminante
  AND v.id_periodo = CAST(a.anio AS VARCHAR)
 WHERE v.es_valido
@@ -281,11 +289,12 @@ SELECT
     d.id_contaminante,
     year(d.fecha)                                                     AS anio,
     count(*)                                                          AS dias_con_dato,
-    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor), 1)   AS p99,
-    max(d.guia_oms_24h)                                               AS guia_24h,
-    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor) / max(d.guia_oms_24h), 2) AS p99_veces_guia
-FROM indicadores.agg_cumplimiento_diario d
-WHERE d.id_contaminante IN ('no2', 'pm10')
+    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor_masa), 1)   AS p99,
+    max(d.guia_24h)                                                        AS guia_24h,
+    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor_masa) / max(d.guia_24h), 2) AS p99_veces_guia
+FROM gold.fact_medicion_diaria d
+WHERE d.tiene_dato
+  AND d.id_contaminante IN ('no2', 'pm10')
 GROUP BY d.id_estacion, d.id_contaminante, year(d.fecha)
 ORDER BY d.id_contaminante, d.id_estacion, anio;
 
@@ -295,7 +304,7 @@ ORDER BY d.id_contaminante, d.id_estacion, anio;
 --           cuánto falta para el siguiente?
 -- POR QUÉ   Para un tomador de decisión es más útil "bajar 6 µg/m³ para llegar al IT1" que "no cumple".
 --           Se usan los últimos 12 meses (oct-2025 a sep-2026): un año completo y el más reciente.
--- TÉCNICA   Lectura de una tabla agregada (agg_anual) + JOIN con dimensiones + ORDER BY.
+-- TÉCNICA   Lectura de una tabla agregada (gold.agg_anual) + JOIN con dimensiones + ORDER BY.
 SELECT
     e.nombre               AS estacion,
     a.id_contaminante,
@@ -306,8 +315,8 @@ SELECT
     a.nivel_oms,
     a.proximo_nivel,
     a.ug_para_proximo_nivel
-FROM indicadores.agg_anual a
-JOIN modelo.dim_estacion e ON e.id_estacion = a.id_estacion
+FROM gold.agg_anual a
+JOIN gold.dim_estacion e ON e.id_estacion = a.id_estacion
 WHERE a.id_periodo = 'movil_12m'
   AND a.guia_anual IS NOT NULL
 ORDER BY a.id_contaminante, a.veces_guia_anual DESC;
@@ -326,8 +335,8 @@ SELECT
     round(100 * a.pct_dias_supera_24h, 1)                                             AS pct_dias_sobre_guia_24h,
     RANK() OVER (PARTITION BY a.id_contaminante ORDER BY a.veces_guia_anual DESC)     AS ranking_anual,
     RANK() OVER (PARTITION BY a.id_contaminante ORDER BY a.pct_dias_supera_24h DESC)  AS ranking_diario
-FROM indicadores.agg_anual a
-JOIN modelo.dim_estacion e ON e.id_estacion = a.id_estacion
+FROM gold.agg_anual a
+JOIN gold.dim_estacion e ON e.id_estacion = a.id_estacion
 WHERE a.id_periodo = 'movil_12m'
   AND a.guia_anual IS NOT NULL
 ORDER BY a.id_contaminante, ranking_anual;
@@ -338,7 +347,7 @@ ORDER BY a.id_contaminante, ranking_anual;
 -- POR QUÉ   "254 días con dato seguidos sobre la guía" comunica la persistencia del problema mejor que
 --           un promedio. Solo un día con dato que cumple la guía corta la racha; un hueco de más de 7
 --           días sin dato también (la fuente tiene huecos cortos de exportación que no son falta de
---           medición). El modelo indicadores.agg_rachas guarda todas las rachas para el dashboard.
+--           medición). gold.agg_anual guarda la racha más larga de cada período para el dashboard.
 -- TÉCNICA   Gaps and islands sobre la secuencia de días con dato: ROW_NUMBER() numera todos los días
 --           con dato y, aparte, los que superan la guía; la diferencia es constante dentro de una
 --           racha. LAG() mide el hueco con el día anterior y SUM() OVER acumulado arma los tramos.
@@ -349,8 +358,9 @@ WITH dias AS (
         supera_guia,
         ROW_NUMBER() OVER (PARTITION BY id_estacion ORDER BY fecha)                    AS n_dia,
         fecha - LAG(fecha) OVER (PARTITION BY id_estacion ORDER BY fecha) - 1          AS dias_sin_dato_antes
-    FROM indicadores.agg_cumplimiento_diario
+    FROM gold.fact_medicion_diaria
     WHERE id_contaminante = 'no2'
+      AND tiene_dato
 ),
 tramos AS (
     SELECT *,
@@ -394,11 +404,12 @@ WITH por_tipo AS (
         c.tipo_dia_etiqueta                                   AS tipo_dia,
         c.orden_tipo_dia,
         count(*)                                              AS dias,
-        avg(d.valor)                                          AS no2_promedio,
+        avg(d.valor_masa)                                     AS no2_promedio,
         avg(CASE WHEN d.supera_guia THEN 1.0 ELSE 0 END)      AS prop_sobre_guia
-    FROM indicadores.agg_cumplimiento_diario d
-    JOIN modelo.dim_calendario c ON c.fecha = d.fecha
+    FROM gold.fact_medicion_diaria d
+    JOIN gold.dim_calendario c ON c.fecha = d.fecha
     WHERE d.id_contaminante = 'no2'
+      AND d.tiene_dato
     GROUP BY d.id_estacion, c.tipo_dia_etiqueta, c.orden_tipo_dia
 )
 SELECT
@@ -426,8 +437,8 @@ SELECT
     round(avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'domingo'), 1) AS no2_domingo_ugm3,
     round(avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'domingo')
         / avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'habil') * 100 - 100, 1) AS domingo_vs_habil_pct
-FROM modelo.fact_medicion_horaria h
-JOIN modelo.dim_calendario c ON c.fecha = h.fecha
+FROM gold.fact_medicion_horaria h
+JOIN gold.dim_calendario c ON c.fecha = h.fecha
 WHERE h.es_valido
 GROUP BY h.id_estacion, h.hora
 ORDER BY h.id_estacion, h.hora;
@@ -443,11 +454,12 @@ SELECT
     d.id_estacion,
     c.estacion_del_anio,
     count(*)                                                           AS dias,
-    round(avg(d.valor), 1)                                             AS promedio,
+    round(avg(d.valor_masa), 1)                                        AS promedio,
     round(100 * avg(CASE WHEN d.supera_guia THEN 1.0 ELSE 0 END), 1)   AS pct_dias_sobre_guia
-FROM indicadores.agg_cumplimiento_diario d
-JOIN modelo.dim_calendario c ON c.fecha = d.fecha
-WHERE d.id_contaminante IN ('no2', 'pm10')
+FROM gold.fact_medicion_diaria d
+JOIN gold.dim_calendario c ON c.fecha = d.fecha
+WHERE d.tiene_dato
+  AND d.id_contaminante IN ('no2', 'pm10')
 GROUP BY d.id_contaminante, d.id_estacion, c.estacion_del_anio, c.orden_estacion_del_anio
 ORDER BY d.id_contaminante, d.id_estacion, c.orden_estacion_del_anio;
 
@@ -467,7 +479,7 @@ SELECT
     count(*) FILTER (WHERE year(fecha) = 2024)             AS dias_2024,
     count(*) FILTER (WHERE year(fecha) = 2025)             AS dias_2025,
     count(*) FILTER (WHERE year(fecha) = 2026)             AS dias_2026
-FROM modelo.fact_medicion_diaria
+FROM gold.fact_medicion_diaria
 WHERE id_contaminante = 'no2'
   AND tiene_dato
   AND month(fecha) <= 9
@@ -485,20 +497,20 @@ ORDER BY id_estacion;
 -- TÉCNICA   Subconsulta con GROUP BY + HAVING para encontrar "días comunes" + UNION ALL.
 WITH comunes AS (
     SELECT fecha
-    FROM modelo.fact_medicion_diaria
+    FROM gold.fact_medicion_diaria
     WHERE id_contaminante = 'no2' AND tiene_dato
     GROUP BY fecha
     HAVING count(DISTINCT id_estacion) = 3
 )
 SELECT 'todas las estaciones, todos los días' AS criterio, year(fecha) AS anio,
        round(avg(valor), 1) AS no2_ppb_ene_sep, count(*) AS mediciones
-FROM modelo.fact_medicion_diaria
+FROM gold.fact_medicion_diaria
 WHERE id_contaminante = 'no2' AND tiene_dato AND month(fecha) <= 9
 GROUP BY year(fecha)
 UNION ALL
 SELECT 'solo días con las 3 estaciones', year(f.fecha),
        round(avg(f.valor), 1), count(*)
-FROM modelo.fact_medicion_diaria f
+FROM gold.fact_medicion_diaria f
 JOIN comunes c ON c.fecha = f.fecha
 WHERE f.id_contaminante = 'no2' AND f.tiene_dato AND month(f.fecha) <= 9
 GROUP BY year(f.fecha)
@@ -509,41 +521,43 @@ ORDER BY criterio, anio;
 -- PREGUNTA  ¿Los valores atípicos son errores o episodios reales?
 -- POR QUÉ   Si el mismo día aparece alto en las tres estaciones, es un episodio atmosférico
 --           (p. ej. una inversión térmica), no un error de un equipo: por eso no se borran.
--- TÉCNICA   GROUP BY sobre la tabla de outliers + HAVING + STRING_AGG para listar estaciones.
+-- TÉCNICA   Filtro por la marca es_outlier de la fact + GROUP BY + HAVING + STRING_AGG para listar
+--           estaciones. umbral_outlier = Q3 + 3·IQR de cada estación × contaminante.
 SELECT
     fecha,
     id_contaminante,
     count(DISTINCT id_estacion)                                  AS estaciones_con_outlier,
     string_agg(DISTINCT id_estacion, ', ' ORDER BY id_estacion)  AS estaciones,
-    max(veces_mediana)                                           AS max_veces_mediana
-FROM calidad.calidad_outliers
+    max(round(valor / umbral_outlier, 2))                        AS max_veces_umbral
+FROM gold.fact_medicion_diaria
+WHERE es_outlier
 GROUP BY fecha, id_contaminante
 HAVING count(DISTINCT id_estacion) >= 2
-ORDER BY estaciones_con_outlier DESC, max_veces_mediana DESC;
+ORDER BY estaciones_con_outlier DESC, max_veces_umbral DESC;
 
 
 -- =====================================================================================================
--- PARTE D · VISTAS (las tablas que muestra el dashboard, en SQL)
--- Power BI importa los CSV de data/final; estas vistas calculan lo mismo que las medidas DAX del
+-- PARTE D · CONTROL DEL DASHBOARD
+-- Power BI importa los CSV de data/final; estas consultas calculan lo mismo que las medidas DAX del
 -- modelo (src/generar_pbip.py) y sirven para verificar que el dashboard muestre los números correctos.
 -- =====================================================================================================
 
-CREATE SCHEMA IF NOT EXISTS analisis;
-
 -- D1 · Resumen por estación y contaminante (tarjetas y KPIs de la página "Resumen")
-CREATE OR REPLACE VIEW analisis.v_resumen_estacion AS
+-- TÉCNICA   CTE + LEFT JOIN de la fact (días) con la tabla de indicadores (últimos 12 meses y racha).
 WITH diario AS (
     SELECT
         id_estacion,
         id_contaminante,
         count(*)                                          AS dias_con_dato,
         avg(CASE WHEN supera_guia THEN 1.0 ELSE 0 END)    AS prop_dias_sobre_guia_24h
-    FROM indicadores.agg_cumplimiento_diario
+    FROM gold.fact_medicion_diaria
+    WHERE tiene_dato
     GROUP BY id_estacion, id_contaminante
 ),
 racha AS (
-    SELECT id_estacion, id_contaminante, max(dias) AS racha_maxima_dias
-    FROM indicadores.agg_rachas
+    SELECT id_estacion, id_contaminante, max(racha_maxima_dias) AS racha_maxima_dias
+    FROM gold.agg_anual
+    WHERE es_periodo_estudio
     GROUP BY id_estacion, id_contaminante
 )
 SELECT
@@ -557,37 +571,22 @@ SELECT
     a.p99_24h                        AS p99_ultimos_12m,
     coalesce(r.racha_maxima_dias, 0) AS racha_maxima_dias
 FROM diario d
-JOIN modelo.dim_estacion e ON e.id_estacion = d.id_estacion
-LEFT JOIN indicadores.agg_anual a
+JOIN gold.dim_estacion e ON e.id_estacion = d.id_estacion
+LEFT JOIN gold.agg_anual a
        ON a.id_estacion = d.id_estacion AND a.id_contaminante = d.id_contaminante
       AND a.id_periodo = 'movil_12m'
-LEFT JOIN racha r ON r.id_estacion = d.id_estacion AND r.id_contaminante = d.id_contaminante;
+LEFT JOIN racha r ON r.id_estacion = d.id_estacion AND r.id_contaminante = d.id_contaminante
+ORDER BY d.id_contaminante, pct_dias_sobre_guia_24h DESC;
 
--- D2 · Cumplimiento por tipo de día y estación del año (matriz de la página "Detalle")
-CREATE OR REPLACE VIEW analisis.v_cumplimiento_por_tipo_dia AS
-SELECT
-    d.id_estacion,
-    d.id_contaminante,
-    c.tipo_dia_etiqueta                                              AS tipo_dia,
-    c.estacion_del_anio,
-    count(*)                                                         AS dias,
-    round(avg(d.valor), 2)                                           AS promedio,
-    round(100 * avg(CASE WHEN d.supera_guia THEN 1.0 ELSE 0 END), 1) AS pct_dias_sobre_guia
-FROM indicadores.agg_cumplimiento_diario d
-JOIN modelo.dim_calendario c ON c.fecha = d.fecha
-GROUP BY d.id_estacion, d.id_contaminante, c.tipo_dia_etiqueta, c.estacion_del_anio;
 
--- D3 · Qué quedó afuera y por qué (página "Calidad de datos")
-CREATE OR REPLACE VIEW analisis.v_indicadores_excluidos AS
+-- D2 · Qué quedó afuera y por qué (página "Calidad de datos")
 SELECT
     id_estacion,
     id_contaminante,
     periodo,
     round(100 * completitud, 1) AS completitud_pct,
     'Menos de 75% de días con dato: el promedio anual y el P99 no se calculan' AS motivo
-FROM indicadores.agg_anual
-WHERE NOT es_valido;
-
--- Uso de las vistas
-SELECT * FROM analisis.v_resumen_estacion ORDER BY id_contaminante, pct_dias_sobre_guia_24h DESC;
-SELECT * FROM analisis.v_indicadores_excluidos;
+FROM gold.agg_anual
+WHERE es_periodo_estudio
+  AND NOT es_valido
+ORDER BY id_contaminante, id_estacion, orden_periodo;

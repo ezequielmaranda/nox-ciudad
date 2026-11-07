@@ -1,4 +1,4 @@
-/// Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 parcial y últimos 12 meses), con la regla del 75% aplicada.
+/// Indicadores anuales por estación × contaminante × período: años 2010 a 2026 (2026 parcial) y últimos 12 meses. Los del estudio (2024, 2025, 2026 y últimos 12 meses) tienen es_periodo_estudio = verdadero; 2010-2023 son contexto. Regla del 75%: si el período tiene menos de 75% de días con dato, los indicadores quedan vacíos (solo promedio_referencial).
 table agg_anual
 	lineageTag: e0a91c0f-ccea-5ca8-9d8a-6fe7fea89bc0
 
@@ -12,7 +12,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Contaminante (NO2, PM10, CO).
+	/// Contaminante.
 	column id_contaminante
 		dataType: string
 		isHidden
@@ -22,7 +22,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Período (clave hacia dim_periodo).
+	/// Código del período: el año ('2024') o 'movil_12m'.
 	column id_periodo
 		dataType: string
 		isHidden
@@ -32,12 +32,13 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Etiqueta del período.
+	/// Etiqueta legible del período.
 	column periodo
 		dataType: string
 		lineageTag: 312430fd-a3d4-574f-b871-fcc27a8b2b48
 		summarizeBy: none
 		sourceColumn: periodo
+		sortByColumn: orden_periodo
 
 		annotation SummarizationSetBy = User
 
@@ -50,13 +51,32 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Año (vacío para movil_12m).
+	/// Año (vacío para los últimos 12 meses).
 	column anio
 		dataType: int64
 		formatString: 0
 		lineageTag: 1a6bf79f-86eb-57db-bec9-da7d72e5c85d
 		summarizeBy: none
 		sourceColumn: anio
+
+		annotation SummarizationSetBy = User
+
+	/// Para ordenar los períodos (los últimos 12 meses van al final).
+	column orden_periodo
+		dataType: int64
+		formatString: 0
+		lineageTag: 405dcaf7-bc40-549b-a734-a3a8b4d37507
+		summarizeBy: none
+		sourceColumn: orden_periodo
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero para 2024, 2025, 2026 y los últimos 12 meses; falso para el contexto 2010-2023.
+	column es_periodo_estudio
+		dataType: boolean
+		lineageTag: 10496b3f-622a-540c-8f57-5727e1a04bde
+		summarizeBy: none
+		sourceColumn: es_periodo_estudio
 
 		annotation SummarizationSetBy = User
 
@@ -70,7 +90,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Días con dato válido de 24 h.
+	/// Días con promedio de 24 h válido.
 	column n_dias_con_dato
 		dataType: int64
 		formatString: 0
@@ -80,7 +100,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// n_dias_con_dato / n_dias_periodo.
+	/// n_dias_con_dato / n_dias_periodo (0 a 1).
 	column completitud
 		dataType: double
 		formatString: 0.0%
@@ -90,7 +110,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si completitud >= 75%.
+	/// Verdadero si el período tiene >= 75% de días con dato.
 	column es_valido
 		dataType: boolean
 		lineageTag: 9b2d61d9-2b97-5009-a169-6e13dc25b43d
@@ -109,7 +129,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si todos los trimestres tienen >= 75% de días con dato (advertencia, no excluye).
+	/// Verdadero si todos los trimestres tienen >= 75% de días con dato (criterio EPA; advertencia, no excluye).
 	column cumple_criterio_trimestral
 		dataType: boolean
 		lineageTag: f42d37ae-4e0c-5800-9827-b78acfa97492
@@ -118,7 +138,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Unidad de la guía.
+	/// Unidad de las guías (µg/m³; mg/m³ para el CO).
 	column unidad
 		dataType: string
 		lineageTag: 9aa05e14-3626-56ee-95a2-6a50be0057a2
@@ -127,7 +147,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Promedio de los valores diarios (vacío si no es válido).
+	/// Promedio de los valores diarios. Vacío si el período no es válido.
 	column promedio_anual
 		dataType: double
 		lineageTag: 8a3a4247-14b5-5bd3-9323-99b77d113e14
@@ -136,7 +156,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// El mismo promedio calculado aunque no sea válido. Solo para transparencia.
+	/// El mismo promedio aunque el período no sea válido (solo para transparencia).
 	column promedio_referencial
 		dataType: double
 		lineageTag: cb31036d-b953-55d7-869b-fcf095fab525
@@ -145,7 +165,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Guía anual OMS (vacía para CO, que no tiene).
+	/// Guía anual de la OMS (vacía para el CO).
 	column guia_anual
 		dataType: double
 		lineageTag: ded4d1a0-547c-5f78-a66f-cfb6f5e09ca3
@@ -173,7 +193,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1').
+	/// 1 = cumple la guía … 6 = no cumple ni el IT1 (para ordenar).
 	column orden_nivel_oms
 		dataType: int64
 		formatString: 0
@@ -183,7 +203,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Escalón al que se llega bajando ug_para_proximo_nivel.
+	/// Próximo escalón a alcanzar.
 	column proximo_nivel
 		dataType: string
 		lineageTag: 3bde0d80-74ac-5b0d-8bec-d2238abb8085
@@ -192,7 +212,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Cuánto tendría que bajar el promedio anual para subir un escalón.
+	/// Cuánto tendría que bajar el promedio para subir un escalón.
 	column ug_para_proximo_nivel
 		dataType: double
 		lineageTag: eab3cf37-00f7-538d-ada6-8de199b2699d
@@ -228,7 +248,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si el P99 supera la guía de 24 h (no se cumple la guía en sentido formal).
+	/// Verdadero si el P99 supera la guía de 24 h (no se cumple en sentido formal).
 	column p99_supera_guia_24h
 		dataType: boolean
 		lineageTag: fe69fdf4-c4b9-5d9b-af67-90f640a82c76
@@ -237,7 +257,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Máximo valor diario del período.
+	/// Máximo promedio diario del período.
 	column maximo_diario
 		dataType: double
 		lineageTag: af0657bf-1a7f-5c88-918c-2f1285464021
@@ -246,7 +266,7 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Días por encima de la guía de 24 h.
+	/// Días con promedio de 24 h sobre la guía.
 	column n_dias_supera_24h
 		dataType: int64
 		formatString: 0
@@ -266,6 +286,90 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
+	/// % de días que cumplen la guía de 24 h (0 a 1). Vacío si el período no es válido.
+	column pct_cumple_guia_24h
+		dataType: double
+		formatString: 0.0%
+		lineageTag: dc45e490-903b-5ffb-867a-649e7486639d
+		summarizeBy: none
+		sourceColumn: pct_cumple_guia_24h
+
+		annotation SummarizationSetBy = User
+
+	/// % de días que cumplen el IT4 de 24 h o algo más exigente. Vacío si el nivel no existe.
+	column pct_cumple_it4_24h
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 773e2b38-8333-5eb5-966b-e383f01eca9b
+		summarizeBy: none
+		sourceColumn: pct_cumple_it4_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Ídem IT3.
+	column pct_cumple_it3_24h
+		dataType: double
+		formatString: 0.0%
+		lineageTag: e9b9162d-8ece-5e01-bf3c-663790d7cdfe
+		summarizeBy: none
+		sourceColumn: pct_cumple_it3_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Ídem IT2.
+	column pct_cumple_it2_24h
+		dataType: double
+		formatString: 0.0%
+		lineageTag: ba7b23b6-adc7-57ee-ab4d-4694a0ef835e
+		summarizeBy: none
+		sourceColumn: pct_cumple_it2_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Ídem IT1.
+	column pct_cumple_it1_24h
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 16007450-3fdc-5726-9f55-3db187712bee
+		summarizeBy: none
+		sourceColumn: pct_cumple_it1_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Racha más larga de días con dato seguidos sobre la guía de 24 h en el período (huecos de hasta 7 días sin dato no la cortan).
+	column racha_maxima_dias
+		dataType: int64
+		formatString: 0
+		lineageTag: 47349e36-80fc-5404-bce7-37e89c97dd1e
+		summarizeBy: none
+		sourceColumn: racha_maxima_dias
+
+		annotation SummarizationSetBy = User
+
+	/// Primer día de esa racha.
+	column racha_desde
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: e314023f-9af8-53d9-9c6e-8168d54f481c
+		summarizeBy: none
+		sourceColumn: racha_desde
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Último día de esa racha.
+	column racha_hasta
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6eb78bc7-f200-5a5b-b7c0-ab930f323fdf
+		summarizeBy: none
+		sourceColumn: racha_hasta
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
 	partition agg_anual = m
 		mode: import
 		source =
@@ -273,7 +377,7 @@ table agg_anual
 				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_anual.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"id_periodo", type text}, {"periodo", type text}, {"tipo_periodo", type text}, {"anio", Int64.Type}, {"n_dias_periodo", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"completitud_peor_trimestre", type number}, {"cumple_criterio_trimestral", type logical}, {"unidad", type text}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"proximo_nivel", type text}, {"ug_para_proximo_nivel", type number}, {"p99_24h", type number}, {"guia_24h", type number}, {"p99_veces_guia_24h", type number}, {"p99_supera_guia_24h", type logical}, {"maximo_diario", type number}, {"n_dias_supera_24h", Int64.Type}, {"pct_dias_supera_24h", type number}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"id_periodo", type text}, {"periodo", type text}, {"tipo_periodo", type text}, {"anio", Int64.Type}, {"orden_periodo", Int64.Type}, {"es_periodo_estudio", type logical}, {"n_dias_periodo", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"completitud_peor_trimestre", type number}, {"cumple_criterio_trimestral", type logical}, {"unidad", type text}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"proximo_nivel", type text}, {"ug_para_proximo_nivel", type number}, {"p99_24h", type number}, {"guia_24h", type number}, {"p99_veces_guia_24h", type number}, {"p99_supera_guia_24h", type logical}, {"maximo_diario", type number}, {"n_dias_supera_24h", Int64.Type}, {"pct_dias_supera_24h", type number}, {"pct_cumple_guia_24h", type number}, {"pct_cumple_it4_24h", type number}, {"pct_cumple_it3_24h", type number}, {"pct_cumple_it2_24h", type number}, {"pct_cumple_it1_24h", type number}, {"racha_maxima_dias", Int64.Type}, {"racha_desde", type date}, {"racha_hasta", type date}}, "en-US")
 				in
 				    Tipos
 

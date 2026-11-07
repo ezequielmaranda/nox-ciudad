@@ -22,30 +22,26 @@ vars:
   horas_minimas_dia: 18          # el promedio diario de NO2 exige 18 de 24 horas válidas (75%)
   horas_valor_trabado: 10        # NO2 idéntico 10 horas seguidas o más = analizador trabado
   dias_hueco_maximo_racha: 7     # un hueco de más de 7 días seguidos sin dato corta una racha
-  anio_contexto_desde: 2010      # serie larga de contexto (agg_contexto_anual): primer año completo
-  anio_contexto_hasta: 2025      #   ... y último año completo
+  anio_contexto_desde: 2010      # gold.agg_anual arranca acá (primer año completo de la serie): 2010-2023 = contexto
   factor_iqr: 3                  # outlier si valor > Q3 + factor_iqr · IQR
   volumen_molar: 24.45           # litros por mol de gas a 25 °C y 1 atm (para pasar ppb a µg/m³)
 
-# Una carpeta = un paso del flujo = un schema dentro de data/warehouse/aire.duckdb.
+# Arquitectura medallón: una carpeta = una capa = un schema dentro de data/warehouse/aire.duckdb.
+#   bronze  la fuente tal como llega (el CSV de BA Data y las tablas de referencia), sin tocar
+#   silver  los datos limpios: tipados, en formato largo y con las reglas de calidad aplicadas
+#   gold    lo que se analiza: modelo estrella e indicadores (se exporta a data/final)
 models:
   aire_oms:
-    01_staging:
-      +schema: staging
+    bronze:
+      +schema: bronze
       +materialized: table
-    02_dimensiones:
-      +schema: modelo
+    silver:
+      +schema: silver
       +materialized: table
-    03_hechos:
-      +schema: modelo
-      +materialized: table
-    04_calidad:
-      +schema: calidad
-      +materialized: table
-    05_indicadores:
-      +schema: indicadores
+    gold:
+      +schema: gold
       +materialized: table
 
 seeds:
   aire_oms:
-    +schema: referencia
+    +schema: bronze

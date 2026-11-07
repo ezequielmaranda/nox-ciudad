@@ -1,4 +1,4 @@
-/// Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h. Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
+/// Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h comparado con la guía OMS de 24 h. Grilla completa del período de estudio: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
 table fact_medicion_diaria
 	lineageTag: 60270a43-8adc-5fa6-9797-00fb0bffa232
 
@@ -116,6 +116,53 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
+	/// Guía OMS de 24 h del contaminante.
+	column guia_24h
+		dataType: double
+		lineageTag: 11f1f54b-317d-500e-abdc-a5bd08612b13
+		summarizeBy: none
+		sourceColumn: guia_24h
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si valor_masa supera la guía de 24 h (vacío si no hay dato).
+	column supera_guia
+		dataType: boolean
+		lineageTag: 8a67fd29-7db3-524b-ab40-862716d2728f
+		summarizeBy: none
+		sourceColumn: supera_guia
+
+		annotation SummarizationSetBy = User
+
+	/// valor_masa / guía de 24 h.
+	column veces_guia
+		dataType: double
+		lineageTag: 69896ea8-4f63-578c-a088-79d84f336317
+		summarizeBy: none
+		sourceColumn: veces_guia
+
+		annotation SummarizationSetBy = User
+
+	/// Escalón OMS de 24 h del día: AQG (cumple la guía), IT4 … IT1 o '> IT1'. Vacío si no hay dato.
+	column nivel_oms
+		dataType: string
+		lineageTag: fba9124f-0e3c-5777-b2c8-d4593e08868a
+		summarizeBy: none
+		sourceColumn: nivel_oms
+		sortByColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// 1 = cumple la guía … 6 = no cumple ni el IT1 (para ordenar).
+	column orden_nivel_oms
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b4e2974-d3ac-5c9d-af8f-eb17c8595ce9
+		summarizeBy: none
+		sourceColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
 	/// Verdadero si valor > Q3 + 3·IQR de su estación × contaminante. Se marca, no se borra.
 	column es_outlier
 		dataType: boolean
@@ -141,7 +188,7 @@ table fact_medicion_diaria
 				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_diaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_horas_validas", Int64.Type}, {"tiene_fila", type logical}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}, {"es_imputado", type logical}, {"es_outlier", type logical}, {"umbral_outlier", type number}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_horas_validas", Int64.Type}, {"tiene_fila", type logical}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}, {"es_imputado", type logical}, {"guia_24h", type number}, {"supera_guia", type logical}, {"veces_guia", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"es_outlier", type logical}, {"umbral_outlier", type number}}, "en-US")
 				in
 				    Tipos
 

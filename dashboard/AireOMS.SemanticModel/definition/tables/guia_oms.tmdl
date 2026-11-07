@@ -1,0 +1,84 @@
+/// Guías de la OMS 2021 en formato largo: una fila por contaminante × período de promedio (24h o anual) × nivel (guía AQG y objetivos intermedios IT4 a IT1). Sale de data/reference/oms_2021.csv.
+table guia_oms
+	lineageTag: 724b04b5-e690-5db1-87f1-761da9b88708
+
+	/// Contaminante (clave hacia dim_contaminante).
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: b752fbc0-780d-57cf-81c2-8c9d5e755edb
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Período de promedio de la guía ('24h' o 'anual').
+	column promedio
+		dataType: string
+		lineageTag: 4ddffa86-b2ca-5310-a17a-e03915b32ff7
+		summarizeBy: none
+		sourceColumn: promedio
+
+		annotation SummarizationSetBy = User
+
+	/// AQG (guía), IT4, IT3, IT2 o IT1.
+	column nivel
+		dataType: string
+		lineageTag: 435d1d8e-33b1-5643-8887-77318dc3d981
+		summarizeBy: none
+		sourceColumn: nivel
+		sortByColumn: orden_exigencia
+
+		annotation SummarizationSetBy = User
+
+	/// Etiqueta legible del nivel.
+	column nivel_etiqueta
+		dataType: string
+		lineageTag: d57a5469-3aec-5f26-bfe3-8c6b68a1e9d5
+		summarizeBy: none
+		sourceColumn: nivel_etiqueta
+		sortByColumn: orden_exigencia
+
+		annotation SummarizationSetBy = User
+
+	/// 1 = guía (más exigente) … 5 = IT1 (menos exigente). Para ordenar.
+	column orden_exigencia
+		dataType: int64
+		formatString: 0
+		lineageTag: 788ea3d2-5b79-5c55-8585-1b3f9f807912
+		summarizeBy: none
+		sourceColumn: orden_exigencia
+
+		annotation SummarizationSetBy = User
+
+	/// Valor del nivel (µg/m³; mg/m³ para el CO).
+	column umbral
+		dataType: double
+		lineageTag: 53f15f6a-f8be-52e5-a10b-7eb466614a8c
+		summarizeBy: none
+		sourceColumn: umbral
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad del umbral.
+	column unidad
+		dataType: string
+		lineageTag: f393df32-7229-55c4-bb15-eba7371fd588
+		summarizeBy: none
+		sourceColumn: unidad
+
+		annotation SummarizationSetBy = User
+
+	partition guia_oms = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "guia_oms.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"promedio", type text}, {"nivel", type text}, {"nivel_etiqueta", type text}, {"orden_exigencia", Int64.Type}, {"umbral", type number}, {"unidad", type text}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

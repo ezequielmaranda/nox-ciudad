@@ -3,27 +3,18 @@
 > Archivo generado por `python -m src.etl` a partir de las descripciones de los `.yml` de dbt.
 > No editar a mano: cambiar la descripción en `dbt/models/` y volver a correr el ETL.
 
-Tablas finales que se exportan a `data/final/` (CSV) y se cargan en Power BI.
+Capa gold de la base: las tablas que se exportan a `data/final/` (CSV) y se cargan en Power BI.
 
 | Tabla | Schema | Filas | Descripción |
 |---|---|---|---|
-| [`dim_estacion`](#dim_estacion) | modelo | 3 | Una fila por estación de monitoreo de la APrA. |
-| [`dim_contaminante`](#dim_contaminante) | modelo | 3 | Una fila por contaminante, con unidades y factor de conversión a masa. |
-| [`dim_calendario`](#dim_calendario) | modelo | 1.004 | Un registro por día del período (2024-01-01 a 2026-09-30), haya o no datos. |
-| [`dim_periodo`](#dim_periodo) | modelo | 4 | Períodos de los indicadores anuales: un año calendario por fila (el último, parcial) más 'movil_12m', los últimos 12 meses con datos (comparable con un año completo). |
-| [`ref_oms`](#ref_oms) | modelo | 5 | Guías OMS 2021 en formato ancho (una fila por contaminante × promedio). Se usa vía JOIN. |
-| [`ref_oms_niveles`](#ref_oms_niveles) | modelo | 19 | Guías OMS en formato largo (UNPIVOT de ref_oms), una fila por nivel. Para líneas de referencia. |
-| [`fact_medicion_diaria`](#fact_medicion_diaria) | modelo | 9.036 | Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h. Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato. |
-| [`fact_medicion_horaria`](#fact_medicion_horaria) | modelo | 70.704 | Valores horarios de NO2 del período de estudio (el único contaminante publicado como promedio de cada hora). Grano: fecha × hora × estación. Comparte dimensiones con la fact diaria; sirve para el perfil horario por tipo de día. |
-| [`agg_cumplimiento_diario`](#agg_cumplimiento_diario) | indicadores | 7.615 | Cumplimiento diario de la guía OMS de 24 h. Grano: fecha × estación × contaminante, solo días con dato válido y contaminantes con guía de 24 h (NO2, PM10, CO). |
-| [`agg_anual`](#agg_anual) | indicadores | 36 | Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 parcial y últimos 12 meses), con la regla del 75% aplicada. |
-| [`agg_cumplimiento_niveles`](#agg_cumplimiento_niveles) | indicadores | 120 | Matriz de escalones: % de días que cumplen la guía OMS de 24 h y cada objetivo intermedio, por estación × contaminante × período × nivel. Acumulativo (quien cumple la guía cumple todos los IT). |
-| [`agg_rachas`](#agg_rachas) | indicadores | 263 | Rachas de días seguidos sobre la guía de 24 h (gaps and islands sobre los días con dato). Un día con dato que cumple la guía corta la racha; los huecos sin dato de hasta 7 días no la cortan ni la alargan (se informan en dias_sin_dato) y uno más largo sí la corta. |
-| [`agg_contexto_anual`](#agg_contexto_anual) | indicadores | 96 | Serie larga de contexto (2010-2025): promedio anual de NO2 y PM10 por estación y año, con la misma regla del 75% de días con dato. Ubica el período de estudio en la historia de la red. |
-| [`agg_completitud_mensual`](#agg_completitud_mensual) | calidad | 297 | Completitud del promedio de 24 h por estación × contaminante × mes (heatmap de calidad). |
-| [`calidad_resumen`](#calidad_resumen) | calidad | 17 | Cantidad de valores horarios del período de estudio por contaminante y categoría de calidad. |
-| [`calidad_violaciones`](#calidad_violaciones) | calidad | 239 | Una fila por cada valor horario del período de estudio que viola una regla de validación (un valor puede violar varias). Todos quedan fuera del análisis. |
-| [`calidad_outliers`](#calidad_outliers) | calidad | 31 | Valores diarios atípicos (Q3 + 3·IQR) con contexto para la revisión manual. No se borran. |
+| [`dim_estacion`](#dim_estacion) | gold | 3 | Una fila por estación de monitoreo de la APrA. |
+| [`dim_contaminante`](#dim_contaminante) | gold | 3 | Una fila por contaminante, con unidades y factor de conversión a masa. |
+| [`dim_calendario`](#dim_calendario) | gold | 1.004 | Un registro por día del período de estudio (2024-01-01 a 2026-09-30), haya o no datos. |
+| [`guia_oms`](#guia_oms) | gold | 19 | Guías de la OMS 2021 en formato largo: una fila por contaminante × período de promedio (24h o anual) × nivel (guía AQG y objetivos intermedios IT4 a IT1). Sale de data/reference/oms_2021.csv. |
+| [`fact_medicion_diaria`](#fact_medicion_diaria) | gold | 9.036 | Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h comparado con la guía OMS de 24 h. Grilla completa del período de estudio: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato. |
+| [`fact_medicion_horaria`](#fact_medicion_horaria) | gold | 70.704 | Valores horarios de NO2 del período de estudio (el único contaminante publicado como promedio de cada hora). Grano: fecha × hora × estación. Comparte dimensiones con la fact diaria; sirve para el perfil horario por tipo de día. |
+| [`agg_anual`](#agg_anual) | gold | 162 | Indicadores anuales por estación × contaminante × período: años 2010 a 2026 (2026 parcial) y últimos 12 meses. Los del estudio (2024, 2025, 2026 y últimos 12 meses) tienen es_periodo_estudio = verdadero; 2010-2023 son contexto. Regla del 75%: si el período tiene menos de 75% de días con dato, los indicadores quedan vacíos (solo promedio_referencial). |
+| [`calidad_resumen`](#calidad_resumen) | gold | 17 | Qué pasó con cada valor horario del período de estudio, por contaminante: válido, válido imputado o el motivo por el que se descartó, con en cuántos días y entre qué fechas aparece. |
 
 ## dim_estacion
 
@@ -67,7 +58,7 @@ Una fila por contaminante, con unidades y factor de conversión a masa.
 
 ## dim_calendario
 
-Un registro por día del período (2024-01-01 a 2026-09-30), haya o no datos.
+Un registro por día del período de estudio (2024-01-01 a 2026-09-30), haya o no datos.
 
 | Columna | Tipo | Descripción |
 |---|---|---|
@@ -83,64 +74,25 @@ Un registro por día del período (2024-01-01 a 2026-09-30), haya o no datos.
 | `tipo_dia` | VARCHAR | Código del tipo de día. Un feriado tiene prioridad sobre sábado o domingo. |
 | `tipo_dia_etiqueta` | VARCHAR | Etiqueta legible del tipo de día (Hábil, Sábado, Domingo, Feriado). |
 | `orden_tipo_dia` | INTEGER | 1 = hábil, 2 = sábado, 3 = domingo, 4 = feriado. |
-| `es_feriado` | BOOLEAN | Verdadero si es feriado nacional o puente. |
 | `nombre_feriado` | VARCHAR | Nombre del feriado (vacío si no es feriado; nulo estructural, no faltante). |
-| `tipo_feriado` | VARCHAR | inamovible, trasladable o puente. |
-| `es_fin_de_semana` | BOOLEAN | Verdadero si es sábado o domingo. |
-| `es_anio_parcial` | BOOLEAN | Verdadero para los días del último año, que no está completo (2026). |
-| `es_dia_evento` | BOOLEAN | Verdadero si hubo un paro de transporte ese día. |
-| `evento` | VARCHAR | Descripción del paro (vacío en el 99% de los días; nulo estructural). |
-| `grupo_evento` | VARCHAR | sin_colectivos o trenes_subte. |
 
-## dim_periodo
+## guia_oms
 
-Períodos de los indicadores anuales: un año calendario por fila (el último, parcial) más 'movil_12m', los últimos 12 meses con datos (comparable con un año completo).
+Guías de la OMS 2021 en formato largo: una fila por contaminante × período de promedio (24h o anual) × nivel (guía AQG y objetivos intermedios IT4 a IT1). Sale de data/reference/oms_2021.csv.
 
 | Columna | Tipo | Descripción |
 |---|---|---|
-| `id_periodo` | VARCHAR | '2024', '2025', '2026' o 'movil_12m'. |
-| `etiqueta` | VARCHAR | Texto para mostrar. |
-| `tipo_periodo` | VARCHAR | anio_completo, anio_parcial o movil_12m. |
-| `anio` | BIGINT | Año (vacío para movil_12m). |
-| `fecha_desde` | DATE | Primer día del período. |
-| `fecha_hasta` | DATE | Último día del período. |
-| `n_dias` | BIGINT | Cantidad de días del período. |
-| `orden` | BIGINT | Orden para gráficos. |
-
-## ref_oms
-
-Guías OMS 2021 en formato ancho (una fila por contaminante × promedio). Se usa vía JOIN.
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `id_contaminante` | VARCHAR | Clave del contaminante. |
-| `contaminante` | VARCHAR | Nombre corto. |
-| `promedio` | VARCHAR | '24h' o 'anual'. |
-| `guia_oms` | DOUBLE | Nivel guía (AQG). |
-| `it1` | DOUBLE | Objetivo intermedio 1 (el menos exigente). |
-| `it2` | DOUBLE | Objetivo intermedio 2. |
-| `it3` | DOUBLE | Objetivo intermedio 3. |
-| `it4` | DOUBLE | Objetivo intermedio 4. |
-| `unidad` | VARCHAR | Unidad de la guía. |
-
-## ref_oms_niveles
-
-Guías OMS en formato largo (UNPIVOT de ref_oms), una fila por nivel. Para líneas de referencia.
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `id_contaminante` | VARCHAR | Clave del contaminante. |
-| `contaminante` | VARCHAR | Nombre corto. |
-| `promedio` | VARCHAR | '24h' o 'anual'. |
-| `nivel` | VARCHAR | AQG, IT4, IT3, IT2 o IT1. |
+| `id_contaminante` | VARCHAR | Contaminante (clave hacia dim_contaminante). |
+| `promedio` | VARCHAR | Período de promedio de la guía ('24h' o 'anual'). |
+| `nivel` | VARCHAR | AQG (guía), IT4, IT3, IT2 o IT1. |
 | `nivel_etiqueta` | VARCHAR | Etiqueta legible del nivel. |
-| `orden_exigencia` | INTEGER | 1 = más exigente (guía) … 5 = menos exigente (IT1). |
-| `umbral` | DOUBLE | Valor del umbral. |
+| `orden_exigencia` | INTEGER | 1 = guía (más exigente) … 5 = IT1 (menos exigente). Para ordenar. |
+| `umbral` | DOUBLE | Valor del nivel (µg/m³; mg/m³ para el CO). |
 | `unidad` | VARCHAR | Unidad del umbral. |
 
 ## fact_medicion_diaria
 
-Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h. Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
+Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h comparado con la guía OMS de 24 h. Grilla completa del período de estudio: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
 
 | Columna | Tipo | Descripción |
 |---|---|---|
@@ -156,6 +108,11 @@ Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con
 | `valor_masa` | DOUBLE | Promedio de 24 h en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato. |
 | `unidad_masa` | VARCHAR | Unidad de valor_masa. |
 | `es_imputado` | BOOLEAN | Verdadero si el valor usa alguna hora '<límite' imputada como límite / 2. |
+| `guia_24h` | DOUBLE | Guía OMS de 24 h del contaminante. |
+| `supera_guia` | BOOLEAN | Verdadero si valor_masa supera la guía de 24 h (vacío si no hay dato). |
+| `veces_guia` | DOUBLE | valor_masa / guía de 24 h. |
+| `nivel_oms` | VARCHAR | Escalón OMS de 24 h del día: AQG (cumple la guía), IT4 … IT1 o '> IT1'. Vacío si no hay dato. |
+| `orden_nivel_oms` | INTEGER | 1 = cumple la guía … 6 = no cumple ni el IT1 (para ordenar). |
 | `es_outlier` | BOOLEAN | Verdadero si valor > Q3 + 3·IQR de su estación × contaminante. Se marca, no se borra. |
 | `umbral_outlier` | DOUBLE | Umbral Q3 + 3·IQR de esa estación × contaminante. |
 
@@ -176,139 +133,54 @@ Valores horarios de NO2 del período de estudio (el único contaminante publicad
 | `valor_masa` | DOUBLE | NO2 horario en µg/m³ (solo si es válido). |
 | `unidad_masa` | VARCHAR | µg/m³. |
 
-## agg_cumplimiento_diario
-
-Cumplimiento diario de la guía OMS de 24 h. Grano: fecha × estación × contaminante, solo días con dato válido y contaminantes con guía de 24 h (NO2, PM10, CO).
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `fecha` | DATE | Fecha. |
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante. |
-| `valor` | DOUBLE | Promedio de 24 h en la unidad de la guía (µg/m³; mg/m³ para CO). |
-| `unidad` | VARCHAR | Unidad. |
-| `guia_oms_24h` | DOUBLE | Guía OMS de 24 h del contaminante. |
-| `supera_guia` | BOOLEAN | Verdadero si valor > guía. |
-| `veces_guia` | DOUBLE | valor / guía (1 = justo en la guía). |
-| `nivel_oms` | VARCHAR | Escalón OMS del día (AQG, IT4 … IT1, '> IT1'). |
-| `orden_nivel_oms` | INTEGER | Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1'). |
-| `es_outlier` | BOOLEAN | Marca de valor atípico heredada de la fact. |
-
 ## agg_anual
 
-Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 parcial y últimos 12 meses), con la regla del 75% aplicada.
+Indicadores anuales por estación × contaminante × período: años 2010 a 2026 (2026 parcial) y últimos 12 meses. Los del estudio (2024, 2025, 2026 y últimos 12 meses) tienen es_periodo_estudio = verdadero; 2010-2023 son contexto. Regla del 75%: si el período tiene menos de 75% de días con dato, los indicadores quedan vacíos (solo promedio_referencial).
 
 | Columna | Tipo | Descripción |
 |---|---|---|
 | `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante (NO2, PM10, CO). |
-| `id_periodo` | VARCHAR | Período (clave hacia dim_periodo). |
-| `periodo` | VARCHAR | Etiqueta del período. |
+| `id_contaminante` | VARCHAR | Contaminante. |
+| `id_periodo` | VARCHAR | Código del período: el año ('2024') o 'movil_12m'. |
+| `periodo` | VARCHAR | Etiqueta legible del período. |
 | `tipo_periodo` | VARCHAR | anio_completo, anio_parcial o movil_12m. |
-| `anio` | BIGINT | Año (vacío para movil_12m). |
+| `anio` | BIGINT | Año (vacío para los últimos 12 meses). |
+| `orden_periodo` | BIGINT | Para ordenar los períodos (los últimos 12 meses van al final). |
+| `es_periodo_estudio` | BOOLEAN | Verdadero para 2024, 2025, 2026 y los últimos 12 meses; falso para el contexto 2010-2023. |
 | `n_dias_periodo` | BIGINT | Días del período. |
-| `n_dias_con_dato` | BIGINT | Días con dato válido de 24 h. |
-| `completitud` | DOUBLE | n_dias_con_dato / n_dias_periodo. |
-| `es_valido` | BOOLEAN | Verdadero si completitud >= 75%. |
+| `n_dias_con_dato` | BIGINT | Días con promedio de 24 h válido. |
+| `completitud` | DOUBLE | n_dias_con_dato / n_dias_periodo (0 a 1). |
+| `es_valido` | BOOLEAN | Verdadero si el período tiene >= 75% de días con dato. |
 | `completitud_peor_trimestre` | DOUBLE | Completitud del trimestre con menos datos dentro del período. |
-| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres tienen >= 75% de días con dato (advertencia, no excluye). |
-| `unidad` | VARCHAR | Unidad de la guía. |
-| `promedio_anual` | DOUBLE | Promedio de los valores diarios (vacío si no es válido). |
-| `promedio_referencial` | DOUBLE | El mismo promedio calculado aunque no sea válido. Solo para transparencia. |
-| `guia_anual` | DOUBLE | Guía anual OMS (vacía para CO, que no tiene). |
+| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres tienen >= 75% de días con dato (criterio EPA; advertencia, no excluye). |
+| `unidad` | VARCHAR | Unidad de las guías (µg/m³; mg/m³ para el CO). |
+| `promedio_anual` | DOUBLE | Promedio de los valores diarios. Vacío si el período no es válido. |
+| `promedio_referencial` | DOUBLE | El mismo promedio aunque el período no sea válido (solo para transparencia). |
+| `guia_anual` | DOUBLE | Guía anual de la OMS (vacía para el CO). |
 | `veces_guia_anual` | DOUBLE | promedio_anual / guia_anual. |
 | `nivel_oms` | VARCHAR | Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1'). |
-| `orden_nivel_oms` | INTEGER | Orden del nivel para ordenar gráficos (1 = AQG … 6 = '> IT1'). |
-| `proximo_nivel` | VARCHAR | Escalón al que se llega bajando ug_para_proximo_nivel. |
-| `ug_para_proximo_nivel` | DOUBLE | Cuánto tendría que bajar el promedio anual para subir un escalón. |
+| `orden_nivel_oms` | INTEGER | 1 = cumple la guía … 6 = no cumple ni el IT1 (para ordenar). |
+| `proximo_nivel` | VARCHAR | Próximo escalón a alcanzar. |
+| `ug_para_proximo_nivel` | DOUBLE | Cuánto tendría que bajar el promedio para subir un escalón. |
 | `p99_24h` | DOUBLE | Percentil 99 de los valores diarios (definición formal de la guía de 24 h). Vacío si no es válido. |
 | `guia_24h` | DOUBLE | Guía OMS de 24 h. |
 | `p99_veces_guia_24h` | DOUBLE | p99_24h / guia_24h. |
-| `p99_supera_guia_24h` | BOOLEAN | Verdadero si el P99 supera la guía de 24 h (no se cumple la guía en sentido formal). |
-| `maximo_diario` | DOUBLE | Máximo valor diario del período. |
-| `n_dias_supera_24h` | BIGINT | Días por encima de la guía de 24 h. |
+| `p99_supera_guia_24h` | BOOLEAN | Verdadero si el P99 supera la guía de 24 h (no se cumple en sentido formal). |
+| `maximo_diario` | DOUBLE | Máximo promedio diario del período. |
+| `n_dias_supera_24h` | BIGINT | Días con promedio de 24 h sobre la guía. |
 | `pct_dias_supera_24h` | DOUBLE | n_dias_supera_24h / n_dias_con_dato (0 a 1). |
-
-## agg_cumplimiento_niveles
-
-Matriz de escalones: % de días que cumplen la guía OMS de 24 h y cada objetivo intermedio, por estación × contaminante × período × nivel. Acumulativo (quien cumple la guía cumple todos los IT).
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante (NO2, PM10, CO). |
-| `id_periodo` | VARCHAR | Período (clave hacia dim_periodo). |
-| `nivel` | VARCHAR | AQG, IT4, IT3, IT2 o IT1. |
-| `nivel_etiqueta` | VARCHAR | Etiqueta legible del nivel. |
-| `orden_exigencia` | INTEGER | 1 = guía (más exigente) … 5 = IT1 (menos exigente). Para ordenar columnas. |
-| `umbral` | DOUBLE | Umbral de 24 h del nivel. |
-| `unidad` | VARCHAR | Unidad del umbral. |
-| `n_dias_con_dato` | BIGINT | Días con dato válido en el período. |
-| `n_dias_cumple` | BIGINT | Días cuyo promedio de 24 h no supera el umbral. |
-| `completitud` | DOUBLE | Completitud del período (de agg_completitud_anual). |
-| `es_valido` | BOOLEAN | Verdadero si el período tiene >= 75% de días con dato. |
-| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres tienen >= 75% (advertencia, no excluye). |
-| `pct_dias_cumple` | DOUBLE | n_dias_cumple / n_dias_con_dato (0 a 1). Vacío si el período no es válido. |
-| `pct_referencial` | DOUBLE | El mismo cociente aunque el período no sea válido (solo para transparencia). |
-
-## agg_rachas
-
-Rachas de días seguidos sobre la guía de 24 h (gaps and islands sobre los días con dato). Un día con dato que cumple la guía corta la racha; los huecos sin dato de hasta 7 días no la cortan ni la alargan (se informan en dias_sin_dato) y uno más largo sí la corta.
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante. |
-| `fecha_inicio` | DATE | Primer día de la racha. |
-| `fecha_fin` | DATE | Último día de la racha. |
-| `dias` | BIGINT | Días con dato sobre la guía en la racha. |
-| `dias_calendario` | BIGINT | Días de calendario entre el primero y el último de la racha. |
-| `dias_sin_dato` | BIGINT | Días sin dato dentro de la racha (dias_calendario − dias). |
-| `es_racha_maxima` | BOOLEAN | Verdadero si es la racha más larga de su estación × contaminante. |
-
-## agg_contexto_anual
-
-Serie larga de contexto (2010-2025): promedio anual de NO2 y PM10 por estación y año, con la misma regla del 75% de días con dato. Ubica el período de estudio en la historia de la red.
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `anio` | BIGINT | Año calendario. |
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante con guía OMS anual (no2 o pm10). |
-| `n_dias_anio` | BIGINT | Días del año (365 o 366). |
-| `n_dias_con_dato` | BIGINT | Días con promedio de 24 h válido. |
-| `completitud` | DOUBLE | n_dias_con_dato / n_dias_anio (0 a 1). |
-| `es_valido` | BOOLEAN | Verdadero si el año tiene >= 75% de días con dato. |
-| `unidad` | VARCHAR | Unidad de la guía anual (µg/m³). |
-| `promedio_anual` | DOUBLE | Promedio anual (µg/m³). Vacío si el año no es válido. |
-| `promedio_referencial` | DOUBLE | El mismo promedio aunque el año no sea válido (solo para transparencia). |
-| `guia_anual` | DOUBLE | Guía anual de la OMS 2021. |
-| `veces_guia_anual` | DOUBLE | promedio_anual / guia_anual. |
-| `nivel_oms` | VARCHAR | Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1'). Vacío si no es válido. |
-
-## agg_completitud_mensual
-
-Completitud del promedio de 24 h por estación × contaminante × mes (heatmap de calidad).
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante. |
-| `anio` | BIGINT | Año. |
-| `mes` | BIGINT | Mes (1-12). |
-| `anio_mes` | DATE | Primer día del mes. |
-| `n_dias_calendario` | BIGINT | Días del mes dentro del período. |
-| `n_dias_con_fila` | BIGINT | Días con al menos una hora en la fuente. |
-| `n_dias_con_dato` | BIGINT | Días con valor válido. |
-| `n_dias_sin_fila` | BIGINT | Días sin ninguna hora en la fuente. |
-| `n_dias_sin_dato_fuente` | BIGINT | Días con todas las horas en 's/d'. |
-| `n_dias_incompletos` | BIGINT | Días con horas pero sin las suficientes para el promedio de 24 h (o descartadas por una regla). |
-| `completitud` | DOUBLE | n_dias_con_dato / n_dias_calendario (0 a 1). |
-| `cumple_umbral` | BOOLEAN | Verdadero si la completitud del mes es >= 75%. |
+| `pct_cumple_guia_24h` | DOUBLE | % de días que cumplen la guía de 24 h (0 a 1). Vacío si el período no es válido. |
+| `pct_cumple_it4_24h` | DOUBLE | % de días que cumplen el IT4 de 24 h o algo más exigente. Vacío si el nivel no existe. |
+| `pct_cumple_it3_24h` | DOUBLE | Ídem IT3. |
+| `pct_cumple_it2_24h` | DOUBLE | Ídem IT2. |
+| `pct_cumple_it1_24h` | DOUBLE | Ídem IT1. |
+| `racha_maxima_dias` | BIGINT | Racha más larga de días con dato seguidos sobre la guía de 24 h en el período (huecos de hasta 7 días sin dato no la cortan). |
+| `racha_desde` | DATE | Primer día de esa racha. |
+| `racha_hasta` | DATE | Último día de esa racha. |
 
 ## calidad_resumen
 
-Cantidad de valores horarios del período de estudio por contaminante y categoría de calidad.
+Qué pasó con cada valor horario del período de estudio, por contaminante: válido, válido imputado o el motivo por el que se descartó, con en cuántos días y entre qué fechas aparece.
 
 | Columna | Tipo | Descripción |
 |---|---|---|
@@ -316,35 +188,6 @@ Cantidad de valores horarios del período de estudio por contaminante y categor�
 | `categoria` | VARCHAR | valido, valido_imputado o el motivo por el que se descartó. |
 | `n_valores` | BIGINT | Cantidad de valores horarios (celdas del CSV). |
 | `proporcion` | DOUBLE | Proporción dentro del contaminante (0 a 1). |
-
-## calidad_violaciones
-
-Una fila por cada valor horario del período de estudio que viola una regla de validación (un valor puede violar varias). Todos quedan fuera del análisis.
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `fecha` | DATE | Fecha. |
-| `hora` | INTEGER | Hora que termina (1 a 24; puede venir fuera de rango si la regla es hora_invalida). |
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante. |
-| `valor_crudo` | VARCHAR | Texto original de la celda. |
-| `regla` | VARCHAR | Regla violada (hora_invalida, texto_invalido, fuera_de_rango, fila_en_cero, valor_trabado). |
-| `motivo_invalido` | VARCHAR | Motivo principal por el que se descartó el valor. |
-
-## calidad_outliers
-
-Valores diarios atípicos (Q3 + 3·IQR) con contexto para la revisión manual. No se borran.
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `fecha` | DATE | Fecha. |
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante. |
-| `valor` | DOUBLE | Promedio de 24 h en unidad original. |
-| `unidad` | VARCHAR | Unidad original. |
-| `umbral_outlier` | DOUBLE | Umbral Q3 + 3·IQR. |
-| `mediana` | DOUBLE | Mediana de la serie (estación × contaminante). |
-| `veces_mediana` | DOUBLE | valor / mediana. |
-| `nombre_dia` | VARCHAR | Día de la semana. |
-| `tipo_dia` | VARCHAR | Tipo de día. |
-| `evento` | VARCHAR | Paro de transporte, si hubo. |
+| `n_dias` | BIGINT | Días en los que aparece la categoría. |
+| `primera_fecha` | DATE | Primer día en que aparece. |
+| `ultima_fecha` | DATE | Último día en que aparece. |

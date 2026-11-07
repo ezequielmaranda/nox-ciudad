@@ -5,8 +5,8 @@ ETL y el EDA, no recalcula reglas. Público: funcionarios, prensa y ciudadanía 
 
 ## 0. Proyecto listo para abrir: `dashboard/AireOMS.pbip`
 
-El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: 15 tablas de `data/final` (más la tabla
-`_Medidas`), 24 relaciones, 20 medidas DAX, el orden de las columnas de texto, los formatos, las descripciones de cada
+El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: las 8 tablas de la capa gold que están en
+`data/final` (más la tabla `_Medidas`), 10 relaciones, 18 medidas DAX, el orden de las columnas de texto, los formatos, las descripciones de cada
 tabla y columna (las mismas del diccionario de datos) y el tema de colores de la sección 4. El informe trae las 3
 páginas vacías: **los gráficos se arman a mano** con las secciones 2 y 3.
 
@@ -33,25 +33,21 @@ gráficos** (se perderían). Los cambios posteriores del modelo se hacen directa
 |---|---|
 | `dim_estacion` | Segmentador de estación, mapa (coordenadas de BA Data, marcadas como latitud y longitud) |
 | `dim_contaminante` | Segmentador de contaminante, unidades |
-| `dim_calendario` | Segmentadores de año, tipo de día y estación del año; eje de tiempo |
-| `dim_periodo` | Segmentador de período de los indicadores anuales |
-| `ref_oms`, `ref_oms_niveles` | Guías y objetivos intermedios para líneas de referencia y tarjetas |
-| `fact_medicion_diaria` | Completitud y días válidos |
+| `dim_calendario` | Segmentadores de año, tipo de día y estación del año; eje de tiempo (`fecha`, `anio_mes`) |
+| `guia_oms` | Guía y objetivos intermedios (una fila por nivel) para líneas de referencia y tarjetas |
+| `fact_medicion_diaria` | Todo lo diario: % de días sobre la guía, escalón de cada día, P99, series, completitud (también la mensual del heatmap) |
 | `fact_medicion_horaria` | Perfil horario del NO2 por tipo de día |
-| `agg_cumplimiento_diario` | % de días sobre la guía, P99, series de 24 h |
-| `agg_anual` | Promedio anual, veces la guía, nivel OMS |
-| `agg_cumplimiento_niveles` | Matriz de escalones (% de días que cumplen cada nivel, por año) |
-| `agg_rachas` | Racha máxima |
-| `agg_contexto_anual` | Contexto: NO2 y PM10 anual 2010-2025 |
-| `agg_completitud_mensual` | Heatmap de completitud |
+| `agg_anual` | Promedio anual, veces la guía, nivel OMS, matriz de escalones, racha máxima y contexto 2010-2025 |
 | `calidad_resumen` | Página de calidad |
 
 Para tener en cuenta al armar los gráficos:
-- `agg_anual` **no** se relaciona con `dim_calendario`: sus períodos (años, 2026 parcial, últimos 12 meses) vienen
-  de `dim_periodo`. En los visuales anuales usar el segmentador de **período**, no el de año.
-- `agg_completitud_mensual` tiene su propio `anio_mes`: usarlo directamente en el heatmap.
-- `agg_contexto_anual` tiene su propio `anio` (2010-2025, fuera del calendario del estudio): **no** se relaciona
-  con `dim_calendario`.
+- `fact_medicion_diaria` es una **grilla completa**: tiene una fila por día aunque no haya dato. Las medidas ya
+  filtran los días con dato; en un visual que use columnas de la fact directamente (por ejemplo, `nivel_oms` en una
+  leyenda) agregar el filtro `tiene_dato = verdadero`.
+- `agg_anual` **no** se relaciona con `dim_calendario`: sus períodos (años 2010-2026, 2026 parcial, últimos 12
+  meses) están en su propia columna `periodo` (ordenada por `orden_periodo`). En los visuales anuales usar un
+  segmentador de `agg_anual[periodo]`, no el de año, y filtrar `es_periodo_estudio = verdadero` salvo en el gráfico
+  de contexto.
 - `Promedio anual` va con **una** estación, **un** contaminante y **un** período por celda (tarjeta o matriz).
 - Las medidas están en la tabla `_Medidas`, cada una con su descripción. `Veces sobre guía anual` queda linda con el
   sufijo "×".
@@ -69,8 +65,8 @@ intermedios y La Boca no alcanza ni el primero.**
   3. `Veces sobre guía anual` de La Boca, últimos 12 meses ("4,6 veces la guía anual").
   4. `Racha máxima` ("254 días con dato seguidos sobre la guía").
 - **Barras 100% apiladas "en qué escalón cae cada día"**: eje `dim_estacion[nombre]`, leyenda
-  `agg_cumplimiento_diario[nivel_oms]` (ordenada por `orden_nivel_oms`), valores = recuento de filas, mostrado
-  como % del total. Colores por nivel (sección 4). Responde "¿en qué escalón está cada estación?" (figura
+  `fact_medicion_diaria[nivel_oms]` (ordenada por `orden_nivel_oms`), valores = `Días válidos`, mostrado
+  como % del total; filtro del visual `tiene_dato = verdadero`. Colores por nivel (sección 4). Responde "¿en qué escalón está cada estación?" (figura
   `reports/figures/06_niveles_oms_diarios.png` del EDA).
 - **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `Nivel OMS anual`,
   `Promedio anual` (últimos 12 meses), `% Días sobre guía`.
@@ -83,14 +79,14 @@ intermedios y La Boca no alcanza ni el primero.**
 - **Serie temporal**: gráfico de líneas, eje `dim_calendario[fecha]` (o `anio_mes` para promedios mensuales), valor
   `Promedio diario`, leyenda `dim_estacion[nombre]`. Línea de referencia: panel *Análisis → Línea constante* con el
   valor de `Guía OMS 24 h` (o una medida en línea). Rotular la línea "Guía OMS".
-- **Matriz de escalones** (visual Matriz): filas `dim_estacion[nombre]` y `dim_periodo[etiqueta]`, columnas
-  `agg_cumplimiento_niveles[nivel_etiqueta]` (ordenada por `orden_exigencia`), valores `pct_dias_cumple`
-  (promedio; formato %) con formato condicional de fondo (escala de azules). Segmentadores de contaminante y
-  período para que no quede gigante. Para la presentación alcanza con el NO2 y los años (figura
+- **Matriz de escalones** (visual Matriz): filas `dim_estacion[nombre]` y `agg_anual[periodo]`, valores
+  `pct_cumple_guia_24h`, `pct_cumple_it2_24h` y `pct_cumple_it1_24h` de `agg_anual` (promedio; formato %; renombrar
+  "Guía", "IT2", "IT1") con formato condicional de fondo (escala de azules). Filtro `es_periodo_estudio =
+  verdadero` y segmentador de contaminante para que no quede gigante. Para la presentación alcanza con el NO2 y los años (figura
   `06b_matriz_niveles_no2.png`). Celdas vacías = período con menos de 75% de días.
 - **Barras agrupadas**: `% Días sobre guía` por contaminante y estación (sin filtro de contaminante).
 - **Barras horizontales**: `Promedio anual` por estación y período, con líneas constantes en la guía anual y los
-  objetivos intermedios (tomar los valores de `ref_oms`).
+  objetivos intermedios (tomar los valores de `guia_oms`).
 - **Matriz**: filas `tipo_dia_etiqueta`, columnas `estacion_del_anio`, valores `% Días sobre guía` (formato
   condicional: escala de un solo tono, ver sección 4) y, en información sobre herramientas, `Días válidos`.
 - **Barras**: `Variación vs. hábil` por tipo de día y estación (mensaje: "el domingo baja 17 a 26%, pero en La Boca
@@ -98,15 +94,15 @@ intermedios y La Boca no alcanza ni el primero.**
 - **Líneas, perfil horario**: eje `fact_medicion_horaria[hora]`, valor `NO₂ horario promedio`, leyenda
   `dim_calendario[tipo_dia_etiqueta]` (filtrar Hábil y Domingo) y segmentador de estación (figura
   `11_ritmo_semanal.png`). Mensaje: "en día hábil aparecen las horas pico; el domingo, no".
-- **Líneas, contexto 2010-2025** (opcional): eje `agg_contexto_anual[anio]`, valor `Promedio anual (contexto)`,
-  leyenda `dim_estacion[nombre]`, filtro contaminante = NO2 (figura `14_contexto_no2_anual.png`).
+- **Líneas, contexto 2010-2025** (opcional): eje `agg_anual[anio]`, valor `Promedio anual`, leyenda
+  `dim_estacion[nombre]`, filtros contaminante = NO2 y `agg_anual[tipo_periodo] = anio_completo` (figura `14_contexto_no2_anual.png`).
 
 ### Página 3 · Calidad de datos ("¿Cuánto podemos confiar?")
 
 - **Heatmap de completitud**: matriz con filas `dim_estacion[nombre]` + `dim_contaminante[codigo_fuente]`,
-  columnas `agg_completitud_mensual[anio_mes]`, valores `completitud` (promedio), formato condicional de color de
+  columnas `dim_calendario[anio_mes]`, valores `Completitud %`, formato condicional de color de
   fondo (escala de azules: claro = sin datos, oscuro = completo). Es el gráfico central de esta página.
-- **Tabla "qué quedó afuera"**: `agg_anual` filtrado por `es_valido = falso` (estación, contaminante, período,
+- **Tabla "qué quedó afuera"**: `agg_anual` filtrado por `es_valido = falso` y `es_periodo_estudio = verdadero` (estación, contaminante, período,
   completitud) + texto "menos de 75% de días con dato: no se calcula el promedio anual".
 - **Barras**: `calidad_resumen` (valores horarios por categoría): 87,8% válidos, 11,9% sin dato en la fuente, 0,3%
   descartados por reglas (hora 0, `#REF!`, una hora en cero, valores fuera de rango).
@@ -117,7 +113,7 @@ En una fila arriba de cada página, sincronizados entre páginas (*Ver → Sincr
 **estación** (`dim_estacion[nombre]`), **contaminante** (`dim_contaminante[nombre]`), **año**
 (`dim_calendario[anio]`), **tipo de día** (`dim_calendario[tipo_dia_etiqueta]`) y **estación del año**
 (`dim_calendario[estacion_del_anio]`). En la página 2, para los visuales anuales, un segmentador de **período**
-(`dim_periodo[etiqueta]`).
+(`agg_anual[periodo]`).
 
 ## 4. Colores y accesibilidad
 
@@ -145,7 +141,7 @@ claro: mostrar siempre las etiquetas de datos o el nombre de la estación junto 
 
 ## 5. Control de los números
 
-Antes de presentar, comparar el dashboard con las vistas SQL (`analisis.v_resumen_estacion`) o con el notebook:
+Antes de presentar, comparar el dashboard con la consulta D1 de `sql/99_consultas_analisis.sql` o con el notebook:
 
 | Indicador | La Boca | Córdoba | Parque Centenario |
 |---|---|---|---|

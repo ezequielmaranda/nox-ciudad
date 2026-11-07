@@ -1,6 +1,0 @@
-id_contaminante,contaminante,promedio,guia_oms,it1,it2,it3,it4,unidad
-co,CO,24h,4.0,7.0,,,,mg/m³
-no2,NO2,24h,25.0,120.0,50.0,,,µg/m³
-no2,NO2,anual,10.0,40.0,30.0,20.0,,µg/m³
-pm10,PM10,24h,45.0,150.0,100.0,75.0,50.0,µg/m³
-pm10,PM10,anual,15.0,70.0,50.0,30.0,20.0,µg/m³
