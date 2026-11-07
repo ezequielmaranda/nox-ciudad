@@ -1,4 +1,4 @@
-# Proyecto dbt del TP: transforma el CSV crudo de calidad del aire en un modelo estrella
+# Proyecto dbt del TP: transforma el CSV horario de calidad del aire (BA Data) en un modelo estrella
 # y en los indicadores contra las guías de la OMS (2021). Se corre con `python -m src.etl`
 # (o, a mano, desde esta carpeta: dbt build).
 name: aire_oms
@@ -17,8 +17,13 @@ clean-targets: ["target", "dbt_packages"]
 # Parámetros del estudio: se cambian acá y no en el SQL.
 vars:
   fecha_inicio: "2024-01-01"     # primer día del período analizado
-  fecha_fin: "2026-09-30"        # último día con datos publicados
-  umbral_completitud: 0.75       # regla del 75% para indicadores anuales
+  fecha_fin: "2026-09-30"        # último mes completo publicado al armar el TP
+  umbral_completitud: 0.75       # regla del 75% para indicadores anuales (días con dato / días)
+  horas_minimas_dia: 18          # el promedio diario de NO2 exige 18 de 24 horas válidas (75%)
+  horas_valor_trabado: 10        # NO2 idéntico 10 horas seguidas o más = analizador trabado
+  dias_hueco_maximo_racha: 7     # un hueco de más de 7 días seguidos sin dato corta una racha
+  anio_contexto_desde: 2010      # serie larga de contexto (agg_contexto_anual): primer año completo
+  anio_contexto_hasta: 2025      #   ... y último año completo
   factor_iqr: 3                  # outlier si valor > Q3 + factor_iqr · IQR
   volumen_molar: 24.45           # litros por mol de gas a 25 °C y 1 atm (para pasar ppb a µg/m³)
 

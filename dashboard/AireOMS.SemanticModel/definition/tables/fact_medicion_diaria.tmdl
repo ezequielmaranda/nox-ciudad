@@ -1,4 +1,4 @@
-/// Tabla de hechos en formato largo. Grano: fecha × estación × contaminante × ventana (24h u 8-16). Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
+/// Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h. Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
 table fact_medicion_diaria
 	lineageTag: 60270a43-8adc-5fa6-9797-00fb0bffa232
 
@@ -34,34 +34,17 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// '24h' = promedio diario (el de la guía OMS); '8-16' = promedio de 8 a 16 h.
-	column ventana
-		dataType: string
-		lineageTag: ac93c75b-1f5f-5b22-8b04-9ea8c12721b5
+	/// Horas con valor válido ese día (0 a 24). Para el NO2 hacen falta 18 para el promedio diario.
+	column n_horas_validas
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c7898a2-2b2e-5bf1-a252-158ae5ab59f1
 		summarizeBy: none
-		sourceColumn: ventana
+		sourceColumn: n_horas_validas
 
 		annotation SummarizationSetBy = User
 
-	/// Texto original del PDF (vacío si no hubo fila).
-	column valor_crudo
-		dataType: string
-		lineageTag: dc1dd193-3328-5431-8d68-4dd4a945f185
-		summarizeBy: none
-		sourceColumn: valor_crudo
-
-		annotation SummarizationSetBy = User
-
-	/// Clasificación del crudo; 'sin_fila' si la fuente no publicó ese día.
-	column estado_valor
-		dataType: string
-		lineageTag: 860ef0f2-5a31-5f90-8310-4141f4217ba2
-		summarizeBy: none
-		sourceColumn: estado_valor
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si la fuente publicó una fila para ese día y contaminante.
+	/// Verdadero si la fuente tiene al menos una hora de ese día.
 	column tiene_fila
 		dataType: boolean
 		lineageTag: 74406046-dc9c-5761-a09e-9a4679674224
@@ -70,7 +53,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si hay un valor válido (pasa las reglas de calidad).
+	/// Verdadero si hay promedio de 24 h válido.
 	column tiene_dato
 		dataType: boolean
 		lineageTag: 24a6d8a9-e25c-5368-8b0e-ce56e99ad161
@@ -79,7 +62,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Por qué no hay dato (vacío si tiene_dato). 'sin_fila', 'sin_dato_fuente' o la regla que lo descartó.
+	/// Por qué no hay dato (vacío si tiene_dato): 'sin_fila', 'sin_dato_fuente' o 'incompleto'.
 	column motivo_sin_dato
 		dataType: string
 		lineageTag: 5efb56a0-2b6b-56da-90cd-6bf2a6f27797
@@ -88,7 +71,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Valor en la unidad original (solo si tiene_dato).
+	/// Promedio de 24 h en la unidad original (solo si tiene_dato).
 	column valor
 		dataType: double
 		lineageTag: 908ccc53-67da-5613-bd49-084a29645f50
@@ -106,7 +89,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Valor en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato.
+	/// Promedio de 24 h en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato.
 	column valor_masa
 		dataType: double
 		lineageTag: 4cb8e37f-a063-5a8c-910b-0e97b56950ec
@@ -124,7 +107,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si el valor era '<límite' y se imputó como límite / 2.
+	/// Verdadero si el valor usa alguna hora '<límite' imputada como límite / 2.
 	column es_imputado
 		dataType: boolean
 		lineageTag: c06a7fe2-4800-544f-a5aa-d98adf160537
@@ -133,7 +116,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si valor > Q3 + 3·IQR de su estación × contaminante × ventana. Se marca, no se borra.
+	/// Verdadero si valor > Q3 + 3·IQR de su estación × contaminante. Se marca, no se borra.
 	column es_outlier
 		dataType: boolean
 		lineageTag: ff448b89-abbb-53ea-aa78-e2c4ea2860d2
@@ -142,21 +125,12 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Umbral Q3 + 3·IQR de esa estación × contaminante × ventana.
+	/// Umbral Q3 + 3·IQR de esa estación × contaminante.
 	column umbral_outlier
 		dataType: double
 		lineageTag: c3dfa885-8cba-5925-91df-60987849e290
 		summarizeBy: none
 		sourceColumn: umbral_outlier
-
-		annotation SummarizationSetBy = User
-
-	/// PDF de origen.
-	column archivo_pdf
-		dataType: string
-		lineageTag: 795ac678-ead7-5ddd-95c4-34db8848d663
-		summarizeBy: none
-		sourceColumn: archivo_pdf
 
 		annotation SummarizationSetBy = User
 
@@ -167,7 +141,7 @@ table fact_medicion_diaria
 				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_diaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"ventana", type text}, {"valor_crudo", type text}, {"estado_valor", type text}, {"tiene_fila", type logical}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}, {"es_imputado", type logical}, {"es_outlier", type logical}, {"umbral_outlier", type number}, {"archivo_pdf", type text}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_horas_validas", Int64.Type}, {"tiene_fila", type logical}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}, {"es_imputado", type logical}, {"es_outlier", type logical}, {"umbral_outlier", type number}}, "en-US")
 				in
 				    Tipos
 

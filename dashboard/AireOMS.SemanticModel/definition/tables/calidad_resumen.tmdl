@@ -1,4 +1,4 @@
-/// Cantidad de valores crudos por contaminante y categoría de calidad.
+/// Cantidad de valores horarios del período de estudio por contaminante y categoría de calidad.
 table calidad_resumen
 	lineageTag: 6c67153c-0133-56d4-9444-0f11486a52a3
 
@@ -21,7 +21,7 @@ table calidad_resumen
 
 		annotation SummarizationSetBy = User
 
-	/// Cantidad de celdas de los PDF.
+	/// Cantidad de valores horarios (celdas del CSV).
 	column n_valores
 		dataType: int64
 		formatString: 0

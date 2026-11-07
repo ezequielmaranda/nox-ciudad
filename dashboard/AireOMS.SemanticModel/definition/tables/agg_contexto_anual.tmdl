@@ -1,0 +1,140 @@
+/// Serie larga de contexto (2010-2025): promedio anual de NO2 y PM10 por estación y año, con la misma regla del 75% de días con dato. Ubica el período de estudio en la historia de la red.
+table agg_contexto_anual
+	lineageTag: 6940042a-8cff-5462-af46-8d5d357f590c
+
+	/// Año calendario.
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 80e8d19a-65fb-5c1e-b033-6946a0e16f4e
+		summarizeBy: none
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = User
+
+	/// Estación.
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: d77a1129-0872-5e85-9d01-5c4488e7e4e9
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante con guía OMS anual (no2 o pm10).
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: d7111704-8c60-5fb8-b728-a528f6117a30
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Días del año (365 o 366).
+	column n_dias_anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 14c69580-85bc-53ea-a08f-53b1a6569ae6
+		summarizeBy: none
+		sourceColumn: n_dias_anio
+
+		annotation SummarizationSetBy = User
+
+	/// Días con promedio de 24 h válido.
+	column n_dias_con_dato
+		dataType: int64
+		formatString: 0
+		lineageTag: a4fce5ba-a2d9-5e08-b649-cca6d2b162c0
+		summarizeBy: none
+		sourceColumn: n_dias_con_dato
+
+		annotation SummarizationSetBy = User
+
+	/// n_dias_con_dato / n_dias_anio (0 a 1).
+	column completitud
+		dataType: double
+		formatString: 0.0%
+		lineageTag: c3f74e2b-1524-5e79-9937-a6f216e3c15f
+		summarizeBy: none
+		sourceColumn: completitud
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si el año tiene >= 75% de días con dato.
+	column es_valido
+		dataType: boolean
+		lineageTag: 19c5634e-ce57-5458-85f0-d0169fd71d47
+		summarizeBy: none
+		sourceColumn: es_valido
+
+		annotation SummarizationSetBy = User
+
+	/// Unidad de la guía anual (µg/m³).
+	column unidad
+		dataType: string
+		lineageTag: 6fd69e3e-2c2f-5b1f-bcc9-98a5ffe44689
+		summarizeBy: none
+		sourceColumn: unidad
+
+		annotation SummarizationSetBy = User
+
+	/// Promedio anual (µg/m³). Vacío si el año no es válido.
+	column promedio_anual
+		dataType: double
+		lineageTag: 2297dfee-d003-5938-acdb-ebb555e862ec
+		summarizeBy: none
+		sourceColumn: promedio_anual
+
+		annotation SummarizationSetBy = User
+
+	/// El mismo promedio aunque el año no sea válido (solo para transparencia).
+	column promedio_referencial
+		dataType: double
+		lineageTag: e9eaafe4-dd25-5ceb-9c8e-0b01256d9191
+		summarizeBy: none
+		sourceColumn: promedio_referencial
+
+		annotation SummarizationSetBy = User
+
+	/// Guía anual de la OMS 2021.
+	column guia_anual
+		dataType: double
+		lineageTag: 3adb494e-5589-50c7-946b-375b9ffba7b8
+		summarizeBy: none
+		sourceColumn: guia_anual
+
+		annotation SummarizationSetBy = User
+
+	/// promedio_anual / guia_anual.
+	column veces_guia_anual
+		dataType: double
+		lineageTag: 71cad062-baa0-5404-8606-3d60b82eb986
+		summarizeBy: none
+		sourceColumn: veces_guia_anual
+
+		annotation SummarizationSetBy = User
+
+	/// Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1'). Vacío si no es válido.
+	column nivel_oms
+		dataType: string
+		lineageTag: be121c42-1de5-5720-8233-a6800cfcbd52
+		summarizeBy: none
+		sourceColumn: nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	partition agg_contexto_anual = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_contexto_anual.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"anio", Int64.Type}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_dias_anio", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"unidad", type text}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

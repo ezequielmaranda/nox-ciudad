@@ -17,15 +17,15 @@ models:
       - name: n_dias_calendario
         description: Días del mes dentro del período.
       - name: n_dias_con_fila
-        description: Días con fila publicada por la fuente.
+        description: Días con al menos una hora en la fuente.
       - name: n_dias_con_dato
         description: Días con valor válido.
       - name: n_dias_sin_fila
-        description: Días sin fila (la fuente no publicó, p. ej. mes sin PDF).
+        description: Días sin ninguna hora en la fuente.
       - name: n_dias_sin_dato_fuente
-        description: Días con 's/d' o 'DND' en la planilla.
-      - name: n_dias_descartados
-        description: Días con número que descartó una regla de calidad.
+        description: Días con todas las horas en 's/d'.
+      - name: n_dias_incompletos
+        description: Días con horas pero sin las suficientes para el promedio de 24 h (o descartadas por una regla).
       - name: completitud
         description: n_dias_con_dato / n_dias_calendario (0 a 1).
         data_tests:
@@ -69,41 +69,43 @@ models:
             columnas: [id_estacion, id_contaminante, id_periodo]
 
   - name: calidad_resumen
-    description: Cantidad de valores crudos por contaminante y categoría de calidad.
+    description: Cantidad de valores horarios del período de estudio por contaminante y categoría de calidad.
     columns:
       - name: id_contaminante
         description: Contaminante.
       - name: categoria
         description: valido, valido_imputado o el motivo por el que se descartó.
       - name: n_valores
-        description: Cantidad de celdas de los PDF.
+        description: Cantidad de valores horarios (celdas del CSV).
       - name: proporcion
         description: Proporción dentro del contaminante (0 a 1).
 
   - name: calidad_violaciones
-    description: Una fila por cada violación a una regla de validación (un valor puede violar varias).
+    description: >
+      Una fila por cada valor horario del período de estudio que viola una regla de validación
+      (un valor puede violar varias). Todos quedan fuera del análisis.
     columns:
-      - name: id_estacion
-        description: Estación.
       - name: fecha
         description: Fecha.
+      - name: hora
+        description: Hora que termina (1 a 24; puede venir fuera de rango si la regla es hora_invalida).
+      - name: id_estacion
+        description: Estación.
       - name: id_contaminante
         description: Contaminante.
-      - name: estadistico
-        description: Estadístico del día (24h, bloques, máximo o mínimo).
       - name: valor_crudo
-        description: Texto original.
+        description: Texto original de la celda.
       - name: regla
-        description: Regla violada.
-      - name: se_descarta
-        description: Verdadero si el valor quedó fuera del análisis.
+        description: Regla violada (hora_invalida, texto_invalido, fuera_de_rango, fila_en_cero, valor_trabado).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["hora_invalida", "texto_invalido", "fuera_de_rango", "fila_en_cero", "valor_trabado"]
       - name: motivo_invalido
-        description: Motivo principal por el que se descartó (vacío si no se descartó).
-      - name: archivo_pdf
-        description: PDF de origen.
+        description: Motivo principal por el que se descartó el valor.
 
   - name: calidad_outliers
-    description: Valores atípicos (Q3 + 3·IQR) con contexto para la revisión manual. No se borran.
+    description: Valores diarios atípicos (Q3 + 3·IQR) con contexto para la revisión manual. No se borran.
     columns:
       - name: fecha
         description: Fecha.
@@ -111,16 +113,14 @@ models:
         description: Estación.
       - name: id_contaminante
         description: Contaminante.
-      - name: ventana
-        description: 24h u 8-16.
       - name: valor
-        description: Valor en unidad original.
+        description: Promedio de 24 h en unidad original.
       - name: unidad
         description: Unidad original.
       - name: umbral_outlier
         description: Umbral Q3 + 3·IQR.
       - name: mediana
-        description: Mediana de la serie (estación × contaminante × ventana).
+        description: Mediana de la serie (estación × contaminante).
       - name: veces_mediana
         description: valor / mediana.
       - name: nombre_dia
@@ -129,25 +129,3 @@ models:
         description: Tipo de día.
       - name: evento
         description: Paro de transporte, si hubo.
-      - name: archivo_pdf
-        description: PDF de origen.
-
-  - name: calidad_archivos
-    description: Estado de cada PDF de la extracción (279 procesados y 2 descartados por estar enlazados en la estación equivocada).
-    columns:
-      - name: id_estacion
-        description: Estación cuya página enlaza el archivo.
-      - name: tipo_informe
-        description: co, nox o pm10.
-      - name: anio
-        description: Año del informe.
-      - name: mes
-        description: Mes del informe.
-      - name: archivo
-        description: Nombre del PDF.
-      - name: estado
-        description: ok, ok_con_aviso, descartado o error.
-      - name: estado_detalle
-        description: Detalle del estado o del aviso.
-      - name: estacion_en_encabezado
-        description: Estación que dice el encabezado del PDF.

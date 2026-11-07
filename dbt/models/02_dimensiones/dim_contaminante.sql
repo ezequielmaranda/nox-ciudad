@@ -4,8 +4,11 @@
 -- factor_masa: para comparar con la OMS hay que pasar de concentración en volumen (ppb, ppm)
 -- a concentración en masa (µg/m³, mg/m³). A 25 °C y 1 atm un mol de gas ocupa 24,45 litros:
 --     µg/m³ = ppb × peso_molecular / 24,45      (y mg/m³ = ppm × peso_molecular / 24,45)
---   NO2: 46,01 / 24,45 = 1,88    CO: 28,01 / 24,45 = 1,146    NO: 30,01 / 24,45 = 1,23
--- El NOx se expresa "como NO2" (convención). El PM10 ya viene en µg/m³ (factor 1).
+--   NO2: 46,01 / 24,45 = 1,88    CO: 28,01 / 24,45 = 1,146
+-- El PM10 ya viene en µg/m³ (factor 1).
+--
+-- promedio_fuente: cómo publica la red cada contaminante ('horario' para el NO2; 'movil_8h'
+-- para el CO y 'movil_24h' para el PM10). Define cómo se arma el valor diario (stg_aire_diario).
 -- =====================================================================================
 with guias as (
     select
@@ -27,8 +30,9 @@ select
         when c.peso_molecular is null then 1.0
         else round(c.peso_molecular / {{ var('volumen_molar') }}, 4)
     end                                        as factor_masa,
-    c.tolerancia_coherencia,
-    c.maximo_fisico,
+    c.promedio_fuente,
+    c.horas_promedio_fuente,
+    c.maximo_plausible,
     coalesce(g.tiene_guia_24h, false)          as tiene_guia_24h,
     coalesce(g.tiene_guia_anual, false)        as tiene_guia_anual,
     c.orden,

@@ -18,7 +18,3 @@ nbformat>=5.10
 
 # Tests
 pytest>=8
-
-# Extracción de los PDF públicos (solo para `python -m src.extract`)
-pdfminer.six>=20231228
-requests>=2.31

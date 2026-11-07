@@ -1,6 +1,6 @@
 """ETL del TP: del CSV crudo de calidad del aire a las tablas finales para Power BI.
 
-    EXTRACT    verifica que esté data/raw/aire_publico.csv (y su manifiesto)
+    EXTRACT    verifica que esté data/raw/calidad-aire.csv (el CSV horario de BA Data)
     TRANSFORM  dbt build: referencias -> staging -> dimensiones y fact -> calidad -> indicadores,
     + LOAD     todo dentro de data/warehouse/aire.duckdb, con los tests de calidad de dbt
     EXPORT     tablas finales -> data/final/*.csv
@@ -12,7 +12,7 @@ Es idempotente: cada corrida reconstruye las tablas desde cero y sobrescribe las
 que correrlo dos veces da exactamente el mismo resultado.
 
 Uso (desde la raíz del repo):  python -m src.etl
-La extracción desde los PDF de la APrA es un paso aparte y opcional: python -m src.extract
+La descarga del CSV desde BA Data es un paso aparte y opcional: python -m src.extract
 """
 
 import logging
@@ -29,9 +29,8 @@ log = logging.getLogger("etl")
 
 def verificar_crudo() -> None:
     """EXTRACT: el crudo ya está en el repo; acá solo se verifica que no falte."""
-    for ruta in (config.RAW_AIRE, config.RAW_MANIFIESTO):
-        if not ruta.exists():
-            sys.exit(f"Falta {ruta.relative_to(config.RAIZ)}. Generarlo con: python -m src.extract")
+    if not config.RAW_AIRE.exists():
+        sys.exit(f"Falta {config.RAW_AIRE.relative_to(config.RAIZ)}. Bajarlo con: python -m src.extract")
 
 
 def transformar_y_cargar() -> None:

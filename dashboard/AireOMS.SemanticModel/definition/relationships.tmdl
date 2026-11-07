@@ -10,6 +10,18 @@ relationship f0776e8d-d3d3-5183-a4f8-ee40fda14e0d
 	fromColumn: fact_medicion_diaria.id_contaminante
 	toColumn: dim_contaminante.id_contaminante
 
+relationship b3264a03-e45a-5af5-8471-7e3271d3ab50
+	fromColumn: fact_medicion_horaria.fecha
+	toColumn: dim_calendario.fecha
+
+relationship 08bb3dce-edf8-505b-8082-eb76d5928634
+	fromColumn: fact_medicion_horaria.id_estacion
+	toColumn: dim_estacion.id_estacion
+
+relationship 1729176a-6503-55b9-adb4-c24ab58f0880
+	fromColumn: fact_medicion_horaria.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+
 relationship 1d993040-775e-509f-becf-247a2b19e356
 	fromColumn: agg_cumplimiento_diario.fecha
 	toColumn: dim_calendario.fecha
@@ -54,6 +66,14 @@ relationship b396c35c-3a32-5df7-8d89-a13774296d1c
 	fromColumn: agg_rachas.id_contaminante
 	toColumn: dim_contaminante.id_contaminante
 
+relationship 8ed5360d-7ec4-5c11-a053-25374170cf18
+	fromColumn: agg_contexto_anual.id_estacion
+	toColumn: dim_estacion.id_estacion
+
+relationship a134e3af-5fa8-5784-9bf9-e22b89f9fb35
+	fromColumn: agg_contexto_anual.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+
 relationship be077bd2-8a22-577c-b2e9-5e237848e9f5
 	fromColumn: agg_completitud_mensual.id_estacion
 	toColumn: dim_estacion.id_estacion
@@ -73,8 +93,4 @@ relationship 639a1d89-c5e3-508f-b3c5-6f2b17ea4957
 relationship 1f634fea-fd77-5496-83b9-b34657a80a4b
 	fromColumn: calidad_resumen.id_contaminante
 	toColumn: dim_contaminante.id_contaminante
-
-relationship 68f9a023-2457-5671-94a6-a17116e1ed77
-	fromColumn: calidad_archivos.id_estacion
-	toColumn: dim_estacion.id_estacion
 

@@ -1,0 +1,113 @@
+/// Valores horarios de NO2 del período de estudio (el único contaminante publicado como promedio de cada hora). Grano: fecha × hora × estación. Comparte dimensiones con la fact diaria; sirve para el perfil horario por tipo de día.
+table fact_medicion_horaria
+	lineageTag: f0cfd2ca-73f1-5d12-9482-05109f8139b9
+
+	/// Fecha (clave hacia dim_calendario).
+	column fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: c847b4ba-bb96-57b4-ad58-faa578a1ab48
+		summarizeBy: none
+		sourceColumn: fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Hora que termina (1 a 24; la 8 es de 07:00 a 08:00).
+	column hora
+		dataType: int64
+		formatString: 0
+		lineageTag: 370b9484-4a45-5d7d-90c6-e7a479e4a1df
+		summarizeBy: none
+		sourceColumn: hora
+
+		annotation SummarizationSetBy = User
+
+	/// Estación (clave hacia dim_estacion).
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: ddca6f4e-987d-551b-af94-ee945efbd334
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Siempre 'no2' (clave hacia dim_contaminante).
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 689bb451-452f-52b1-ab4a-72e1a9cf6f2e
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si el valor horario pasa las reglas de calidad.
+	column es_valido
+		dataType: boolean
+		lineageTag: ba10ef21-7f05-506a-8d41-47f0f2066ed8
+		summarizeBy: none
+		sourceColumn: es_valido
+
+		annotation SummarizationSetBy = User
+
+	/// Motivo por el que la hora no se usa (vacío si es válida).
+	column motivo_invalido
+		dataType: string
+		lineageTag: b4c2d5d8-beae-5c47-8855-be9daf700d7b
+		summarizeBy: none
+		sourceColumn: motivo_invalido
+
+		annotation SummarizationSetBy = User
+
+	/// NO2 horario en ppb (solo si es válido).
+	column valor
+		dataType: double
+		lineageTag: 091ba36f-9b7b-54c8-9fc0-ce9d3f55ca77
+		summarizeBy: none
+		sourceColumn: valor
+
+		annotation SummarizationSetBy = User
+
+	/// ppb.
+	column unidad
+		dataType: string
+		lineageTag: 9f45a55f-c6da-536e-a83f-87fedeafbe28
+		summarizeBy: none
+		sourceColumn: unidad
+
+		annotation SummarizationSetBy = User
+
+	/// NO2 horario en µg/m³ (solo si es válido).
+	column valor_masa
+		dataType: double
+		lineageTag: f6b88126-2218-5041-86b7-eb86d510e6de
+		summarizeBy: none
+		sourceColumn: valor_masa
+
+		annotation SummarizationSetBy = User
+
+	/// µg/m³.
+	column unidad_masa
+		dataType: string
+		lineageTag: 1f34ae54-c31c-55f8-a62a-b4d3df988bf0
+		summarizeBy: none
+		sourceColumn: unidad_masa
+
+		annotation SummarizationSetBy = User
+
+	partition fact_medicion_horaria = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_horaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"hora", Int64.Type}, {"id_estacion", type text}, {"id_contaminante", type text}, {"es_valido", type logical}, {"motivo_invalido", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

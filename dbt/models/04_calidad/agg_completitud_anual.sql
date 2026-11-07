@@ -10,7 +10,7 @@
 --   * EPA de EE.UU. (40 CFR 50, Apéndice S, NO2): el promedio anual es válido con al menos 75%
 --     de las horas del año; para la norma de 1 hora pide además 75% en CADA trimestre.
 --   * Unión Europea (Directiva 2008/50/CE, Anexo XI): 75% para pasar de horas a día (18 de 24
---     horas), pero 90% para el promedio anual.
+--     horas, que se aplica en stg_aire_diario), pero 90% para el promedio anual.
 -- Se usa el 75% anual (criterio EPA) y se informa además el criterio trimestral de la EPA
 -- (cumple_criterio_trimestral) como advertencia: marca años válidos a los que les falta buena
 -- parte de una estación del año. No excluye: es información para leer el resultado.
@@ -26,7 +26,6 @@ with diario as (
     from {{ ref('fact_medicion_diaria') }} as f
     join {{ ref('dim_periodo') }} as p
         on f.fecha between p.fecha_desde and p.fecha_hasta
-    where f.ventana = '24h'
 ),
 
 por_trimestre as (

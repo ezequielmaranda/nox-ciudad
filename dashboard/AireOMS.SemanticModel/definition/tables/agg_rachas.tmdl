@@ -1,4 +1,4 @@
-/// Rachas de días consecutivos sobre la guía de 24 h (gaps and islands). Un día sin dato corta la racha.
+/// Rachas de días seguidos sobre la guía de 24 h (gaps and islands sobre los días con dato). Un día con dato que cumple la guía corta la racha; los huecos sin dato de hasta 7 días no la cortan ni la alargan (se informan en dias_sin_dato) y uno más largo sí la corta.
 table agg_rachas
 	lineageTag: 26717cf8-1e36-5ad6-944a-fca4f73c0e20
 
@@ -46,13 +46,33 @@ table agg_rachas
 
 		annotation UnderlyingDateTimeDataType = Date
 
-	/// Duración de la racha en días.
+	/// Días con dato sobre la guía en la racha.
 	column dias
 		dataType: int64
 		formatString: 0
 		lineageTag: 47a1d9b4-d77e-5b0e-a35f-0fd113109d1b
 		summarizeBy: none
 		sourceColumn: dias
+
+		annotation SummarizationSetBy = User
+
+	/// Días de calendario entre el primero y el último de la racha.
+	column dias_calendario
+		dataType: int64
+		formatString: 0
+		lineageTag: b13a3045-69db-5425-b416-83c1a6e703ff
+		summarizeBy: none
+		sourceColumn: dias_calendario
+
+		annotation SummarizationSetBy = User
+
+	/// Días sin dato dentro de la racha (dias_calendario − dias).
+	column dias_sin_dato
+		dataType: int64
+		formatString: 0
+		lineageTag: 88526af2-75d7-5431-a987-636f60dc71a3
+		summarizeBy: none
+		sourceColumn: dias_sin_dato
 
 		annotation SummarizationSetBy = User
 
@@ -72,7 +92,7 @@ table agg_rachas
 				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_rachas.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"fecha_inicio", type date}, {"fecha_fin", type date}, {"dias", Int64.Type}, {"es_racha_maxima", type logical}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"fecha_inicio", type date}, {"fecha_fin", type date}, {"dias", Int64.Type}, {"dias_calendario", Int64.Type}, {"dias_sin_dato", Int64.Type}, {"es_racha_maxima", type logical}}, "en-US")
 				in
 				    Tipos
 

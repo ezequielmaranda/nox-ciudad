@@ -15,8 +15,8 @@ venía de otro chat, se sacó del repo: no es la consigna.
 
 Hipótesis (reescritas por el equipo como expectativas previas al análisis, sin detalles que solo se saben después):
 - **H1:** el NO₂ es el contaminante más crítico: el que más se aleja de las guías de la OMS. → Se sostiene (50-95% de días sobre la guía vs. 2-4% del PM10 y 0% del CO).
-- **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂. → **No se sostiene**: la peor es La Boca (flujo medio-bajo, fuentes fijas); Córdoba es segunda.
-- **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias.
+- **H2:** Córdoba, la estación ubicada sobre una avenida de tránsito intenso, es la más comprometida en NO₂. → **No se sostiene**: la peor es La Boca (flujo medio-bajo, fuentes fijas); Córdoba es segunda. La serie larga muestra que es reciente.
+- **H3:** domingos y feriados la brecha se reduce de forma visible. → A medias (el perfil horario muestra las horas pico).
 La matriz de escalones (hasta qué IT cumple cada estación) ya no es una hipótesis: responde las subpreguntas 1 y 2.
 Fundamentación (README, "De dónde salen las hipótesis", con fuentes): premisa común "el NO₂ de la Ciudad viene sobre
 todo del tránsito" (Bogo et al. 1999) aplicada a cada corte. H1: la OMS 2021 endureció el NO₂ anual 4 veces (40→10)
@@ -26,7 +26,9 @@ fuentes fijas; en Europa las superaciones de NO₂ son en estaciones de tránsit
 explica buena parte del NO₂, pero no todo.
 
 Versión anterior del repo (paros de transporte, SUBE, meteorología del SMN, Looker Studio): **descartada** en
-noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`).
+noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `82aec79`). Después, la fuente pasó de
+los informes mensuales en PDF de la APrA (extraídos con pdfminer, hasta el commit `e34af3c`) al **CSV horario de BA
+Data**: más crudo, sin extracción de PDF. El usuario trabaja en la agencia que carga esos datos.
 
 ## Reglas
 
@@ -42,75 +44,90 @@ noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `8
 
 Todo el equipo usa Windows: no hay Makefile, los comandos van con `.venv\Scripts\python`.
 Python 3.11+ con `requirements.txt`. DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
-las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest.
+las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest. Sin pdfminer, requests
+ni pyarrow (la descarga usa urllib; `data/final` es solo CSV).
 El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; correrlo dentro de `plt.rc_context()`
 porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
 heatmap) y matplotlib.
 
-- `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso) → export a `data/final/`
+- `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export a `data/final/`
   (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
-- `python -m pytest -q`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
-  (idempotencia, vistas de `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. El EDA se ejecuta con
-  `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
-- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con 14 tablas + `_Medidas`,
-  20 relaciones, 18 medidas DAX, orden de columnas, descripciones de dbt, tema; informe PBIR con 3 páginas vacías).
+- `python -m pytest -q`: 4 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
+  (idempotencia, vistas de `sql/99`, verificación de formato del extractor). No duplicar tests de datos en pytest. El
+  EDA se ejecuta con `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
+- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con 15 tablas + `_Medidas`,
+  24 relaciones, 20 medidas DAX, orden de columnas, lat/long como categoría de mapa, descripciones de dbt, tema;
+  informe PBIR con 3 páginas vacías; lee los CSV con configuración regional en-US).
   Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
   su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. Después pasó de Parquet a CSV (`Csv.Document` + tipos en-US): ese cambio no se revalidó. El tema base
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
-- `python -m src.extract`: baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
-  `static.buenosaires.gob.ar` corta la conexión TLS (probablemente bloqueo geográfico). El CSV crudo está en git.
+- `python -m src.extract`: baja `calidad-aire.csv` de la CDN de BA Data
+  (`cdn.buenosaires.gob.ar/datosabiertos/datasets/agencia-de-proteccion-ambiental/calidad-aire/`), con reintentos, y
+  verifica el encabezado. Desde la nube de Claude funciona con `cdn.buenosaires.gob.ar` en los hosts permitidos del
+  entorno; `data.buenosaires.gob.ar` (la página del dataset) corta la conexión. El CSV crudo está en git.
 
 ## Datos
 
-- `data/raw/aire_publico.csv`: 83.010 valores (estación × fecha × contaminante × estadístico), todo texto, de 279
-  PDF. Estadísticos: `24h`, `0-8`, `8-16`, `16-24`, `max_1h`, `min_1h`. Especiales: `s/d`, `DND`, `<x`, un `Lunes`.
-- `data/raw/aire_publico_manifiesto.csv`: 281 PDF; 2 descartados (link a otra estación: NOx de Córdoba de jul-2025
-  enlazado desde Centenario; PM10 de La Boca de feb-2026 enlazado desde Córdoba).
+- `data/raw/calidad-aire.csv`: dataset "Calidad del aire" de BA Data, tal como se publica (8,5 MB, UTF-8 con BOM).
+  Ancho: 147.470 filas fecha × hora (2009-10-01 a 2026-10-26), columnas `FECHA` (`12FEB2011:00:00:00`), `HORA` (1-24
+  = hora que termina; trae algunas 0 y >24) y `CO_/NO2_/PM10_` × `CENTENARIO/CORDOBA/LA_BOCA/PALERMO` (Palermo
+  vacía, desactivada en 2010). **NO2 = promedio horario (ppb); CO = móvil de 8 h (ppm); PM10 = móvil de 24 h
+  (µg/m³)** (según `contaminantes.csv` de BA Data). Especiales: `s/d`, `S/d`, vacío, `<0.05` (CO 2010-2017),
+  `#REF!` (17-18/05/2024 y 2020), `x/d`. Los archivos anuales del portal (`calidad_aire_2025.csv`...) son un
+  subconjunto idéntico.
 - `data/reference/`: `oms_2021.csv` (Tabla 0.1 del resumen ejecutivo OMS 2021), `contaminantes.csv` (peso molecular,
-  tolerancias, máximos físicos), `estaciones.csv` (coordenadas aproximadas), `feriados.csv` (ArgentinaDatos),
-  `eventos.csv` (paros, solo contexto).
-- En git: crudo, referencias y `data/final/`. Fuera de git: `data/warehouse/`, `data/raw/pdf/`.
+  `promedio_fuente`, `maximo_plausible`: NO2 500, PM10 1000, CO 15), `estaciones.csv` (coordenadas de
+  `estaciones-ambientales.csv` de BA Data), `feriados.csv` (ArgentinaDatos), `eventos.csv` (paros, solo contexto).
+- En git: crudo, referencias y `data/final/`. Fuera de git: `data/warehouse/`.
 
 ## Modelo (dbt, `data/warehouse/aire.duckdb`)
 
-Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `stg_manifiesto`) → `modelo`
-(`dim_calendario`, `dim_estacion`, `dim_contaminante`, `dim_periodo`, `ref_oms`, `ref_oms_niveles`,
-`fact_medicion_diaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_*`) → `indicadores`
-(`agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`). `sql/99` crea vistas en `analisis`.
+Schemas: `referencia` (seeds) → `staging` (`stg_aire_horario` UNPIVOT a largo, `stg_aire_horario_validado` reglas
+por hora, `stg_aire_diario` valor diario de toda la serie) → `modelo` (`dim_calendario`, `dim_estacion`,
+`dim_contaminante`, `dim_periodo`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria`,
+`fact_medicion_horaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_resumen/violaciones/outliers`; `agg_completitud_anual` no se exporta) →
+`indicadores` (`agg_cumplimiento_diario`, `agg_anual`, `agg_cumplimiento_niveles`, `agg_rachas`,
+`agg_contexto_anual`). `sql/99` crea vistas en `analisis`.
 
-- Fact: formato largo, grilla completa (1.004 × 3 × 5 × 2 = 30.120 filas), ventanas `24h` y `8-16`.
-  `valor` en unidad original, `valor_masa` en unidad OMS (factor = peso molecular / 24,45).
-- `<x` → x/2 (`es_imputado`). Reglas: fuera_de_rango, valor_trabado, cero_sin_respaldo, fuera_de_max_min,
-  promedio_incoherente, mayor_que_nox, nox_incoherente (descarta NO y NOx, **no NO2**).
-- Outliers: Q3 + 3·IQR por estación × contaminante × ventana, marcados.
-- Regla del 75% sobre el promedio de 24 h por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
-- Último build: 20 modelos, 76 tests + 5 seeds, PASS 100, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
+- Reglas por hora: hora_invalida, sin_dato_fuente, texto_invalido, fuera_de_rango, fila_en_cero, valor_trabado
+  (NO2 igual ≥ 10 h). `<x` → x/2 (`es_imputado`).
+- Valor diario: NO2 = promedio con ≥ 18 de 24 horas válidas (`horas_minimas_dia`, criterio UE); PM10 = móvil de la
+  hora 24; CO = promedio de las horas 8, 16 y 24. Coincide con los PDF de la APrA en 94% (NO2), 97% (CO) y 98%
+  (PM10) de los días; ±1 unidad: 98,8-99,6%.
+- Fact diaria: grilla completa, 1.004 × 3 × 3 = 9.036 filas, sin ventanas; `motivo_sin_dato` = sin_fila,
+  sin_dato_fuente o incompleto; `n_horas_validas`. Fact horaria: solo NO2, 70.704 filas.
+- Outliers: Q3 + 3·IQR por estación × contaminante, marcados.
+- Regla del 75% sobre días por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
+- Rachas: un día con dato bajo la guía corta; huecos sin dato de hasta 7 días (`dias_hueco_maximo_racha`) no cortan.
+- Contexto 2010-2025 (`agg_contexto_anual`): NO2 y PM10 anual con la misma regla del 75%.
+- Último build: 21 modelos, 89 tests + 5 seeds, PASS 114, WARN 1 (`stg_reglas_de_calidad`, esperado: 239 violaciones).
 
 ## Resultados verificados
 
-- % días NO₂ > 25 µg/m³: La Boca 94,7% (944 d), Córdoba 84,4% (910), Centenario 50,3% (662). PM10 > 45: 2,3-4,1%.
-  CO: 0%. Denominador = días con dato (dividir por todas las filas daría ~91/75/33%, que subestima).
-- NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,0 (3,5×, IT1), Centenario 26,2 (2,6×, IT2).
-- Matriz de escalones (`agg_cumplimiento_niveles`, figura 06b): La Boca cumple el IT2 diario 40% → 54% → 58% de los
-  días (2024 → 2025 → 2026 ene-sep); Córdoba 84-92%; Centenario 98-100%.
-- Regla del 75%: es el criterio anual de la EPA (40 CFR 50 Ap. S); la UE pide 90% (Dir. 2008/50 Anexo XI); la OMS no
-  fija ninguno. Se agregó `cumple_criterio_trimestral` (EPA: 75% en cada trimestre) como advertencia. Sensibilidad
-  en `docs/calidad_datos.md` §3.2: los escalones de cada estación no cambian con el criterio más estricto.
-- Días que cumplen el IT2 diario de NO₂ (50): Centenario 98,6%, Córdoba 87,7%, La Boca 49,7%. IT1 diario (120):
-  todos los días salvo uno en La Boca (124). PM10 cumple la guía diaria el 95,9-97,7% de los días.
-  La Boca 2024: 56,5. PM10: 21,9-26,6 (1,5-1,8×, IT3); P99 de PM10 > 45 en todas las estaciones y años.
-- No válidos por el 75%: NO₂ Centenario 2024 (18,9%), CO Córdoba 2024 (66,1%).
-- Racha máxima NO₂: La Boca 216 días (25/03 a 26/10/2025), Córdoba 111, Centenario 22.
-- Domingo vs. hábil (NO₂): −27% Centenario, −21% Córdoba, −17% La Boca; 90% de los domingos de La Boca sobre la guía.
-- Invierno/verano NO₂ La Boca: 62,6 vs. 34,6 µg/m³.
-- Ene-sep NO₂: 26,1 → 20,9 → 18,9 ppb juntando estaciones, inflado por falta de Centenario en 2024 (40 días). Por
-  estación: La Boca −20%, Córdoba −14%, Centenario plano.
-- Día 8: 43% de las incoherencias NOx y los 22 días de NO trabado.
+- % días NO₂ > 25 µg/m³: La Boca 95,0% (900 d), Córdoba 85,6% (864), Centenario 54,9% (676). PM10 > 45: 2,4-4,1%.
+  CO: 0%. Denominador = días con dato (dividir por todas las filas daría 37% en Centenario).
+- NO₂ últimos 12 meses: La Boca 45,9 (4,6×, > IT1), Córdoba 35,1 (3,5×, IT1), Centenario 26,3 (2,6×, IT2).
+  La Boca 2024: 56,5. PM10: 21,7-26,4 (1,4-1,8×, IT3); P99 de PM10 ≥ 45 en todas las estaciones y años.
+- Días que cumplen el IT2 diario de NO₂ (50): Centenario 98,5%, Córdoba 87,6%, La Boca 50,0%. IT1 diario (120):
+  todos salvo uno (La Boca 12/07/2024, 124). Matriz por año: La Boca 40% → 53% → 59%; Córdoba 83-92%; Centenario 98-100%.
+- No válidos por el 75%: NO₂ Centenario 2024 (18,9%: la estación no midió de marzo a noviembre), CO Córdoba 2024 (61,5%).
+- Racha máxima NO₂: La Boca 254 días con dato (14/02 a 28/11/2024; 289 de calendario, 35 sin dato) y 206 en 2025;
+  Córdoba 111; Centenario 26.
+- Domingo vs. hábil (NO₂): −26% Centenario, −21% Córdoba, −17% La Boca; 90% de los domingos de La Boca sobre la guía.
+  Perfil horario: máximo a las 19-20 h; a las 9 h el hábil tiene 27% a 75% más que el domingo; piso de madrugada de
+  La Boca 43 µg/m³ (otras 17-24).
+- Invierno/verano NO₂ La Boca: 62,4 vs. 34,8 µg/m³.
+- Ene-sep NO₂: 26,0 → 20,7 → 18,9 ppb juntando estaciones (−27%), inflado por falta de Centenario en 2024 (40 días).
+  Por estación: La Boca −20%, Córdoba −13%, Centenario plano.
+- Contexto 2010-2025 (NO₂ anual válido): Córdoba 68 (2012) → 32-45 desde 2015; Centenario 28-36; La Boca irregular
+  (20-24 en 2015-16, ~40 en 2017-19, 24-32 en 2021-22, 50-57 en 2024-25). Ningún año cumple la guía de 10.
+- Calidad del período: 87,8% de valores horarios válidos, 11,9% s/d, 0,3% descartados (#REF!, hora 0, fila en cero,
+  CO 23 ppm en La Boca el 01/06/2026, NO2 −2).
 
 ## Pendiente
 
 - Abrir `dashboard/AireOMS.pbip` en Power BI Desktop (parámetro `RutaDatos` con la ruta local de `data/final\`,
   Actualizar) y armar los gráficos de las 3 páginas siguiendo `docs/powerbi_spec.md` (lo hace el equipo). Después
   de armar gráficos, el modelo se toca desde Power BI, no con `src.generar_pbip`.
-- Verificar las coordenadas aproximadas de `data/reference/estaciones.csv` si se usa el mapa.
+- Preguntar a la APrA por los saltos de la serie larga de La Boca (¿cambios de equipo, calibración o fuentes?).
 - Preparar la presentación (guion en el README).

@@ -7,12 +7,17 @@ RAIZ = Path(__file__).resolve().parent.parent
 
 # Datos
 DIR_RAW = RAIZ / "data" / "raw"                    # crudos (no se modifican a mano)
-DIR_PDF = DIR_RAW / "pdf"                          # PDF originales de la APrA (fuera de git)
-RAW_AIRE = DIR_RAW / "aire_publico.csv"            # salida de la extracción de los PDF
-RAW_MANIFIESTO = DIR_RAW / "aire_publico_manifiesto.csv"
+RAW_AIRE = DIR_RAW / "calidad-aire.csv"            # CSV horario de BA Data, tal como se publica
 DIR_WAREHOUSE = RAIZ / "data" / "warehouse"
 BASE_DUCKDB = DIR_WAREHOUSE / "aire.duckdb"        # base analítica que arma dbt
 DIR_FINAL = RAIZ / "data" / "final"                # CSV para Power BI y el EDA
+
+# Fuente: dataset "Calidad del aire" de BA Data (Buenos Aires Data, GCBA), publicado por la APrA.
+# Página: https://data.buenosaires.gob.ar/dataset/calidad-aire
+URL_CALIDAD_AIRE = (
+    "https://cdn.buenosaires.gob.ar/datosabiertos/datasets/"
+    "agencia-de-proteccion-ambiental/calidad-aire/calidad-aire.csv"
+)
 
 # Transformaciones y salidas
 DIR_DBT = RAIZ / "dbt"
@@ -29,13 +34,14 @@ TABLAS_FINALES = [
     "modelo.ref_oms",
     "modelo.ref_oms_niveles",
     "modelo.fact_medicion_diaria",
+    "modelo.fact_medicion_horaria",
     "indicadores.agg_cumplimiento_diario",
     "indicadores.agg_anual",
     "indicadores.agg_cumplimiento_niveles",
     "indicadores.agg_rachas",
+    "indicadores.agg_contexto_anual",
     "calidad.agg_completitud_mensual",
     "calidad.calidad_resumen",
     "calidad.calidad_violaciones",
     "calidad.calidad_outliers",
-    "calidad.calidad_archivos",
 ]

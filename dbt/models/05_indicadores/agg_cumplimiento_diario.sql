@@ -11,8 +11,7 @@
 with diario as (
     select fecha, id_estacion, id_contaminante, valor_masa, unidad_masa, es_outlier
     from {{ ref('fact_medicion_diaria') }}
-    where ventana = '24h'
-      and tiene_dato
+    where tiene_dato
 ),
 
 guia as (

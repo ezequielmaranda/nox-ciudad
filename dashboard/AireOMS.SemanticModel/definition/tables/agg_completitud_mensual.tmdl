@@ -64,7 +64,7 @@ table agg_completitud_mensual
 
 		annotation SummarizationSetBy = User
 
-	/// Días con fila publicada por la fuente.
+	/// Días con al menos una hora en la fuente.
 	column n_dias_con_fila
 		dataType: int64
 		formatString: 0
@@ -84,7 +84,7 @@ table agg_completitud_mensual
 
 		annotation SummarizationSetBy = User
 
-	/// Días sin fila (la fuente no publicó, p. ej. mes sin PDF).
+	/// Días sin ninguna hora en la fuente.
 	column n_dias_sin_fila
 		dataType: int64
 		formatString: 0
@@ -94,7 +94,7 @@ table agg_completitud_mensual
 
 		annotation SummarizationSetBy = User
 
-	/// Días con 's/d' o 'DND' en la planilla.
+	/// Días con todas las horas en 's/d'.
 	column n_dias_sin_dato_fuente
 		dataType: int64
 		formatString: 0
@@ -104,13 +104,13 @@ table agg_completitud_mensual
 
 		annotation SummarizationSetBy = User
 
-	/// Días con número que descartó una regla de calidad.
-	column n_dias_descartados
+	/// Días con horas pero sin las suficientes para el promedio de 24 h (o descartadas por una regla).
+	column n_dias_incompletos
 		dataType: int64
 		formatString: 0
-		lineageTag: 1fbd5707-7ce7-52e8-a801-11f08b3d8654
+		lineageTag: a9cff2af-e37a-57e4-800c-d216fd14a91b
 		summarizeBy: none
-		sourceColumn: n_dias_descartados
+		sourceColumn: n_dias_incompletos
 
 		annotation SummarizationSetBy = User
 
@@ -140,7 +140,7 @@ table agg_completitud_mensual
 				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_completitud_mensual.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"anio_mes", type date}, {"n_dias_calendario", Int64.Type}, {"n_dias_con_fila", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"n_dias_sin_fila", Int64.Type}, {"n_dias_sin_dato_fuente", Int64.Type}, {"n_dias_descartados", Int64.Type}, {"completitud", type number}, {"cumple_umbral", type logical}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"anio_mes", type date}, {"n_dias_calendario", Int64.Type}, {"n_dias_con_fila", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"n_dias_sin_fila", Int64.Type}, {"n_dias_sin_dato_fuente", Int64.Type}, {"n_dias_incompletos", Int64.Type}, {"completitud", type number}, {"cumple_umbral", type logical}}, "en-US")
 				in
 				    Tipos
 

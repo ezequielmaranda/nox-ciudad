@@ -1,11 +1,10 @@
--- La fact tiene exactamente una fila por día × estación × contaminante × ventana (2 ventanas).
+-- La fact tiene exactamente una fila por día × estación × contaminante.
 -- Si faltara alguna combinación, el conteo de días faltantes dejaría de ser confiable.
 with esperado as (
     select
         (select count(*) from {{ ref('dim_calendario') }})
       * (select count(*) from {{ ref('dim_estacion') }})
-      * (select count(*) from {{ ref('dim_contaminante') }})
-      * 2 as filas
+      * (select count(*) from {{ ref('dim_contaminante') }}) as filas
 ),
 real as (
     select count(*) as filas from {{ ref('fact_medicion_diaria') }}

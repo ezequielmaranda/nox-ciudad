@@ -67,7 +67,7 @@ table dim_estacion
 
 		annotation SummarizationSetBy = User
 
-	/// Año de inicio de operación (vacío si la fuente no lo informa).
+	/// Año de inicio de actividad según BA Data (estaciones-ambientales.csv).
 	column inicio_operacion
 		dataType: int64
 		formatString: 0
@@ -77,21 +77,23 @@ table dim_estacion
 
 		annotation SummarizationSetBy = User
 
-	/// Latitud aproximada (geocodificada a mano desde la dirección; verificar antes de usar en un mapa).
-	column latitud_aprox
+	/// Latitud de la estación (BA Data, estaciones-ambientales.csv).
+	column latitud
 		dataType: double
-		lineageTag: 8ac6ca90-561c-5296-bc85-fd64095278a5
+		lineageTag: dee541f0-1550-5c7b-9828-01d697725794
+		dataCategory: Latitude
 		summarizeBy: none
-		sourceColumn: latitud_aprox
+		sourceColumn: latitud
 
 		annotation SummarizationSetBy = User
 
-	/// Longitud aproximada (ídem).
-	column longitud_aprox
+	/// Longitud de la estación (BA Data, estaciones-ambientales.csv).
+	column longitud
 		dataType: double
-		lineageTag: d92099fc-bc1d-58fa-893c-3d7f4736e4a6
+		lineageTag: 165773e9-5497-5318-98aa-d1ea9816f76b
+		dataCategory: Longitude
 		summarizeBy: none
-		sourceColumn: longitud_aprox
+		sourceColumn: longitud
 
 		annotation SummarizationSetBy = User
 
@@ -121,7 +123,7 @@ table dim_estacion
 				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_estacion.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"codigo_fuente", type text}, {"nombre", type text}, {"direccion", type text}, {"entorno", type text}, {"flujo_vehicular", type text}, {"fuentes_fijas", type text}, {"inicio_operacion", Int64.Type}, {"latitud_aprox", type number}, {"longitud_aprox", type number}, {"descripcion", type text}, {"orden", Int64.Type}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"codigo_fuente", type text}, {"nombre", type text}, {"direccion", type text}, {"entorno", type text}, {"flujo_vehicular", type text}, {"fuentes_fijas", type text}, {"inicio_operacion", Int64.Type}, {"latitud", type number}, {"longitud", type number}, {"descripcion", type text}, {"orden", Int64.Type}}, "en-US")
 				in
 				    Tipos
 

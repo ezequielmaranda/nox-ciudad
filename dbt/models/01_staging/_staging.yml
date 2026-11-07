@@ -1,11 +1,17 @@
 version: 2
 
 models:
-  - name: stg_aire
+  - name: stg_aire_horario
     description: >
-      El CSV crudo de la extracción (data/raw/aire_publico.csv) tipado y normalizado.
-      Una fila por celda de los PDF: estación × fecha × contaminante × estadístico. No se borra nada.
+      El CSV horario de BA Data (data/raw/calidad-aire.csv) tipado y en formato largo.
+      Una fila por celda del CSV: fecha × hora × estación × contaminante (sin Palermo, desactivada
+      desde 2010). No se borra nada.
     columns:
+      - name: fecha
+        description: Fecha del dato (DATE).
+        data_tests: [not_null]
+      - name: hora
+        description: Hora que termina (1 = de 00:00 a 01:00 … 24 = de 23:00 a 24:00). La fuente trae algunas fuera de 1-24.
       - name: id_estacion
         description: Código de la estación en snake_case ('centenario', 'cordoba', 'la_boca').
         data_tests:
@@ -13,88 +19,82 @@ models:
           - accepted_values:
               arguments:
                 values: ["centenario", "cordoba", "la_boca"]
-      - name: fecha
-        description: Fecha del dato (DATE). Nula si el texto no fuera una fecha válida.
-        data_tests: [not_null]
       - name: id_contaminante
-        description: Código del contaminante ('no', 'no2', 'nox', 'co', 'pm10').
+        description: Código del contaminante ('no2', 'pm10', 'co').
         data_tests:
           - not_null
           - accepted_values:
               arguments:
-                values: ["no", "no2", "nox", "co", "pm10"]
-      - name: estadistico
-        description: >
-          Qué valor del día es: '24h' (promedio diario), '0-8', '8-16', '16-24' (promedios por
-          bloque de 8 horas), 'max_1h' y 'min_1h' (máximo y mínimo horario).
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ["24h", "0-8", "8-16", "16-24", "max_1h", "min_1h"]
+                values: ["no2", "pm10", "co"]
       - name: valor_crudo
-        description: Texto tal como figura en el PDF (coma decimal, 's/d', '<4', etc.).
+        description: Texto original de la celda (vacía = nulo).
       - name: estado_valor
-        description: Clasificación del texto crudo.
+        description: Clasificación del crudo.
         data_tests:
           - accepted_values:
               arguments:
                 values: ["valido", "sin_dato", "bajo_limite_deteccion", "invalido"]
       - name: limite_deteccion
-        description: Límite de detección informado (solo cuando el crudo es '<x').
+        description: Límite de detección informado ('<0.05' -> 0,05). Solo para valores bajo el límite.
       - name: valor
-        description: Valor numérico en la unidad original. Para '<x' se imputa x/2.
+        description: Valor numérico en la unidad original (ppb, ppm o µg/m³); imputado como límite / 2 si era '<x'.
       - name: es_imputado
-        description: Verdadero si el valor se imputó como límite de detección / 2.
-      - name: unidad
-        description: Unidad original ('ppb', 'ppm' o 'ug/m3').
-      - name: archivo_pdf
-        description: Nombre del PDF de origen (trazabilidad).
+        description: Verdadero si el valor era '<límite' y se imputó como límite / 2.
     data_tests:
       - clave_unica:
           arguments:
-            columnas: [id_estacion, fecha, id_contaminante, estadistico]
+            columnas: [fecha, hora, id_estacion, id_contaminante]
 
-  - name: stg_aire_validado
+  - name: stg_aire_horario_validado
     description: >
-      stg_aire más las reglas de validación física (una columna booleana por regla),
-      el motivo por el que un valor no se usa y es_valido. Ver el encabezado del SQL.
+      stg_aire_horario con las reglas de validación como columnas booleanas y el motivo por el que
+      un valor no se usa. Mismo grano y mismas filas que stg_aire_horario.
     columns:
-      - name: es_promedio
-        description: Verdadero para los promedios (24h y bloques); falso para máximo y mínimo horario.
+      - name: hora_invalida
+        description: La hora no está entre 1 y 24.
       - name: fuera_de_rango
-        description: Valor negativo o mayor al máximo físico del contaminante.
+        description: Valor negativo o mayor al máximo plausible del contaminante.
+      - name: fila_en_cero
+        description: Todas las mediciones de esa fecha y hora valen 0 (planilla vacía cargada con ceros).
       - name: valor_trabado
-        description: Los 6 estadísticos del día son idénticos (analizador sin variación en 24 h).
-      - name: cero_sin_respaldo
-        description: Promedio en 0 con máximo horario 0 o faltante.
-      - name: fuera_de_max_min
-        description: Promedio fuera del rango [mínimo horario, máximo horario] ± tolerancia.
-      - name: promedio_incoherente
-        description: El promedio de 24 h difiere del promedio de los 3 bloques en más que la tolerancia.
-      - name: no_mayor_que_nox
-        description: NO > NOx en el mismo día y estadístico.
-      - name: no2_mayor_que_nox
-        description: NO2 > NOx en el mismo día y estadístico.
-      - name: nox_incoherente
-        description: "|NOx − (NO + NO2)| > 2 ppb en el mismo día y estadístico."
+        description: NO2 idéntico durante horas_valor_trabado horas seguidas o más.
+      - name: horas_iguales_seguidas
+        description: Largo de la racha de valores iguales de NO2 a la que pertenece la hora.
       - name: motivo_invalido
-        description: Primer motivo por el que el valor no se usa (nulo = válido).
+        description: Primer motivo que aplica (hora_invalida, sin_dato_fuente, texto_invalido, fuera_de_rango, fila_en_cero, valor_trabado). Vacío = válido.
         data_tests:
           - accepted_values:
               arguments:
-                values: ["sin_dato_fuente", "texto_invalido", "fuera_de_rango", "valor_trabado",
-                         "cero_sin_respaldo", "fuera_de_max_min", "promedio_incoherente",
-                         "mayor_que_nox", "nox_incoherente"]
+                values: ["hora_invalida", "sin_dato_fuente", "texto_invalido", "fuera_de_rango", "fila_en_cero", "valor_trabado"]
       - name: es_valido
         description: Verdadero si el valor pasa todas las reglas y se usa en el análisis.
         data_tests: [not_null]
 
-  - name: stg_manifiesto
-    description: Manifiesto de la extracción tipado. Un registro por PDF enlazado desde las páginas de la APrA.
+  - name: stg_aire_diario
+    description: >
+      Valor diario (promedio de 24 h) por fecha × estación × contaminante, para toda la serie y
+      solo los días presentes en la fuente. NO2: promedio de las horas válidas con al menos 18;
+      PM10: promedio móvil de la hora 24; CO: promedio de los bloques de 8 h (horas 8, 16 y 24).
     columns:
-      - name: estado
-        description: Estado resumido del archivo.
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ["ok", "ok_con_aviso", "descartado", "error", "fuera_del_periodo"]
+      - name: promedio_fuente
+        description: Cómo publica la red el contaminante (horario, movil_8h, movil_24h).
+      - name: n_horas_fila
+        description: Horas (1 a 24) que la fuente tiene para ese día.
+      - name: n_horas_validas
+        description: Horas con valor válido.
+      - name: n_horas_sin_dato
+        description: Horas con 's/d' o vacías.
+      - name: valor_diario
+        description: Promedio de 24 h en la unidad original. Nulo si no alcanza la información del día.
+      - name: maximo_horario
+        description: Máximo horario del día (solo NO2).
+      - name: tiene_dato
+        description: Verdadero si hay valor diario.
+      - name: motivo_sin_dato
+        description: "'sin_dato_fuente' (todas las horas en s/d) o 'incompleto'. Vacío si tiene_dato."
+      - name: es_imputado
+        description: Verdadero si el valor diario usa alguna hora imputada ('<límite').
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [fecha, id_estacion, id_contaminante]

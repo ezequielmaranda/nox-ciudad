@@ -11,7 +11,8 @@
 --   POR QUÉ   por qué hace falta
 --   TÉCNICA   qué herramienta de SQL muestra
 --
--- Schemas de la base:  staging (crudo tipado) · modelo (dimensiones y fact) · calidad · indicadores
+-- Schemas de la base:  staging (crudo horario tipado y validado, valor diario) · modelo (dimensiones y
+--                      facts diaria y horaria) · calidad · indicadores
 --                      analisis (las vistas que se crean al final de este archivo)
 -- Funciones propias de DuckDB (comentadas donde aparecen): FILTER, quantile_cont, fecha - entero.
 -- =====================================================================================================
@@ -23,46 +24,48 @@
 
 -- A1 · Tamaño y cobertura del crudo
 -- PREGUNTA  ¿Cuántos datos hay, de cuándo a cuándo y de cuántas estaciones?
--- POR QUÉ   Es la "ficha" del dataset: lo primero que se presenta.
--- TÉCNICA   SELECT con funciones de agregación (COUNT, COUNT DISTINCT, MIN, MAX).
+-- POR QUÉ   Es la "ficha" del dataset: lo primero que se presenta. El CSV de BA Data trae toda la serie
+--           (desde 2009); el estudio usa 2024 a septiembre de 2026.
+-- TÉCNICA   SELECT con funciones de agregación (COUNT, COUNT DISTINCT, MIN, MAX) y FILTER.
 SELECT
-    count(*)                    AS valores_crudos,
-    count(DISTINCT id_estacion) AS estaciones,
-    count(DISTINCT id_contaminante) AS contaminantes,
-    min(fecha)                  AS desde,
-    max(fecha)                  AS hasta,
-    count(DISTINCT archivo_pdf) AS pdf_de_origen
-FROM staging.stg_aire;
+    count(*)                                         AS valores_horarios,
+    count(DISTINCT id_estacion)                      AS estaciones,
+    count(DISTINCT id_contaminante)                  AS contaminantes,
+    min(fecha)                                       AS desde,
+    max(fecha)                                       AS hasta,
+    count(*) FILTER (WHERE fecha BETWEEN '2024-01-01' AND '2026-09-30') AS valores_del_periodo
+FROM staging.stg_aire_horario;
 
 
 -- A2 · Nulos y valores especiales por contaminante
--- PREGUNTA  ¿Qué proporción de las celdas de los PDF no es un número válido?
--- POR QUÉ   's/d', '<4' o texto suelto no se pueden promediar: hay que saber cuántos son.
+-- PREGUNTA  ¿Qué proporción de los valores horarios del período no es un número válido?
+-- POR QUÉ   's/d', '#REF!' o '<0.05' no se pueden promediar: hay que saber cuántos son.
 -- TÉCNICA   GROUP BY + función de ventana (SUM ... OVER) para el porcentaje dentro de cada grupo.
 SELECT
     id_contaminante,
     estado_valor,
     count(*) AS n,
     round(100.0 * count(*) / sum(count(*)) OVER (PARTITION BY id_contaminante), 2) AS pct
-FROM staging.stg_aire
+FROM staging.stg_aire_horario
+WHERE fecha BETWEEN '2024-01-01' AND '2026-09-30'
 GROUP BY id_contaminante, estado_valor
 ORDER BY id_contaminante, n DESC;
 
 
 -- A3 · Duplicados
--- PREGUNTA  ¿Hay más de un valor para la misma estación, fecha, contaminante y estadístico?
--- POR QUÉ   Un duplicado contaría dos veces el mismo día en los promedios. Resultado esperado: 0 filas.
+-- PREGUNTA  ¿Hay más de un valor para la misma fecha, hora, estación y contaminante?
+-- POR QUÉ   Un duplicado contaría dos veces la misma hora en los promedios. Resultado esperado: 0 filas.
 -- TÉCNICA   GROUP BY + HAVING.
-SELECT id_estacion, fecha, id_contaminante, estadistico, count(*) AS repeticiones
-FROM staging.stg_aire
-GROUP BY id_estacion, fecha, id_contaminante, estadistico
+SELECT fecha, hora, id_estacion, id_contaminante, count(*) AS repeticiones
+FROM staging.stg_aire_horario
+GROUP BY fecha, hora, id_estacion, id_contaminante
 HAVING count(*) > 1;
 
 
 -- A4 · Días faltantes: calendario completo + LEFT JOIN
--- PREGUNTA  ¿Qué días no publicó la fuente, por estación y contaminante?
--- POR QUÉ   Un día sin fila no aparece en un GROUP BY común: hay que generar todos los días posibles
---           y ver cuáles no tienen pareja. Distingue "no hay fila" de "hay fila con s/d".
+-- PREGUNTA  ¿Qué días no tienen ninguna hora en la fuente, por estación y contaminante?
+-- POR QUÉ   Un día sin filas no aparece en un GROUP BY común: hay que generar todos los días posibles
+--           y ver cuáles no tienen pareja. Distingue "no hay fila" de "hay filas con s/d".
 -- TÉCNICA   CROSS JOIN (todas las combinaciones) + LEFT JOIN + filtro IS NULL (anti-join).
 WITH esperado AS (
     SELECT c.fecha, e.id_estacion, k.id_contaminante
@@ -72,8 +75,8 @@ WITH esperado AS (
 ),
 publicado AS (
     SELECT DISTINCT id_estacion, fecha, id_contaminante
-    FROM staging.stg_aire
-    WHERE estadistico = '24h'
+    FROM staging.stg_aire_horario
+    WHERE hora BETWEEN 1 AND 24
 )
 SELECT
     x.id_estacion,
@@ -110,41 +113,52 @@ JOIN modelo.dim_calendario c ON c.fecha = f.fecha
 JOIN calidad.agg_completitud_anual v
   ON v.id_estacion = f.id_estacion AND v.id_contaminante = f.id_contaminante
  AND v.id_periodo = CAST(c.anio AS VARCHAR)
-WHERE f.ventana = '24h'
-  AND f.id_contaminante IN ('no2', 'pm10', 'co')
 GROUP BY f.id_estacion, f.id_contaminante, c.anio, v.es_valido
 ORDER BY f.id_contaminante, f.id_estacion, c.anio;
 
 
 -- A6 · Qué descartaron las reglas de calidad
--- PREGUNTA  ¿Cuántos valores se descartaron por cada regla y en qué contaminante?
+-- PREGUNTA  ¿Cuántos valores horarios se descartaron por cada regla y en qué contaminante?
 -- POR QUÉ   Mostrar que la limpieza es acotada y explicable (no se "tiraron datos" a ciegas).
 -- TÉCNICA   Agregación condicional con FILTER (estándar SQL; en motores sin FILTER: SUM(CASE ...)).
 SELECT
     regla,
-    count(*)                                         AS violaciones,
-    count(*) FILTER (WHERE se_descarta)              AS descartadas,
-    count(*) FILTER (WHERE id_contaminante = 'no2')  AS en_no2,
-    count(*) FILTER (WHERE id_contaminante = 'no')   AS en_no,
-    count(*) FILTER (WHERE id_contaminante = 'nox')  AS en_nox
+    count(*)                                          AS violaciones,
+    count(*) FILTER (WHERE id_contaminante = 'no2')   AS en_no2,
+    count(*) FILTER (WHERE id_contaminante = 'pm10')  AS en_pm10,
+    count(*) FILTER (WHERE id_contaminante = 'co')    AS en_co,
+    min(fecha)                                        AS primera,
+    max(fecha)                                        AS ultima
 FROM calidad.calidad_violaciones
 GROUP BY regla
 ORDER BY violaciones DESC;
 
 
--- A7 · El "día 8": dónde se concentran las incoherencias de NOx
--- PREGUNTA  ¿Las incoherencias NOx ≠ NO + NO2 están repartidas al azar o tienen un patrón?
--- POR QUÉ   Un patrón (siempre el mismo día del mes) sugiere un problema de carga en la fuente y
---           justifica descartar el NO de esos días sin tocar el NO2.
--- TÉCNICA   Función de fecha (day) + GROUP BY + ORDER BY + LIMIT.
+-- A7 · De horas a días: cuántas horas válidas tiene cada día de NO2
+-- PREGUNTA  ¿Cuántos días tienen las 24 horas, cuántos alcanzan el mínimo de 18 y cuántos no?
+-- POR QUÉ   El promedio diario de NO2 solo se calcula con 18 horas válidas o más (75%, criterio de la UE).
+--           Muestra cuántos días se pierden por esa regla y que la mayoría está completa.
+-- TÉCNICA   CTE + CASE para agrupar en tramos + GROUP BY + porcentaje con SUM ... OVER.
+WITH tramos AS (
+    SELECT
+        id_estacion,
+        CASE
+            WHEN n_horas_validas = 24 THEN '1. 24 horas'
+            WHEN n_horas_validas >= 18 THEN '2. 18 a 23 horas (se calcula)'
+            WHEN n_horas_validas >= 1 THEN '3. 1 a 17 horas (no alcanza)'
+            ELSE '4. ninguna hora válida'
+        END AS horas_validas
+    FROM modelo.fact_medicion_diaria
+    WHERE id_contaminante = 'no2'
+)
 SELECT
-    day(fecha)                                        AS dia_del_mes,
-    count(*) FILTER (WHERE regla = 'nox_incoherente') AS incoherencias_nox,
-    count(*) FILTER (WHERE regla = 'valor_trabado')   AS valores_trabados
-FROM calidad.calidad_violaciones
-GROUP BY day(fecha)
-ORDER BY incoherencias_nox DESC
-LIMIT 5;
+    id_estacion,
+    horas_validas,
+    count(*)                                                                    AS dias,
+    round(100.0 * count(*) / sum(count(*)) OVER (PARTITION BY id_estacion), 1) AS pct
+FROM tramos
+GROUP BY id_estacion, horas_validas
+ORDER BY id_estacion, horas_validas;
 
 
 -- =====================================================================================================
@@ -215,8 +229,7 @@ FROM modelo.fact_medicion_diaria f
 JOIN modelo.ref_oms r          ON r.id_contaminante = f.id_contaminante AND r.promedio = '24h'
 JOIN modelo.dim_estacion e     ON e.id_estacion = f.id_estacion
 JOIN modelo.dim_contaminante k ON k.id_contaminante = f.id_contaminante
-WHERE f.ventana = '24h'
-  AND f.tiene_dato
+WHERE f.tiene_dato
 GROUP BY e.nombre, k.codigo_fuente, k.orden, r.guia_oms, r.unidad
 ORDER BY k.orden, pct_dias_sobre_guia DESC;
 
@@ -236,7 +249,6 @@ WITH anual AS (
         count(f.valor_masa) * 1.0 / count(*)    AS completitud
     FROM modelo.fact_medicion_diaria f
     JOIN modelo.dim_calendario c ON c.fecha = f.fecha
-    WHERE f.ventana = '24h'
     GROUP BY f.id_estacion, f.id_contaminante, c.anio
 )
 SELECT
@@ -323,32 +335,48 @@ ORDER BY a.id_contaminante, ranking_anual;
 
 -- B6 · Racha más larga de días seguidos por encima de la guía de NO2
 -- PREGUNTA  Subpregunta 3: ¿cuánto tiempo seguido se respira aire por encima de la guía?
--- POR QUÉ   "216 días seguidos" comunica la persistencia del problema mejor que un promedio.
--- TÉCNICA   Gaps and islands: ROW_NUMBER() numera los días sobre la guía; en días consecutivos,
---           fecha − número es constante e identifica la racha. Después GROUP BY racha.
---           (fecha − entero es de DuckDB/PostgreSQL; en otros motores, DATEADD.) El modelo
---           indicadores.agg_rachas guarda todas las rachas para el dashboard.
-WITH sobre_guia AS (
+-- POR QUÉ   "254 días con dato seguidos sobre la guía" comunica la persistencia del problema mejor que
+--           un promedio. Solo un día con dato que cumple la guía corta la racha; un hueco de más de 7
+--           días sin dato también (la fuente tiene huecos cortos de exportación que no son falta de
+--           medición). El modelo indicadores.agg_rachas guarda todas las rachas para el dashboard.
+-- TÉCNICA   Gaps and islands sobre la secuencia de días con dato: ROW_NUMBER() numera todos los días
+--           con dato y, aparte, los que superan la guía; la diferencia es constante dentro de una
+--           racha. LAG() mide el hueco con el día anterior y SUM() OVER acumulado arma los tramos.
+WITH dias AS (
     SELECT
         id_estacion,
         fecha,
-        fecha - CAST(ROW_NUMBER() OVER (PARTITION BY id_estacion ORDER BY fecha) AS INTEGER) AS id_racha
+        supera_guia,
+        ROW_NUMBER() OVER (PARTITION BY id_estacion ORDER BY fecha)                    AS n_dia,
+        fecha - LAG(fecha) OVER (PARTITION BY id_estacion ORDER BY fecha) - 1          AS dias_sin_dato_antes
     FROM indicadores.agg_cumplimiento_diario
     WHERE id_contaminante = 'no2'
-      AND supera_guia
+),
+tramos AS (
+    SELECT *,
+           SUM(CASE WHEN dias_sin_dato_antes > 7 THEN 1 ELSE 0 END)
+               OVER (PARTITION BY id_estacion ORDER BY fecha)                          AS tramo
+    FROM dias
+),
+sobre_guia AS (
+    SELECT id_estacion, fecha, tramo,
+           n_dia - ROW_NUMBER() OVER (PARTITION BY id_estacion ORDER BY fecha)        AS id_racha
+    FROM tramos
+    WHERE supera_guia
 ),
 rachas AS (
-    SELECT id_estacion, min(fecha) AS desde, max(fecha) AS hasta, count(*) AS dias
+    SELECT id_estacion, min(fecha) AS desde, max(fecha) AS hasta, count(*) AS dias_con_dato,
+           max(fecha) - min(fecha) + 1 AS dias_calendario
     FROM sobre_guia
-    GROUP BY id_estacion, id_racha
+    GROUP BY id_estacion, tramo, id_racha
 )
 SELECT *
 FROM (
-    SELECT r.*, ROW_NUMBER() OVER (PARTITION BY id_estacion ORDER BY dias DESC, desde) AS orden
+    SELECT r.*, ROW_NUMBER() OVER (PARTITION BY id_estacion ORDER BY dias_con_dato DESC, desde) AS orden
     FROM rachas r
 ) t
 WHERE orden = 1
-ORDER BY dias DESC;
+ORDER BY dias_con_dato DESC;
 
 
 -- =====================================================================================================
@@ -383,6 +411,26 @@ SELECT
                  OVER (PARTITION BY id_estacion) - 1), 1)     AS variacion_vs_habil_pct
 FROM por_tipo
 ORDER BY id_estacion, orden_tipo_dia;
+
+
+-- C1b · Perfil horario del NO2: hábil contra domingo
+-- PREGUNTA  Subpregunta 4 (H3): ¿en qué horas del día se nota la diferencia entre hábil y domingo?
+-- POR QUÉ   Si el NO2 sale del tránsito, en día hábil tiene que haber picos en las horas pico (mañana
+--           y tarde) que el domingo no aparecen. Es lo que el promedio diario no puede mostrar.
+-- TÉCNICA   Segunda tabla de hechos con otro grano (fact_medicion_horaria) + JOIN con el calendario
+--           + PIVOT manual con FILTER: una columna por tipo de día.
+SELECT
+    h.id_estacion,
+    h.hora,
+    round(avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'habil'), 1)   AS no2_habil_ugm3,
+    round(avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'domingo'), 1) AS no2_domingo_ugm3,
+    round(avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'domingo')
+        / avg(h.valor_masa) FILTER (WHERE c.tipo_dia = 'habil') * 100 - 100, 1) AS domingo_vs_habil_pct
+FROM modelo.fact_medicion_horaria h
+JOIN modelo.dim_calendario c ON c.fecha = h.fecha
+WHERE h.es_valido
+GROUP BY h.id_estacion, h.hora
+ORDER BY h.id_estacion, h.hora;
 
 
 -- C2 · Por estación del año
@@ -421,7 +469,6 @@ SELECT
     count(*) FILTER (WHERE year(fecha) = 2026)             AS dias_2026
 FROM modelo.fact_medicion_diaria
 WHERE id_contaminante = 'no2'
-  AND ventana = '24h'
   AND tiene_dato
   AND month(fecha) <= 9
 GROUP BY id_estacion
@@ -439,21 +486,21 @@ ORDER BY id_estacion;
 WITH comunes AS (
     SELECT fecha
     FROM modelo.fact_medicion_diaria
-    WHERE id_contaminante = 'no2' AND ventana = '24h' AND tiene_dato
+    WHERE id_contaminante = 'no2' AND tiene_dato
     GROUP BY fecha
     HAVING count(DISTINCT id_estacion) = 3
 )
 SELECT 'todas las estaciones, todos los días' AS criterio, year(fecha) AS anio,
        round(avg(valor), 1) AS no2_ppb_ene_sep, count(*) AS mediciones
 FROM modelo.fact_medicion_diaria
-WHERE id_contaminante = 'no2' AND ventana = '24h' AND tiene_dato AND month(fecha) <= 9
+WHERE id_contaminante = 'no2' AND tiene_dato AND month(fecha) <= 9
 GROUP BY year(fecha)
 UNION ALL
 SELECT 'solo días con las 3 estaciones', year(f.fecha),
        round(avg(f.valor), 1), count(*)
 FROM modelo.fact_medicion_diaria f
 JOIN comunes c ON c.fecha = f.fecha
-WHERE f.id_contaminante = 'no2' AND f.ventana = '24h' AND f.tiene_dato AND month(f.fecha) <= 9
+WHERE f.id_contaminante = 'no2' AND f.tiene_dato AND month(f.fecha) <= 9
 GROUP BY year(f.fecha)
 ORDER BY criterio, anio;
 
@@ -470,7 +517,6 @@ SELECT
     string_agg(DISTINCT id_estacion, ', ' ORDER BY id_estacion)  AS estaciones,
     max(veces_mediana)                                           AS max_veces_mediana
 FROM calidad.calidad_outliers
-WHERE ventana = '24h'
 GROUP BY fecha, id_contaminante
 HAVING count(DISTINCT id_estacion) >= 2
 ORDER BY estaciones_con_outlier DESC, max_veces_mediana DESC;

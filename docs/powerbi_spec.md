@@ -5,8 +5,8 @@ ETL y el EDA, no recalcula reglas. Público: funcionarios, prensa y ciudadanía 
 
 ## 0. Proyecto listo para abrir: `dashboard/AireOMS.pbip`
 
-El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: 14 tablas de `data/final` (más la tabla
-`_Medidas`), 20 relaciones, 18 medidas DAX, el orden de las columnas de texto, los formatos, las descripciones de cada
+El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: 15 tablas de `data/final` (más la tabla
+`_Medidas`), 24 relaciones, 20 medidas DAX, el orden de las columnas de texto, los formatos, las descripciones de cada
 tabla y columna (las mismas del diccionario de datos) y el tema de colores de la sección 4. El informe trae las 3
 páginas vacías: **los gráficos se arman a mano** con las secciones 2 y 3.
 
@@ -31,23 +31,27 @@ gráficos** (se perderían). Los cambios posteriores del modelo se hacen directa
 
 | Tabla | Para qué |
 |---|---|
-| `dim_estacion` | Segmentador de estación, mapa (coordenadas aproximadas) |
+| `dim_estacion` | Segmentador de estación, mapa (coordenadas de BA Data, marcadas como latitud y longitud) |
 | `dim_contaminante` | Segmentador de contaminante, unidades |
 | `dim_calendario` | Segmentadores de año, tipo de día y estación del año; eje de tiempo |
 | `dim_periodo` | Segmentador de período de los indicadores anuales |
 | `ref_oms`, `ref_oms_niveles` | Guías y objetivos intermedios para líneas de referencia y tarjetas |
-| `fact_medicion_diaria` | Completitud y días válidos; serie con la ventana 8-16 |
+| `fact_medicion_diaria` | Completitud y días válidos |
+| `fact_medicion_horaria` | Perfil horario del NO2 por tipo de día |
 | `agg_cumplimiento_diario` | % de días sobre la guía, P99, series de 24 h |
 | `agg_anual` | Promedio anual, veces la guía, nivel OMS |
 | `agg_cumplimiento_niveles` | Matriz de escalones (% de días que cumplen cada nivel, por año) |
 | `agg_rachas` | Racha máxima |
+| `agg_contexto_anual` | Contexto: NO2 y PM10 anual 2010-2025 |
 | `agg_completitud_mensual` | Heatmap de completitud |
-| `calidad_archivos`, `calidad_resumen` | Página de calidad |
+| `calidad_resumen` | Página de calidad |
 
 Para tener en cuenta al armar los gráficos:
 - `agg_anual` **no** se relaciona con `dim_calendario`: sus períodos (años, 2026 parcial, últimos 12 meses) vienen
   de `dim_periodo`. En los visuales anuales usar el segmentador de **período**, no el de año.
 - `agg_completitud_mensual` tiene su propio `anio_mes`: usarlo directamente en el heatmap.
+- `agg_contexto_anual` tiene su propio `anio` (2010-2025, fuera del calendario del estudio): **no** se relaciona
+  con `dim_calendario`.
 - `Promedio anual` va con **una** estación, **un** contaminante y **un** período por celda (tarjeta o matriz).
 - Las medidas están en la tabla `_Medidas`, cada una con su descripción. `Veces sobre guía anual` queda linda con el
   sufijo "×".
@@ -61,18 +65,17 @@ intermedios y La Boca no alcanza ni el primero.**
 
 - **Fila de 4 tarjetas** (filtro de página: contaminante = NO2):
   1. `Nivel OMS anual` por estación, últimos 12 meses ("IT2 · IT1 · > IT1"), con el color del nivel.
-  2. `% Días que cumplen IT2` por estación ("98,6% · 87,7% · 49,7%").
+  2. `% Días que cumplen IT2` por estación ("98,5% · 87,6% · 50,0%").
   3. `Veces sobre guía anual` de La Boca, últimos 12 meses ("4,6 veces la guía anual").
-  4. `Racha máxima` ("216 días seguidos sobre la guía").
+  4. `Racha máxima` ("254 días con dato seguidos sobre la guía").
 - **Barras 100% apiladas "en qué escalón cae cada día"**: eje `dim_estacion[nombre]`, leyenda
   `agg_cumplimiento_diario[nivel_oms]` (ordenada por `orden_nivel_oms`), valores = recuento de filas, mostrado
   como % del total. Colores por nivel (sección 4). Responde "¿en qué escalón está cada estación?" (figura
   `reports/figures/06_niveles_oms_diarios.png` del EDA).
 - **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `Nivel OMS anual`,
   `Promedio anual` (últimos 12 meses), `% Días sobre guía`.
-- **Mapa** (visual Mapa o Azure Maps) con `latitud_aprox` / `longitud_aprox` de `dim_estacion`; tamaño de la burbuja
-  = `% Días sobre guía`. Aclarar en la nota al pie que la ubicación es aproximada. Si el mapa no aporta, reemplazarlo
-  por las tarjetas por estación.
+- **Mapa** (visual Mapa o Azure Maps) con `latitud` / `longitud` de `dim_estacion`; tamaño de la burbuja
+  = `% Días sobre guía`. Si el mapa no aporta, reemplazarlo por las tarjetas por estación.
 - **Cuadro de texto** con 3 conclusiones en lenguaje simple (ver README, sección Hallazgos).
 
 ### Página 2 · Detalle ("¿Cuándo y dónde es peor?")
@@ -90,8 +93,13 @@ intermedios y La Boca no alcanza ni el primero.**
   objetivos intermedios (tomar los valores de `ref_oms`).
 - **Matriz**: filas `tipo_dia_etiqueta`, columnas `estacion_del_anio`, valores `% Días sobre guía` (formato
   condicional: escala de un solo tono, ver sección 4) y, en información sobre herramientas, `Días válidos`.
-- **Barras**: `Variación vs. hábil` por tipo de día y estación (mensaje: "el domingo baja 17 a 27%, pero en La Boca
+- **Barras**: `Variación vs. hábil` por tipo de día y estación (mensaje: "el domingo baja 17 a 26%, pero en La Boca
   el 90% de los domingos sigue sobre la guía").
+- **Líneas, perfil horario**: eje `fact_medicion_horaria[hora]`, valor `NO₂ horario promedio`, leyenda
+  `dim_calendario[tipo_dia_etiqueta]` (filtrar Hábil y Domingo) y segmentador de estación (figura
+  `11_ritmo_semanal.png`). Mensaje: "en día hábil aparecen las horas pico; el domingo, no".
+- **Líneas, contexto 2010-2025** (opcional): eje `agg_contexto_anual[anio]`, valor `Promedio anual (contexto)`,
+  leyenda `dim_estacion[nombre]`, filtro contaminante = NO2 (figura `14_contexto_no2_anual.png`).
 
 ### Página 3 · Calidad de datos ("¿Cuánto podemos confiar?")
 
@@ -100,8 +108,8 @@ intermedios y La Boca no alcanza ni el primero.**
   fondo (escala de azules: claro = sin datos, oscuro = completo). Es el gráfico central de esta página.
 - **Tabla "qué quedó afuera"**: `agg_anual` filtrado por `es_valido = falso` (estación, contaminante, período,
   completitud) + texto "menos de 75% de días con dato: no se calcula el promedio anual".
-- **Tabla de archivos**: `calidad_archivos` filtrado por estado distinto de `ok` (2 descartados y 3 con aviso).
-- **Barras**: `calidad_resumen` (valores por categoría): 93% válidos, 5,7% sin dato en la fuente, 0,7% descartados.
+- **Barras**: `calidad_resumen` (valores horarios por categoría): 87,8% válidos, 11,9% sin dato en la fuente, 0,3%
+  descartados por reglas (hora 0, `#REF!`, una hora en cero, valores fuera de rango).
 
 ## 3. Segmentadores
 
@@ -141,9 +149,9 @@ Antes de presentar, comparar el dashboard con las vistas SQL (`analisis.v_resume
 
 | Indicador | La Boca | Córdoba | Parque Centenario |
 |---|---|---|---|
-| % de días con NO₂ sobre 25 µg/m³ (todo el período) | 94,7% (944 días) | 84,4% (910) | 50,3% (662) |
-| % de días que cumplen el IT2 diario de NO₂ (50 µg/m³) | 49,7% | 87,7% | 98,6% |
-| NO₂ promedio, últimos 12 meses | 45,9 µg/m³ (4,6×, > IT1) | 35,0 (3,5×, IT1) | 26,2 (2,6×, IT2) |
-| % de días con PM10 sobre 45 µg/m³ | 4,1% | 3,3% | 2,3% |
-| Racha máxima de NO₂ sobre la guía | 216 días | 111 días | 22 días |
-| NO₂ del domingo vs. día hábil | −17% | −21% | −27% |
+| % de días con NO₂ sobre 25 µg/m³ (todo el período) | 95,0% (900 días) | 85,6% (864) | 54,9% (676) |
+| % de días que cumplen el IT2 diario de NO₂ (50 µg/m³) | 50,0% | 87,6% | 98,5% |
+| NO₂ promedio, últimos 12 meses | 45,9 µg/m³ (4,6×, > IT1) | 35,1 (3,5×, IT1) | 26,3 (2,6×, IT2) |
+| % de días con PM10 sobre 45 µg/m³ | 4,1% | 3,2% | 2,4% |
+| Racha máxima de NO₂ sobre la guía (días con dato) | 254 días | 111 días | 26 días |
+| NO₂ del domingo vs. día hábil | −17% | −21% | −26% |

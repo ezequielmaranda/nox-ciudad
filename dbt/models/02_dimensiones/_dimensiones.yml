@@ -20,11 +20,11 @@ models:
       - name: fuentes_fijas
         description: Incidencia de fuentes fijas (industrias, puerto) según la APrA.
       - name: inicio_operacion
-        description: Año de inicio de operación (vacío si la fuente no lo informa).
-      - name: latitud_aprox
-        description: Latitud aproximada (geocodificada a mano desde la dirección; verificar antes de usar en un mapa).
-      - name: longitud_aprox
-        description: Longitud aproximada (ídem).
+        description: Año de inicio de actividad según BA Data (estaciones-ambientales.csv).
+      - name: latitud
+        description: Latitud de la estación (BA Data, estaciones-ambientales.csv).
+      - name: longitud
+        description: Longitud de la estación (BA Data, estaciones-ambientales.csv).
       - name: descripcion
         description: Para qué zona es representativa la estación.
       - name: orden
@@ -34,7 +34,7 @@ models:
     description: Una fila por contaminante, con unidades y factor de conversión a masa.
     columns:
       - name: id_contaminante
-        description: Clave del contaminante ('no2', 'pm10', 'co', 'no', 'nox').
+        description: Clave del contaminante ('no2', 'pm10', 'co').
         data_tests: [unique, not_null]
       - name: codigo_fuente
         description: Nombre como figura en la fuente ('NO2', 'PM10').
@@ -49,10 +49,12 @@ models:
       - name: factor_masa
         description: "Multiplicador de unidad_medicion a unidad_masa: peso_molecular / 24,45 (25 °C, 1 atm)."
         data_tests: [not_null]
-      - name: tolerancia_coherencia
-        description: Tolerancia por redondeo para las reglas de coherencia (2 ppb o µg/m³; 0,2 ppm para CO).
-      - name: maximo_fisico
-        description: Máximo físicamente posible para un promedio urbano (regla fuera_de_rango).
+      - name: promedio_fuente
+        description: "Cómo publica la red el contaminante: 'horario' (NO2), 'movil_8h' (CO) o 'movil_24h' (PM10)."
+      - name: horas_promedio_fuente
+        description: Horas que abarca cada valor publicado (1, 8 o 24).
+      - name: maximo_plausible
+        description: Máximo plausible para un valor horario en la Ciudad (regla fuera_de_rango).
       - name: tiene_guia_24h
         description: Verdadero si la OMS tiene guía de 24 h para el contaminante.
       - name: tiene_guia_anual

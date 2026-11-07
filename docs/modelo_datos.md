@@ -9,10 +9,10 @@ construida con **dbt**, con un **esquema estrella** en el centro. El detalle de 
 | Schema | Qué tiene | Modelos dbt |
 |---|---|---|
 | `referencia` | Tablas mantenidas a mano en `data/reference/` (seeds) | `oms_2021`, `contaminantes`, `estaciones`, `feriados`, `eventos` |
-| `staging` | El crudo tipado y validado, una fila por celda de los PDF | `stg_aire`, `stg_aire_validado`, `stg_manifiesto` |
-| `modelo` | **Esquema estrella**: dimensiones, referencias OMS y la tabla de hechos | `dim_*`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria` |
-| `calidad` | Completitud, violaciones a las reglas, outliers y estado de los PDF | `agg_completitud_*`, `calidad_*` |
-| `indicadores` | Los indicadores contra la OMS | `agg_cumplimiento_diario`, `agg_anual`, `agg_rachas` |
+| `staging` | El crudo horario en formato largo, tipado y validado (una fila por celda del CSV), y el valor diario | `stg_aire_horario`, `stg_aire_horario_validado`, `stg_aire_diario` |
+| `modelo` | **Esquema estrella**: dimensiones, referencias OMS y dos tablas de hechos (diaria y horaria) | `dim_*`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria`, `fact_medicion_horaria` |
+| `calidad` | Completitud, violaciones a las reglas y outliers | `agg_completitud_*`, `calidad_*` |
+| `indicadores` | Los indicadores contra la OMS y la serie larga de contexto | `agg_cumplimiento_diario`, `agg_anual`, `agg_cumplimiento_niveles`, `agg_rachas`, `agg_contexto_anual` |
 | `analisis` | Vistas de `sql/99_consultas_analisis.sql` (para verificar el dashboard) | `v_resumen_estacion`, `v_cumplimiento_por_tipo_dia`, `v_indicadores_excluidos` |
 
 ## 2. Esquema estrella
@@ -22,6 +22,8 @@ erDiagram
     dim_calendario ||--o{ fact_medicion_diaria : "fecha"
     dim_estacion ||--o{ fact_medicion_diaria : "id_estacion"
     dim_contaminante ||--o{ fact_medicion_diaria : "id_contaminante"
+    dim_calendario ||--o{ fact_medicion_horaria : "fecha"
+    dim_estacion ||--o{ fact_medicion_horaria : "id_estacion"
     dim_contaminante ||--o{ ref_oms : "id_contaminante"
     dim_calendario ||--o{ agg_cumplimiento_diario : "fecha"
     dim_estacion ||--o{ agg_cumplimiento_diario : "id_estacion"
@@ -34,13 +36,22 @@ erDiagram
         date fecha PK
         varchar id_estacion PK
         varchar id_contaminante PK
-        varchar ventana PK "24h | 8-16"
-        double valor "unidad original"
+        int n_horas_validas
+        double valor "promedio 24 h, unidad original"
         double valor_masa "unidad OMS"
         boolean tiene_fila
         boolean tiene_dato
         varchar motivo_sin_dato
         boolean es_outlier
+    }
+    fact_medicion_horaria {
+        date fecha PK
+        int hora PK "1 a 24"
+        varchar id_estacion PK
+        varchar id_contaminante "no2"
+        boolean es_valido
+        double valor "ppb"
+        double valor_masa "µg/m³"
     }
     dim_calendario {
         date fecha PK
@@ -103,14 +114,15 @@ erDiagram
 
 | Tabla | Qué representa | Clave | Filas |
 |---|---|---|---|
-| `fact_medicion_diaria` | Una medición diaria: un contaminante, en una estación, un día, en una ventana | `fecha, id_estacion, id_contaminante, ventana` | 30.120 |
+| `fact_medicion_diaria` | El promedio de 24 h de un contaminante, en una estación, un día | `fecha, id_estacion, id_contaminante` | 9.036 |
+| `fact_medicion_horaria` | Una hora de NO2 en una estación (segunda tabla de hechos, otro grano) | `fecha, hora, id_estacion` | 70.704 |
 | `dim_calendario` | Un día del período, haya o no datos (tipo de día, feriado, estación del año, evento) | `fecha` | 1.004 |
 | `dim_estacion` | Una estación de monitoreo (ubicación, entorno, flujo vehicular) | `id_estacion` | 3 |
-| `dim_contaminante` | Un contaminante (unidades, factor de conversión, tolerancias) | `id_contaminante` | 5 |
+| `dim_contaminante` | Un contaminante (unidades, factor de conversión, cómo lo publica la red, máximo plausible) | `id_contaminante` | 3 |
 | `ref_oms` | Una guía OMS: contaminante × período de promedio, con objetivos intermedios | `id_contaminante, promedio` | 5 |
 | `ref_oms_niveles` | La misma guía en formato largo, una fila por nivel (para líneas de referencia) | `id_contaminante, promedio, nivel` | 19 |
 | `dim_periodo` | Un período de indicadores anuales | `id_periodo` | 4 |
-| `agg_cumplimiento_diario` | Un día con dato de NO2, PM10 o CO comparado con su guía de 24 h | `fecha, id_estacion, id_contaminante` | 7.823 |
+| `agg_cumplimiento_diario` | Un día con dato de NO2, PM10 o CO comparado con su guía de 24 h | `fecha, id_estacion, id_contaminante` | 7.615 |
 | `agg_anual` | Indicadores de un período por estación y contaminante | `id_estacion, id_contaminante, id_periodo` | 36 |
 
 **Relaciones:** todas son uno a muchos desde la dimensión hacia la tabla de hechos o el agregado. Los tests de dbt
@@ -120,8 +132,8 @@ erDiagram
 
 ### Formato largo y no ancho
 
-El crudo y la tabla diaria del proyecto anterior tenían **una columna por contaminante y ventana**
-(`no2_24h_ppb`, `pm10_816_ugm3`, etc.). Se eligió el formato **largo** (una fila por contaminante) porque:
+El crudo de BA Data viene en formato **ancho**: una columna por estación y contaminante (`NO2_LA_BOCA`,
+`PM10_CORDOBA`, etc.). El staging lo pasa a formato **largo** con `UNPIVOT` (una fila por contaminante) porque:
 
 - **El JOIN con la OMS es por contaminante:** `fact JOIN ref_oms USING (id_contaminante)` resuelve todos los
   contaminantes con la misma consulta. En formato ancho habría que escribir una comparación por columna.
@@ -134,21 +146,26 @@ fila por estación y día). Cuando hace falta, se pivotea en el momento (el note
 
 ### Grilla completa
 
-La fact tiene todas las combinaciones calendario × estación × contaminante × ventana, aunque no haya dato. Así:
+La fact tiene todas las combinaciones calendario × estación × contaminante, aunque no haya dato. Así:
 los días faltantes se cuentan con un `COUNT` (no hay que "buscar lo que no está"), la completitud es un promedio
-de `tiene_dato` y Power BI puede mostrar huecos en las series. El costo es tener filas con valor nulo (15% de la
+de `tiene_dato` y Power BI puede mostrar huecos en las series. El costo es tener filas con valor nulo (16% de la
 fact), marcadas con `tiene_dato = false` y su motivo.
 
-### Dos ventanas: 24 h y 8 a 16 h
+### Dos tablas de hechos: diaria y horaria
 
-La OMS define sus guías sobre el **promedio de 24 h**: todos los indicadores usan esa ventana. La ventana de **8 a
-16 h** (horario de actividad, la que publica la APrA) queda en la fact como contexto para el análisis por tipo de
-día y ritmo semanal.
+La OMS define sus guías de corto plazo sobre el **promedio de 24 h**: todos los indicadores usan la fact diaria. El
+valor diario se arma en `stg_aire_diario` según cómo publica la red cada contaminante (NO2 horario con 18 horas o
+más; PM10 con el móvil de 24 h de la hora 24; CO con los bloques de 8 h). La **fact horaria** guarda solo el NO2,
+el único publicado como promedio de cada hora, para el perfil horario por tipo de día. Las dos comparten
+dimensiones (calendario, estación, contaminante): es un esquema estrella con dos tablas de hechos de distinto grano
+(a veces llamado "constelación"). Un test de dbt verifica que el promedio diario de la fact diaria coincida con el
+de las horas de la fact horaria.
 
 ### Umbrales en tablas, no en el código
 
-Las guías OMS (`ref_oms`), las tolerancias de las reglas de calidad y los factores de conversión
-(`dim_contaminante`) y los parámetros del estudio (período, regla del 75%, factor del IQR, en `dbt_project.yml`)
+Las guías OMS (`ref_oms`), los máximos plausibles de las reglas de calidad y los factores de conversión
+(`dim_contaminante`) y los parámetros del estudio (período, regla del 75%, horas mínimas por día, factor del IQR,
+en `dbt_project.yml`)
 están en tablas o variables. El SQL los trae con un JOIN o con `var()`: cambiar un umbral no obliga a tocar
 consultas.
 

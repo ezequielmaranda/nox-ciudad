@@ -111,7 +111,10 @@ models:
             columnas: [id_estacion, id_contaminante, id_periodo]
 
   - name: agg_rachas
-    description: Rachas de días consecutivos sobre la guía de 24 h (gaps and islands). Un día sin dato corta la racha.
+    description: >
+      Rachas de días seguidos sobre la guía de 24 h (gaps and islands sobre los días con dato).
+      Un día con dato que cumple la guía corta la racha; los huecos sin dato de hasta 7 días no la
+      cortan ni la alargan (se informan en dias_sin_dato) y uno más largo sí la corta.
     columns:
       - name: id_estacion
         description: Estación.
@@ -122,7 +125,11 @@ models:
       - name: fecha_fin
         description: Último día de la racha.
       - name: dias
-        description: Duración de la racha en días.
+        description: Días con dato sobre la guía en la racha.
+      - name: dias_calendario
+        description: Días de calendario entre el primero y el último de la racha.
+      - name: dias_sin_dato
+        description: Días sin dato dentro de la racha (dias_calendario − dias).
       - name: es_racha_maxima
         description: Verdadero si es la racha más larga de su estación × contaminante.
 
@@ -170,3 +177,53 @@ models:
       - clave_unica:
           arguments:
             columnas: [id_estacion, id_contaminante, id_periodo, nivel]
+
+  - name: agg_contexto_anual
+    description: >
+      Serie larga de contexto (2010-2025): promedio anual de NO2 y PM10 por estación y año, con la
+      misma regla del 75% de días con dato. Ubica el período de estudio en la historia de la red.
+    columns:
+      - name: anio
+        description: Año calendario.
+      - name: id_estacion
+        description: Estación.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_estacion')
+                field: id_estacion
+      - name: id_contaminante
+        description: Contaminante con guía OMS anual (no2 o pm10).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["no2", "pm10"]
+      - name: n_dias_anio
+        description: Días del año (365 o 366).
+      - name: n_dias_con_dato
+        description: Días con promedio de 24 h válido.
+      - name: completitud
+        description: n_dias_con_dato / n_dias_anio (0 a 1).
+        data_tests:
+          - entre:
+              arguments:
+                minimo: 0
+                maximo: 1
+      - name: es_valido
+        description: Verdadero si el año tiene >= 75% de días con dato.
+      - name: unidad
+        description: Unidad de la guía anual (µg/m³).
+      - name: promedio_anual
+        description: Promedio anual (µg/m³). Vacío si el año no es válido.
+      - name: promedio_referencial
+        description: El mismo promedio aunque el año no sea válido (solo para transparencia).
+      - name: guia_anual
+        description: Guía anual de la OMS 2021.
+      - name: veces_guia_anual
+        description: promedio_anual / guia_anual.
+      - name: nivel_oms
+        description: Escalón OMS del promedio anual (AQG, IT4 … IT1, '> IT1'). Vacío si no es válido.
+    data_tests:
+      - clave_unica:
+          arguments:
+            columnas: [anio, id_estacion, id_contaminante]

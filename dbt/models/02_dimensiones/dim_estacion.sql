@@ -1,8 +1,8 @@
 -- =====================================================================================
 -- 02 · DIMENSIÓN ESTACIÓN: una fila por estación de monitoreo de la APrA.
--- Sale de data/reference/estaciones.csv: dirección, entorno, flujo vehicular, fuentes fijas e inicio de
--- operación vienen de las páginas de cada estación en la web de la APrA; `descripcion` es redacción del equipo.
--- Las coordenadas son aproximadas (geocodificadas a mano a partir de la dirección).
+-- Sale de data/reference/estaciones.csv: dirección, entorno, flujo vehicular y fuentes fijas vienen de las
+-- páginas de cada estación en la web de la APrA; inicio de operación y coordenadas, del archivo
+-- estaciones-ambientales.csv del dataset de BA Data; `descripcion` es redacción del equipo.
 -- =====================================================================================
 select
     id_estacion,
@@ -13,8 +13,8 @@ select
     flujo_vehicular,
     fuentes_fijas,
     inicio_operacion,
-    latitud_aprox,
-    longitud_aprox,
+    latitud,
+    longitud,
     descripcion,
     row_number() over (order by nombre) as orden
 from {{ ref('estaciones') }}
