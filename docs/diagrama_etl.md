@@ -1,17 +1,16 @@
 # Flujo ETL
 
 Un solo comando (`make etl` o `python -m src.etl`) recorre el flujo de punta a punta en unos 10 segundos. La
-extracción desde los PDF de la APrA es un paso aparte y opcional (`make extract`): el CSV crudo ya está en el repo.
+descarga del CSV de BA Data es un paso aparte y opcional (`make extract`): el CSV crudo ya está en el repo.
 
 ```mermaid
 flowchart LR
     subgraph FUENTE["Fuente pública"]
-        PDF["281 PDF mensuales<br/>APrA · 3 estaciones<br/>CO · NO/NO2/NOx · PM10"]
+        BAD["BA Data · APrA<br/>calidad-aire.csv<br/>horario desde 2009<br/>CO · NO2 · PM10"]
     end
 
     subgraph RAW["data/raw"]
-        CSV["aire_publico.csv<br/>83.010 valores · todo texto"]
-        MAN["aire_publico_manifiesto.csv<br/>estado de cada PDF"]
+        CSV["calidad-aire.csv<br/>147.470 filas fecha × hora<br/>ancho · todo texto"]
     end
 
     subgraph REF["data/reference"]
@@ -20,27 +19,26 @@ flowchart LR
     end
 
     subgraph DB["data/warehouse/aire.duckdb (dbt build)"]
-        STG["01 staging<br/>tipar · normalizar<br/>reglas de validación"]
-        MOD["02-03 modelo<br/>dimensiones · ref_oms<br/>fact_medicion_diaria"]
+        STG["01 staging<br/>UNPIVOT · tipar<br/>reglas por hora<br/>horas → día"]
+        MOD["02-03 modelo<br/>dimensiones · ref_oms<br/>fact diaria y horaria"]
         CAL["04 calidad<br/>completitud · regla 75%<br/>violaciones · outliers"]
-        IND["05 indicadores<br/>cumplimiento diario<br/>anual · rachas"]
+        IND["05 indicadores<br/>cumplimiento diario<br/>anual · rachas · contexto"]
         VIS["analisis<br/>vistas de sql/99"]
     end
 
     subgraph FINAL["data/final"]
-        OUT["18 tablas<br/>CSV + Parquet"]
+        OUT["19 tablas<br/>CSV + Parquet"]
     end
 
     PBI["Power BI<br/>dashboard"]
     NB["notebooks/eda.ipynb<br/>EDA + figuras"]
 
-    PDF -- "src/extract.py<br/>(opcional)" --> CSV
-    PDF --> MAN
+    BAD -- "src/extract.py<br/>(opcional)" --> CSV
     CSV --> STG
-    MAN --> STG
     REF --> STG
     REF --> MOD
     STG --> MOD --> CAL --> IND
+    STG --> IND
     MOD --> IND
     IND --> VIS
     MOD --> OUT
@@ -54,10 +52,10 @@ flowchart LR
 
 | # | Paso | Herramienta | Entrada → salida | Qué hace |
 |---|---|---|---|---|
-| 0 | **Extracción de la fuente** (opcional) | `src/extract.py` | PDF de la APrA → `data/raw/aire_publico.csv` | Baja los PDF, reconstruye la tabla diaria por coordenadas y la escribe en formato largo, sin convertir valores. Deja un manifiesto con el estado de cada archivo |
-| 1 | **Extract** | `src/etl.py` + `src/calidad.py` | `data/raw/*.csv` | Verifica que esté el crudo y registra filas, columnas, rango de fechas, duplicados, nulos y valores no numéricos |
-| 2 | **Transform + Load** | dbt (`dbt build`) | raw + reference → DuckDB | Seeds de referencia → staging (tipos, normalización, reglas físicas) → dimensiones y fact (formato largo, grilla completa, conversión de unidades, outliers) → calidad (completitud, regla del 75%) → indicadores (OMS). Corre los 79 tests de calidad; si uno de tipo error falla, el ETL se detiene |
-| 3 | **Export** | `src/etl.py` | DuckDB → `data/final/` | 18 tablas en CSV (UTF-8, separador `,`, decimal `.`) y Parquet, ordenadas para que dos corridas den archivos idénticos |
+| 0 | **Descarga de la fuente** (opcional) | `src/extract.py` | BA Data → `data/raw/calidad-aire.csv` | Baja el CSV horario con reintentos, verifica que tenga las columnas esperadas y lo guarda tal como viene, sin convertir valores |
+| 1 | **Extract** | `src/etl.py` + `src/calidad.py` | `data/raw/calidad-aire.csv` | Verifica que esté el crudo y registra filas, rango de fechas, duplicados por fecha + hora, horas fuera de rango y tipos de valor |
+| 2 | **Transform + Load** | dbt (`dbt build`) | raw + reference → DuckDB | Seeds de referencia → staging (UNPIVOT a formato largo, tipos, reglas por hora, valor diario según el promedio de cada contaminante) → dimensiones y facts (grilla completa diaria, NO2 horario, conversión de unidades, outliers) → calidad (completitud, regla del 75%) → indicadores (OMS y contexto 2010-2025). Corre los 92 tests de calidad; si uno de tipo error falla, el ETL se detiene |
+| 3 | **Export** | `src/etl.py` | DuckDB → `data/final/` | 19 tablas en CSV (UTF-8, separador `,`, decimal `.`) y Parquet, ordenadas para que dos corridas den archivos idénticos |
 | 4 | **Análisis SQL** | `src/etl.py` | `sql/99_consultas_analisis.sql` | Ejecuta las consultas de análisis (verifica que corran) y crea las vistas del schema `analisis` |
 | 5 | **Documentar** | `src/diccionario.py` | descripciones de dbt → `docs/diccionario_datos.md` | Genera el diccionario de datos desde los `.yml` de dbt |
 

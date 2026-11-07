@@ -8,7 +8,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["RutaDatos", "_Medidas", "dim_estacion", "dim_contaminante", "dim_calendario", "dim_periodo", "ref_oms", "ref_oms_niveles", "fact_medicion_diaria", "agg_cumplimiento_diario", "agg_anual", "agg_cumplimiento_niveles", "agg_rachas", "agg_completitud_mensual", "calidad_resumen", "calidad_archivos"]
+annotation PBI_QueryOrder = ["RutaDatos", "_Medidas", "dim_estacion", "dim_contaminante", "dim_calendario", "dim_periodo", "ref_oms", "ref_oms_niveles", "fact_medicion_diaria", "fact_medicion_horaria", "agg_cumplimiento_diario", "agg_anual", "agg_cumplimiento_niveles", "agg_rachas", "agg_contexto_anual", "agg_completitud_mensual", "calidad_resumen"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -20,11 +20,12 @@ ref table dim_periodo
 ref table ref_oms
 ref table ref_oms_niveles
 ref table fact_medicion_diaria
+ref table fact_medicion_horaria
 ref table agg_cumplimiento_diario
 ref table agg_anual
 ref table agg_cumplimiento_niveles
 ref table agg_rachas
+ref table agg_contexto_anual
 ref table agg_completitud_mensual
 ref table calidad_resumen
-ref table calidad_archivos
 

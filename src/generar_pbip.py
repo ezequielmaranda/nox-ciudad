@@ -35,9 +35,13 @@ RUTA_POR_DEFECTO = r"C:\nox-ciudad\data\final" + "\\"
 TABLAS = [
     "dim_estacion", "dim_contaminante", "dim_calendario", "dim_periodo",
     "ref_oms", "ref_oms_niveles",
-    "fact_medicion_diaria", "agg_cumplimiento_diario", "agg_anual", "agg_cumplimiento_niveles", "agg_rachas",
-    "agg_completitud_mensual", "calidad_resumen", "calidad_archivos",
+    "fact_medicion_diaria", "fact_medicion_horaria",
+    "agg_cumplimiento_diario", "agg_anual", "agg_cumplimiento_niveles", "agg_rachas", "agg_contexto_anual",
+    "agg_completitud_mensual", "calidad_resumen",
 ]
+
+# Columnas con categoría de datos (para que el visual de mapa las reconozca)
+CATEGORIA = {("dim_estacion", "latitud"): "Latitude", ("dim_estacion", "longitud"): "Longitude"}
 
 # Columnas de texto que se ordenan por otra columna (Herramientas de columna → Ordenar por columna)
 ORDENAR_POR = {
@@ -66,6 +70,9 @@ RELACIONES = [
     ("fact_medicion_diaria", "fecha", "dim_calendario", "fecha"),
     ("fact_medicion_diaria", "id_estacion", "dim_estacion", "id_estacion"),
     ("fact_medicion_diaria", "id_contaminante", "dim_contaminante", "id_contaminante"),
+    ("fact_medicion_horaria", "fecha", "dim_calendario", "fecha"),
+    ("fact_medicion_horaria", "id_estacion", "dim_estacion", "id_estacion"),
+    ("fact_medicion_horaria", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("agg_cumplimiento_diario", "fecha", "dim_calendario", "fecha"),
     ("agg_cumplimiento_diario", "id_estacion", "dim_estacion", "id_estacion"),
     ("agg_cumplimiento_diario", "id_contaminante", "dim_contaminante", "id_contaminante"),
@@ -77,29 +84,23 @@ RELACIONES = [
     ("agg_cumplimiento_niveles", "id_periodo", "dim_periodo", "id_periodo"),
     ("agg_rachas", "id_estacion", "dim_estacion", "id_estacion"),
     ("agg_rachas", "id_contaminante", "dim_contaminante", "id_contaminante"),
+    ("agg_contexto_anual", "id_estacion", "dim_estacion", "id_estacion"),
+    ("agg_contexto_anual", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("agg_completitud_mensual", "id_estacion", "dim_estacion", "id_estacion"),
     ("agg_completitud_mensual", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("ref_oms", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("ref_oms_niveles", "id_contaminante", "dim_contaminante", "id_contaminante"),
     ("calidad_resumen", "id_contaminante", "dim_contaminante", "id_contaminante"),
-    ("calidad_archivos", "id_estacion", "dim_estacion", "id_estacion"),
 ]
 
 # Medidas DAX (las mismas de docs/powerbi_spec.md): (nombre, formato, descripción, expresión)
 MEDIDAS = [
     ("Días válidos", "#,0",
      "Días con dato válido del promedio de 24 h. Mostrar siempre junto a un porcentaje.",
-     """CALCULATE (
-    COUNTROWS ( fact_medicion_diaria ),
-    fact_medicion_diaria[ventana] = "24h",
-    fact_medicion_diaria[tiene_dato] = TRUE ()
-)"""),
+     """CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[tiene_dato] = TRUE () )"""),
     ("Completitud %", "0.0%",
      "Días con dato / días del calendario (la fact es una grilla completa).",
-     """DIVIDE (
-    [Días válidos],
-    CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[ventana] = "24h" )
-)"""),
+     """DIVIDE ( [Días válidos], COUNTROWS ( fact_medicion_diaria ) )"""),
     ("Días sobre guía", "#,0",
      "Días cuyo promedio de 24 h supera la guía OMS.",
      """CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[supera_guia] = TRUE () )"""),
@@ -140,7 +141,7 @@ MEDIDAS = [
      "Percentil 99 / guía de 24 h.",
      """DIVIDE ( [Percentil 99], [Guía OMS 24 h] )"""),
     ("Racha máxima", "#,0",
-     "Racha más larga de días seguidos sobre la guía (calculada en SQL con gaps and islands).",
+     "Racha más larga de días con dato seguidos sobre la guía (gaps and islands en SQL; huecos de hasta 7 días sin dato no la cortan).",
      """MAX ( agg_rachas[dias] )"""),
     ("Variación vs. hábil", "+0.0%;-0.0%;0.0%",
      "Diferencia del promedio diario contra el día hábil, para la matriz por tipo de día.",
@@ -159,12 +160,18 @@ RETURN
 RETURN
     MAXX ( TOPN ( 1, t, [@pct], DESC ), dim_estacion[nombre] )"""),
     ("% Días sobre guía (texto)", None,
-     "Texto para tarjetas, por ejemplo: 94,7% de 944 días.",
+     "Texto para tarjetas, por ejemplo: 95,0% de 900 días.",
      """FORMAT ( [% Días sobre guía], "0.0%" ) & " de "
     & FORMAT ( COUNTROWS ( agg_cumplimiento_diario ), "#,0" ) & " días\""""),
     ("Completitud mensual", "0.0%",
      "Completitud promedio de agg_completitud_mensual (heatmap de la página de calidad).",
      """AVERAGE ( agg_completitud_mensual[completitud] )"""),
+    ("NO₂ horario promedio", "#,0.0",
+     "Promedio de las horas válidas de NO2 en µg/m³ (perfil horario por tipo de día, eje = fact_medicion_horaria[hora]).",
+     """CALCULATE ( AVERAGE ( fact_medicion_horaria[valor_masa] ), fact_medicion_horaria[es_valido] = TRUE () )"""),
+    ("Promedio anual (contexto)", "#,0.0",
+     "Promedio anual 2010-2025 de agg_contexto_anual, solo años con 75% de días o más (gráfico de contexto).",
+     """AVERAGE ( agg_contexto_anual[promedio_anual] )"""),
 ]
 
 TIPOS = {"VARCHAR": "string", "BIGINT": "int64", "INTEGER": "int64", "DOUBLE": "double",
@@ -219,6 +226,8 @@ def tabla_tmdl(con, tabla: str, nodo: dict) -> str:
         elif tipo == "int64":
             L.append("\t\tformatString: 0")
         L.append(f"\t\tlineageTag: {guid('columna', tabla, col)}")
+        if (tabla, col) in CATEGORIA:
+            L.append(f"\t\tdataCategory: {CATEGORIA[(tabla, col)]}")
         L.append("\t\tsummarizeBy: none")
         L.append(f"\t\tsourceColumn: {col}")
         if (tabla, col) in ORDENAR_POR:

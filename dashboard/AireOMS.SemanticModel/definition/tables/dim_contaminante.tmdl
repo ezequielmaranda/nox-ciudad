@@ -2,7 +2,7 @@
 table dim_contaminante
 	lineageTag: b9207842-29c4-54f2-a810-847618ebf5a4
 
-	/// Clave del contaminante ('no2', 'pm10', 'co', 'no', 'nox').
+	/// Clave del contaminante ('no2', 'pm10', 'co').
 	column id_contaminante
 		dataType: string
 		isHidden
@@ -68,21 +68,31 @@ table dim_contaminante
 
 		annotation SummarizationSetBy = User
 
-	/// Tolerancia por redondeo para las reglas de coherencia (2 ppb o µg/m³; 0,2 ppm para CO).
-	column tolerancia_coherencia
-		dataType: double
-		lineageTag: 184d3d56-3d58-542f-b705-0b045900914a
+	/// Cómo publica la red el contaminante: 'horario' (NO2), 'movil_8h' (CO) o 'movil_24h' (PM10).
+	column promedio_fuente
+		dataType: string
+		lineageTag: db62270b-21b6-594d-a157-4cdef5c5fa02
 		summarizeBy: none
-		sourceColumn: tolerancia_coherencia
+		sourceColumn: promedio_fuente
 
 		annotation SummarizationSetBy = User
 
-	/// Máximo físicamente posible para un promedio urbano (regla fuera_de_rango).
-	column maximo_fisico
-		dataType: double
-		lineageTag: 4b36661a-5595-5314-9e3f-a4597a9aa368
+	/// Horas que abarca cada valor publicado (1, 8 o 24).
+	column horas_promedio_fuente
+		dataType: int64
+		formatString: 0
+		lineageTag: f42ebb8b-fff4-5f8f-9ebf-6b6d909f1f71
 		summarizeBy: none
-		sourceColumn: maximo_fisico
+		sourceColumn: horas_promedio_fuente
+
+		annotation SummarizationSetBy = User
+
+	/// Máximo plausible para un valor horario en la Ciudad (regla fuera_de_rango).
+	column maximo_plausible
+		dataType: double
+		lineageTag: 74e396b3-c04a-5be3-a22e-95302f581d5c
+		summarizeBy: none
+		sourceColumn: maximo_plausible
 
 		annotation SummarizationSetBy = User
 
