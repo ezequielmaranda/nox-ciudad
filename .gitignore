@@ -5,10 +5,10 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# Base DuckDB generada por el ETL: se reconstruye con `make etl`
+# Base DuckDB generada por el ETL: se reconstruye con `python -m src.etl`
 data/warehouse/
 
-# PDF originales de la APrA: se bajan con `make extract` (pesan y están publicados)
+# PDF originales de la APrA: se bajan con `python -m src.extract` (pesan y están publicados)
 data/raw/pdf/
 
 # Power BI: caché local y configuración personal del proyecto .pbip

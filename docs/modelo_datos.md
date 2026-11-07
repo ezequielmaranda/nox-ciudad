@@ -23,7 +23,6 @@ erDiagram
     dim_estacion ||--o{ fact_medicion_diaria : "id_estacion"
     dim_contaminante ||--o{ fact_medicion_diaria : "id_contaminante"
     dim_contaminante ||--o{ ref_oms : "id_contaminante"
-    dim_calendario ||--o| dim_evento : "fecha"
     dim_calendario ||--o{ agg_cumplimiento_diario : "fecha"
     dim_estacion ||--o{ agg_cumplimiento_diario : "id_estacion"
     dim_contaminante ||--o{ agg_cumplimiento_diario : "id_contaminante"
@@ -74,11 +73,6 @@ erDiagram
         double it3
         double it4
     }
-    dim_evento {
-        date fecha PK
-        varchar evento
-        varchar grupo_evento
-    }
     dim_periodo {
         varchar id_periodo PK "2024 | 2025 | 2026 | movil_12m"
         date fecha_desde
@@ -115,7 +109,6 @@ erDiagram
 | `dim_contaminante` | Un contaminante (unidades, factor de conversión, tolerancias) | `id_contaminante` | 5 |
 | `ref_oms` | Una guía OMS: contaminante × período de promedio, con objetivos intermedios | `id_contaminante, promedio` | 5 |
 | `ref_oms_niveles` | La misma guía en formato largo, una fila por nivel (para líneas de referencia) | `id_contaminante, promedio, nivel` | 19 |
-| `dim_evento` | Un día de paro de transporte (contexto) | `fecha` | 7 |
 | `dim_periodo` | Un período de indicadores anuales | `id_periodo` | 4 |
 | `agg_cumplimiento_diario` | Un día con dato de NO2, PM10 o CO comparado con su guía de 24 h | `fecha, id_estacion, id_contaminante` | 7.823 |
 | `agg_anual` | Indicadores de un período por estación y contaminante | `id_estacion, id_contaminante, id_periodo` | 36 |
@@ -166,15 +159,15 @@ consultas.
 
 ### Por qué DuckDB y dbt
 
-- **DuckDB:** base analítica en un solo archivo, sin servidor, que lee CSV y Parquet directamente y usa SQL
+- **DuckDB:** base analítica en un solo archivo, sin servidor, que lee CSV directamente y usa SQL
   estándar. Si la cátedra pide otro motor, el SQL se porta casi entero; las funciones propias de DuckDB están
   comentadas donde aparecen (`FILTER`, `quantile_cont`, `UNPIVOT`, `generate_series`, fecha − entero).
 - **dbt:** cada tabla es un `SELECT` en un archivo `.sql`. dbt las ejecuta en orden de dependencias (`ref()`),
-  corre los tests de calidad en cada build y genera la documentación con el linaje de las tablas (`make docs`).
+  corre los tests de calidad en cada build y genera la documentación con el linaje de las tablas (`dbt docs`).
   No agrega infraestructura: es una librería de Python que corre contra el mismo archivo DuckDB.
 
 ## 4. Vistas para Power BI
 
 Power BI importa los CSV de `data/final/` (no se conecta a la base). Las vistas del schema `analisis`
-(`sql/99_consultas_analisis.sql`, parte D) calculan en SQL lo mismo que las medidas DAX de
-[`powerbi_spec.md`](powerbi_spec.md) y sirven para verificar que el dashboard muestre los números correctos.
+(`sql/99_consultas_analisis.sql`, parte D) calculan en SQL lo mismo que las medidas DAX del
+modelo de Power BI y sirven para verificar que el dashboard muestre los números correctos.

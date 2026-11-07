@@ -3,7 +3,7 @@
 > Archivo generado por `python -m src.etl` a partir de las descripciones de los `.yml` de dbt.
 > No editar a mano: cambiar la descripción en `dbt/models/` y volver a correr el ETL.
 
-Tablas finales que se exportan a `data/final/` (CSV y Parquet) y se cargan en Power BI.
+Tablas finales que se exportan a `data/final/` (CSV) y se cargan en Power BI.
 
 | Tabla | Schema | Filas | Descripción |
 |---|---|---|---|
@@ -11,7 +11,6 @@ Tablas finales que se exportan a `data/final/` (CSV y Parquet) y se cargan en Po
 | [`dim_contaminante`](#dim_contaminante) | modelo | 5 | Una fila por contaminante, con unidades y factor de conversión a masa. |
 | [`dim_calendario`](#dim_calendario) | modelo | 1.004 | Un registro por día del período (2024-01-01 a 2026-09-30), haya o no datos. |
 | [`dim_periodo`](#dim_periodo) | modelo | 4 | Períodos de los indicadores anuales: un año calendario por fila (el último, parcial) más 'movil_12m', los últimos 12 meses con datos (comparable con un año completo). |
-| [`dim_evento`](#dim_evento) | modelo | 7 | Días de paro de transporte (contexto para leer días atípicos). |
 | [`ref_oms`](#ref_oms) | modelo | 5 | Guías OMS 2021 en formato ancho (una fila por contaminante × promedio). Se usa vía JOIN. |
 | [`ref_oms_niveles`](#ref_oms_niveles) | modelo | 19 | Guías OMS en formato largo (UNPIVOT de ref_oms), una fila por nivel. Para líneas de referencia. |
 | [`fact_medicion_diaria`](#fact_medicion_diaria) | modelo | 30.120 | Tabla de hechos en formato largo. Grano: fecha × estación × contaminante × ventana (24h u 8-16). Grilla completa: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato. |
@@ -20,7 +19,6 @@ Tablas finales que se exportan a `data/final/` (CSV y Parquet) y se cargan en Po
 | [`agg_cumplimiento_niveles`](#agg_cumplimiento_niveles) | indicadores | 120 | Matriz de escalones: % de días que cumplen la guía OMS de 24 h y cada objetivo intermedio, por estación × contaminante × período × nivel. Acumulativo (quien cumple la guía cumple todos los IT). |
 | [`agg_rachas`](#agg_rachas) | indicadores | 296 | Rachas de días consecutivos sobre la guía de 24 h (gaps and islands). Un día sin dato corta la racha. |
 | [`agg_completitud_mensual`](#agg_completitud_mensual) | calidad | 495 | Completitud del promedio de 24 h por estación × contaminante × mes (heatmap de calidad). |
-| [`agg_completitud_anual`](#agg_completitud_anual) | calidad | 60 | Completitud por estación × contaminante × período y regla del 75% (es_valido). |
 | [`calidad_resumen`](#calidad_resumen) | calidad | 26 | Cantidad de valores crudos por contaminante y categoría de calidad. |
 | [`calidad_violaciones`](#calidad_violaciones) | calidad | 851 | Una fila por cada violación a una regla de validación (un valor puede violar varias). |
 | [`calidad_outliers`](#calidad_outliers) | calidad | 185 | Valores atípicos (Q3 + 3·IQR) con contexto para la revisión manual. No se borran. |
@@ -106,18 +104,6 @@ Períodos de los indicadores anuales: un año calendario por fila (el último, p
 | `fecha_hasta` | DATE | Último día del período. |
 | `n_dias` | BIGINT | Cantidad de días del período. |
 | `orden` | BIGINT | Orden para gráficos. |
-
-## dim_evento
-
-Días de paro de transporte (contexto para leer días atípicos).
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `fecha` | DATE | Fecha del paro (clave; se relaciona con dim_calendario). |
-| `evento` | VARCHAR | Descripción del paro. |
-| `grupo_evento` | VARCHAR | sin_colectivos (paró la mayoría de las líneas) o trenes_subte (colectivos funcionando). |
-| `grupo_evento_etiqueta` | VARCHAR | Etiqueta legible del grupo. |
-| `fuente_prensa` | VARCHAR | Nota de prensa que documenta el paro. |
 
 ## ref_oms
 
@@ -210,7 +196,6 @@ Indicadores anuales por estación × contaminante × período (2024, 2025, 2026 
 | `es_valido` | BOOLEAN | Verdadero si completitud >= 75%. |
 | `completitud_peor_trimestre` | DOUBLE | Completitud del trimestre con menos datos dentro del período. |
 | `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres tienen >= 75% de días con dato (advertencia, no excluye). |
-| `estado_indicador` | VARCHAR | 'valido' o 'no_valido'. |
 | `unidad` | VARCHAR | Unidad de la guía. |
 | `promedio_anual` | DOUBLE | Promedio de los valores diarios (vacío si no es válido). |
 | `promedio_referencial` | DOUBLE | El mismo promedio calculado aunque no sea válido. Solo para transparencia. |
@@ -282,22 +267,6 @@ Completitud del promedio de 24 h por estación × contaminante × mes (heatmap d
 | `n_dias_descartados` | BIGINT | Días con número que descartó una regla de calidad. |
 | `completitud` | DOUBLE | n_dias_con_dato / n_dias_calendario (0 a 1). |
 | `cumple_umbral` | BOOLEAN | Verdadero si la completitud del mes es >= 75%. |
-
-## agg_completitud_anual
-
-Completitud por estación × contaminante × período y regla del 75% (es_valido).
-
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `id_estacion` | VARCHAR | Estación. |
-| `id_contaminante` | VARCHAR | Contaminante. |
-| `id_periodo` | VARCHAR | Período (clave hacia dim_periodo). |
-| `n_dias_periodo` | BIGINT | Días del período. |
-| `n_dias_con_dato` | BIGINT | Días con valor válido de 24 h. |
-| `completitud` | DOUBLE | n_dias_con_dato / n_dias_periodo. |
-| `es_valido` | BOOLEAN | Verdadero si completitud >= 75% (los indicadores anuales se pueden calcular). |
-| `completitud_peor_trimestre` | DOUBLE | Completitud del trimestre calendario con menos datos dentro del período. |
-| `cumple_criterio_trimestral` | BOOLEAN | Verdadero si todos los trimestres del período tienen >= 75% de días con dato (criterio de la EPA para la norma de 1 hora). Es una advertencia: no excluye el indicador. |
 
 ## calidad_resumen
 

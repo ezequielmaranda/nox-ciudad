@@ -35,27 +35,29 @@ noviembre 2026 para simplificar. Está en la historia de git (hasta el commit `8
 - **No se borran filas:** se marcan (flags, `motivo_sin_dato`, `es_outlier`). La limpieza vive en SQL (dbt).
 - **Umbrales en tablas** (`data/reference/`, variables de `dbt_project.yml`), nunca escritos en el SQL.
 - Código, comentarios y documentación en español; identificadores en snake_case sin tildes.
-- Rutas relativas a la raíz (`src/config.py`; dbt usa la variable de entorno `AIRE_RAIZ`).
+- Rutas relativas a la raíz (`src/config.py`); dbt se corre siempre desde `dbt/` y llega a los archivos con `../`.
 - Lenguaje de resultados: "es consistente con", "estimamos"; sin meteorología no se atribuyen causas.
 
 ## Stack y comandos
 
-Python 3.11+ con `requirements.txt` (`make install`). DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
+Todo el equipo usa Windows: no hay Makefile, los comandos van con `.venv\Scripts\python`.
+Python 3.11+ con `requirements.txt`. DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
 las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest.
 El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; correrlo dentro de `plt.rc_context()`
 porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
 heatmap) y matplotlib.
 
-- `make etl` (= `python -m src.etl`): perfil del crudo → `dbt build` (en subproceso) → export a `data/final/`
-  (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
-- `make test`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
-  (idempotencia, que corra `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. `make eda`: ejecuta `notebooks/eda.ipynb`.
-- `make pbip` (= `python -m src.generar_pbip`): genera `dashboard/AireOMS.pbip` (modelo TMDL con 14 tablas + `_Medidas`,
+- `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso) → export a `data/final/`
+  (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
+- `python -m pytest -q`: 8 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
+  (idempotencia, vistas de `sql/99`, funciones del extractor). No duplicar tests de datos en pytest. El EDA se ejecuta con
+  `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
+- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con 14 tablas + `_Medidas`,
   20 relaciones, 18 medidas DAX, orden de columnas, descripciones de dbt, tema; informe PBIR con 3 páginas vacías).
   Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
-  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. El tema base
+  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. Después pasó de Parquet a CSV (`Csv.Document` + tipos en-US): ese cambio no se revalidó. El tema base
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
-- `make extract` (= `python -m src.extract`): baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
+- `python -m src.extract`: baja los PDF de la APrA. **Desde la nube de Claude no funciona**:
   `static.buenosaires.gob.ar` corta la conexión TLS (probablemente bloqueo geográfico). El CSV crudo está en git.
 
 ## Datos
@@ -72,7 +74,7 @@ heatmap) y matplotlib.
 ## Modelo (dbt, `data/warehouse/aire.duckdb`)
 
 Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `stg_manifiesto`) → `modelo`
-(`dim_calendario`, `dim_estacion`, `dim_contaminante`, `dim_periodo`, `dim_evento`, `ref_oms`, `ref_oms_niveles`,
+(`dim_calendario`, `dim_estacion`, `dim_contaminante`, `dim_periodo`, `ref_oms`, `ref_oms_niveles`,
 `fact_medicion_diaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_*`) → `indicadores`
 (`agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`). `sql/99` crea vistas en `analisis`.
 
@@ -82,7 +84,7 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
   promedio_incoherente, mayor_que_nox, nox_incoherente (descarta NO y NOx, **no NO2**).
 - Outliers: Q3 + 3·IQR por estación × contaminante × ventana, marcados.
 - Regla del 75% sobre el promedio de 24 h por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
-- Último build: 21 modelos, 79 tests + 5 seeds, PASS 104, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
+- Último build: 20 modelos, 76 tests + 5 seeds, PASS 100, WARN 1 (`stg_reglas_de_calidad`, esperado: 851 violaciones).
 
 ## Resultados verificados
 
@@ -109,6 +111,6 @@ Schemas: `referencia` (seeds) → `staging` (`stg_aire`, `stg_aire_validado`, `s
 
 - Abrir `dashboard/AireOMS.pbip` en Power BI Desktop (parámetro `RutaDatos` con la ruta local de `data/final\`,
   Actualizar) y armar los gráficos de las 3 páginas siguiendo `docs/powerbi_spec.md` (lo hace el equipo). Después
-  de armar gráficos, el modelo se toca desde Power BI, no con `make pbip`.
+  de armar gráficos, el modelo se toca desde Power BI, no con `src.generar_pbip`.
 - Verificar las coordenadas aproximadas de `data/reference/estaciones.csv` si se usa el mapa.
 - Preparar la presentación (guion en el README).

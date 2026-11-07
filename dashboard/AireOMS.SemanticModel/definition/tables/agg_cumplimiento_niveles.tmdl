@@ -152,9 +152,12 @@ table agg_cumplimiento_niveles
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_cumplimiento_niveles.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_cumplimiento_niveles.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"id_periodo", type text}, {"nivel", type text}, {"nivel_etiqueta", type text}, {"orden_exigencia", Int64.Type}, {"umbral", type number}, {"unidad", type text}, {"n_dias_con_dato", Int64.Type}, {"n_dias_cumple", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"cumple_criterio_trimestral", type logical}, {"pct_dias_cumple", type number}, {"pct_referencial", type number}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

@@ -21,7 +21,10 @@
 -- (reglas 2 y 6). Así no se pierden días de NO2, que es el contaminante principal del análisis.
 -- =====================================================================================
 with base as (
-    select * from {{ ref('stg_aire') }}
+    select
+        *,
+        estadistico in ('24h', '0-8', '8-16', '16-24') as es_promedio
+    from {{ ref('stg_aire') }}
 ),
 
 contaminantes as (
@@ -59,33 +62,31 @@ nox as (
         max(valor) filter (where id_contaminante = 'nox') as v_nox
     from base
     where id_contaminante in ('no', 'no2', 'nox')
-      and estadistico in ('24h', '0-8', '8-16', '16-24')
+      and es_promedio
     group by id_estacion, fecha, estadistico
 ),
 
 flags as (
     select
         b.*,
-        b.estadistico in ('24h', '0-8', '8-16', '16-24') as es_promedio,
-
         coalesce(b.valor < 0 or b.valor > c.maximo_fisico, false)            as fuera_de_rango,
 
         coalesce(d.n_valores_validos = 6 and d.n_valores_distintos = 1, false) as valor_trabado,
 
-        coalesce(b.estadistico in ('24h', '0-8', '8-16', '16-24')
+        coalesce(b.es_promedio
                  and b.valor = 0 and coalesce(d.v_max_1h, 0) = 0, false)     as cero_sin_respaldo,
 
-        coalesce(b.estadistico in ('24h', '0-8', '8-16', '16-24')
+        coalesce(b.es_promedio
                  and (b.valor > d.v_max_1h + c.tolerancia_coherencia
                       or b.valor < d.v_min_1h - c.tolerancia_coherencia), false) as fuera_de_max_min,
 
-        coalesce(b.estadistico in ('24h', '0-8', '8-16', '16-24')
+        coalesce(b.es_promedio
                  and abs(d.v_24h - (d.v_0_8 + d.v_8_16 + d.v_16_24) / 3)
                      > c.tolerancia_coherencia, false)                       as promedio_incoherente,
 
         coalesce(n.v_no > n.v_nox, false)                                    as no_mayor_que_nox,
         coalesce(n.v_no2 > n.v_nox, false)                                   as no2_mayor_que_nox,
-        coalesce(abs(n.v_nox - (n.v_no + n.v_no2)) > 2, false)               as nox_incoherente
+        coalesce(abs(n.v_nox - (n.v_no + n.v_no2)) > c.tolerancia_coherencia, false) as nox_incoherente
     from base as b
     left join contaminantes as c using (id_contaminante)
     left join dia as d using (id_estacion, fecha, id_contaminante)

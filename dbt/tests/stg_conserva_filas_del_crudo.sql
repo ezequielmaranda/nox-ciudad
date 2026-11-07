@@ -2,7 +2,7 @@
 -- (una por celda de los PDF). Si un filtro o un JOIN perdiera o duplicara filas, falla.
 with crudo as (
     select count(*) as filas
-    from read_csv('{{ ruta("data/raw/aire_publico.csv") }}', header = true, all_varchar = true)
+    from read_csv('../data/raw/aire_publico.csv', header = true, all_varchar = true)
 ),
 staging as (
     select count(*) as filas from {{ ref('stg_aire') }}

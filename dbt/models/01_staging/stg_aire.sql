@@ -18,7 +18,7 @@
 with crudo as (
     -- all_varchar: se lee todo como texto para que la conversión quede a la vista acá abajo
     select *
-    from read_csv('{{ ruta("data/raw/aire_publico.csv") }}', header = true, all_varchar = true)
+    from read_csv('../data/raw/aire_publico.csv', header = true, all_varchar = true)
 ),
 
 normalizado as (

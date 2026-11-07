@@ -16,7 +16,7 @@ Todo está en SQL (`dbt/models/`) y se prueba en cada corrida (tests de dbt y de
 | **Período** | 2024-01-01 a 2026-09-30 (1.004 días; 2026 parcial) |
 | **Origen aguas arriba** | La APrA mide en forma horaria y publica estos promedios. El TP **no tiene los datos horarios**: el ETL arranca desde los informes diarios. Los valores vienen redondeados (NO, NO2, NOx en ppb enteros; CO en ppm con un decimal; PM10 en µg/m³ enteros) |
 
-Perfil del crudo (lo registra `python -m src.etl` en cada corrida): 0 duplicados por clave, 0 fechas inválidas,
+Perfil del crudo (consultas A1 a A3 de `sql/99` y tests de dbt sobre `stg_aire`): 0 duplicados por clave, 0 fechas inválidas,
 0 nulos en columnas; 4.763 `s/d`, 448 valores `<límite`, 1 texto suelto (`Lunes`).
 
 ## 2. Problemas encontrados y cómo se resolvieron
@@ -45,7 +45,7 @@ Perfil del crudo (lo registra `python -m src.etl` en cada corrida): 0 duplicados
 | Categorías inconsistentes | `LA BOCA`, `NOx` | Identificadores en snake_case sin tildes (`la_boca`, `nox`); etiquetas legibles en las dimensiones |
 | Tipos | Todo texto | `fecha` → `DATE` con `try_cast` (nula si no fuera fecha; 0 casos) |
 | Variables redundantes | El NOx es NO + NO₂; el promedio de 24 h es (casi) el promedio de los tres bloques de 8 h; la columna `unidad` depende del contaminante | No se usan como información nueva: sirven para **validar** (reglas `nox_incoherente` y `promedio_incoherente`). La unidad pasa a `dim_contaminante` |
-| Codificación y formato | Tildes y símbolos (`µg/m³`, `LA BOCA`, `Córdoba`) en una fuente que se lee con distintas herramientas | Archivos en UTF-8; identificadores sin tildes ni espacios (`la_boca`, `no2`) y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (en Power BI, importar con configuración regional inglés o usar Parquet) |
+| Codificación y formato | Tildes y símbolos (`µg/m³`, `LA BOCA`, `Córdoba`) en una fuente que se lee con distintas herramientas | Archivos en UTF-8; identificadores sin tildes ni espacios (`la_boca`, `no2`) y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (el modelo de Power BI los importa con configuración regional inglés) |
 
 ### 2.3 Reglas de validación física
 
@@ -157,7 +157,7 @@ válido** (le faltan meses enteros de PM10). Donde hay períodos que pasan (Parq
 el resultado es el mismo: IT3 anual y guía diaria cumplida el 95% a 99% de los días.
 
 Cambiar el umbral es una línea: `umbral_completitud` en `dbt/dbt_project.yml` (por ejemplo, 0.90 para el criterio
-de la UE) y volver a correr `make etl`.
+de la UE) y volver a correr `python -m src.etl`.
 
 **Qué queda afuera con el 75% anual:**
 
@@ -208,6 +208,5 @@ El factor sale del peso molecular (`data/reference/contaminantes.csv`) y del vol
 
 | Dónde | Qué | Cantidad |
 |---|---|---|
-| Tests de dbt (`dbt build`): **los datos** | Claves únicas, no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, el staging conserva todas las filas del crudo, NO/NO2 ≤ NOx, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 79 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 851 violaciones de la fuente) |
-| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que todas las consultas de `sql/99` corran y las funciones del extractor de PDF | 8 tests |
-| `src/calidad.py` | Perfil del crudo antes de transformar y resumen de calidad al final de cada corrida | — |
+| Tests de dbt (`dbt build`): **los datos** | Claves únicas, no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, el staging conserva todas las filas del crudo, NO/NO2 ≤ NOx, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 76 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 851 violaciones de la fuente) |
+| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que las vistas de `sql/99` existan y las funciones del extractor de PDF | 8 tests |

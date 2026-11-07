@@ -112,9 +112,12 @@ table agg_cumplimiento_diario
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_cumplimiento_diario.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_cumplimiento_diario.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"valor", type number}, {"unidad", type text}, {"guia_oms_24h", type number}, {"supera_guia", type logical}, {"veces_guia", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"es_outlier", type logical}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

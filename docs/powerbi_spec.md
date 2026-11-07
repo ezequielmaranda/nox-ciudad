@@ -5,159 +5,54 @@ ETL y el EDA, no recalcula reglas. Público: funcionarios, prensa y ciudadanía 
 
 ## 0. Proyecto listo para abrir: `dashboard/AireOMS.pbip`
 
-El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: las 14 tablas de `data/final` (más la
-tabla `_Medidas`), las 20 relaciones de la sección 2, las 18 medidas DAX de la sección 3, el orden de las columnas de
-texto, los formatos, las descripciones de cada tabla y columna (las mismas del diccionario de datos) y el tema de
-colores de la sección 6. El informe trae las 3 páginas vacías: **los gráficos se arman a mano** con las secciones 4 y 5.
+El repo trae un **proyecto de Power BI (.pbip)** con el modelo ya armado: 14 tablas de `data/final` (más la tabla
+`_Medidas`), 20 relaciones, 18 medidas DAX, el orden de las columnas de texto, los formatos, las descripciones de cada
+tabla y columna (las mismas del diccionario de datos) y el tema de colores de la sección 4. El informe trae las 3
+páginas vacías: **los gráficos se arman a mano** con las secciones 2 y 3.
 
-Lo genera `python -m src.generar_pbip` (o `make pbip`) a partir de `data/final` y de dbt. El modelo se validó con la
-librería oficial de Microsoft para el formato TMDL y los JSON del informe con los esquemas oficiales, pero **no se
-abrió en Power BI Desktop** (no corre en el entorno donde se generó): si al abrirlo aparece un error, Power BI dice en
-qué archivo y línea.
+Lo genera `.venv\Scripts\python -m src.generar_pbip` después del ETL (necesita la base DuckDB y el manifest de dbt).
+El modelo y las medidas están definidos en [`src/generar_pbip.py`](../src/generar_pbip.py): ese archivo es la
+referencia, esta guía no los repite. **No se abrió en Power BI Desktop** (no corre en el entorno donde se generó): si
+al abrirlo aparece un error, Power BI dice en qué archivo y línea.
 
 **Cómo abrirlo:**
 1. Power BI Desktop actualizado (versión de **agosto de 2026 o posterior**; el informe usa el tema base de esa versión).
 2. Abrir `dashboard/AireOMS.pbip` (*Archivo → Abrir*). Abre el informe y el modelo, todavía sin datos.
 3. *Transformar datos → Editar parámetros*: poner en **RutaDatos** la ruta completa a la carpeta `data/final` del
    repo, **con la barra final**. Por ejemplo `C:\Users\nombre\nox-ciudad\data\final\`.
-4. *Inicio → Actualizar*. Carga los Parquet (sin problemas de separador decimal).
+4. *Inicio → Actualizar*. Carga los CSV; el modelo ya les aplica los tipos con punto decimal.
 5. Armar los gráficos de cada página y guardar (*Archivo → Guardar*): se guarda en el mismo formato de proyecto, en
    archivos de texto que se pueden versionar en git. Para entregar un `.pbix`: *Archivo → Guardar como → .pbix*.
 
-Si se vuelve a correr `make pbip`, el generador reescribe el modelo y las páginas vacías: **no correrlo después de
-armar los gráficos** (se perderían). Los cambios posteriores del modelo se hacen directamente en Power BI.
+Si se vuelve a correr el generador, reescribe el modelo y las páginas vacías: **no correrlo después de armar los
+gráficos** (se perderían). Los cambios posteriores del modelo se hacen directamente en Power BI.
 
-Si se prefiere armar todo desde cero, las secciones siguientes describen el mismo modelo paso a paso.
+## 1. Qué trae el modelo
 
-## 1. Datos a importar
+| Tabla | Para qué |
+|---|---|
+| `dim_estacion` | Segmentador de estación, mapa (coordenadas aproximadas) |
+| `dim_contaminante` | Segmentador de contaminante, unidades |
+| `dim_calendario` | Segmentadores de año, tipo de día y estación del año; eje de tiempo |
+| `dim_periodo` | Segmentador de período de los indicadores anuales |
+| `ref_oms`, `ref_oms_niveles` | Guías y objetivos intermedios para líneas de referencia y tarjetas |
+| `fact_medicion_diaria` | Completitud y días válidos; serie con la ventana 8-16 |
+| `agg_cumplimiento_diario` | % de días sobre la guía, P99, series de 24 h |
+| `agg_anual` | Promedio anual, veces la guía, nivel OMS |
+| `agg_cumplimiento_niveles` | Matriz de escalones (% de días que cumplen cada nivel, por año) |
+| `agg_rachas` | Racha máxima |
+| `agg_completitud_mensual` | Heatmap de completitud |
+| `calidad_archivos`, `calidad_resumen` | Página de calidad |
 
-Desde `data/final/`. **Se recomienda Parquet** (*Obtener datos → Parquet*): conserva tipos de fecha, número y
-booleano. Si se usan los CSV, en Power Query hay que cambiar los tipos **con configuración regional "Inglés
-(Estados Unidos)"** (*Cambiar tipo → Usar configuración regional*), porque el separador decimal es el punto; con
-la configuración en español, `0.229` se lee como 229.
-
-| Tabla | Para qué | Obligatoria |
-|---|---|---|
-| `dim_estacion` | Segmentador de estación, mapa (coordenadas aproximadas) | sí |
-| `dim_contaminante` | Segmentador de contaminante, unidades | sí |
-| `dim_calendario` | Segmentadores de año, tipo de día y estación del año; eje de tiempo | sí |
-| `dim_periodo` | Segmentador de período de los indicadores anuales | sí |
-| `ref_oms` | Guías para las líneas de referencia y tarjetas | sí |
-| `fact_medicion_diaria` | Completitud y días válidos; serie con la ventana 8-16 | sí |
-| `agg_cumplimiento_diario` | % de días sobre la guía, P99, series de 24 h | sí |
-| `agg_anual` | Promedio anual, veces la guía, nivel OMS | sí |
-| `agg_cumplimiento_niveles` | Matriz de escalones (% de días que cumplen cada nivel, por año) | sí |
-| `agg_rachas` | Racha máxima | sí |
-| `agg_completitud_mensual` | Heatmap de completitud | sí |
-| `calidad_archivos`, `calidad_resumen`, `calidad_outliers` | Página de calidad | recomendado |
-| `ref_oms_niveles` | Líneas de todos los niveles (IT1 a IT4) | opcional |
-
-## 2. Modelo (vista de modelo)
-
-Todas las relaciones son **uno a varios (1:*)**, con **dirección de filtro única** (de la dimensión a la tabla de
-hechos o agregada). Ninguna bidireccional.
-
-| Desde (1) | Hacia (*) | Columna |
-|---|---|---|
-| `dim_calendario` | `fact_medicion_diaria`, `agg_cumplimiento_diario` | `fecha` |
-| `dim_estacion` | `fact_medicion_diaria`, `agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`, `agg_completitud_mensual` | `id_estacion` |
-| `dim_contaminante` | `fact_medicion_diaria`, `agg_cumplimiento_diario`, `agg_anual`, `agg_rachas`, `agg_completitud_mensual`, `ref_oms` | `id_contaminante` |
-| `dim_periodo` | `agg_anual`, `agg_cumplimiento_niveles` | `id_periodo` |
-| `dim_estacion` / `dim_contaminante` | `agg_cumplimiento_niveles` | `id_estacion` / `id_contaminante` |
-
-Notas:
+Para tener en cuenta al armar los gráficos:
 - `agg_anual` **no** se relaciona con `dim_calendario`: sus períodos (años, 2026 parcial, últimos 12 meses) vienen
   de `dim_periodo`. En los visuales anuales usar el segmentador de **período**, no el de año.
 - `agg_completitud_mensual` tiene su propio `anio_mes`: usarlo directamente en el heatmap.
-- Ordenar columnas de texto por su columna de orden (*Herramientas de columna → Ordenar por columna*):
-  `tipo_dia_etiqueta` por `orden_tipo_dia`, `estacion_del_anio` por `orden_estacion_del_anio`,
-  `nombre_mes` por `mes`, `dim_periodo[etiqueta]` por `orden`, `dim_contaminante[nombre]` por `orden`,
-  `nivel_oms` por `orden_nivel_oms` (en `agg_cumplimiento_diario` y en `agg_anual`).
-- Ocultar las columnas de clave (`id_*`) en la vista de informe.
+- `Promedio anual` va con **una** estación, **un** contaminante y **un** período por celda (tarjeta o matriz).
+- Las medidas están en la tabla `_Medidas`, cada una con su descripción. `Veces sobre guía anual` queda linda con el
+  sufijo "×".
 
-## 3. Medidas DAX
-
-Crear una tabla vacía `_Medidas` y cargar ahí las medidas. Todas respetan los segmentadores.
-
-```dax
--- Días con dato válido del promedio de 24 h (siempre mostrar el n junto a un porcentaje)
-Días válidos =
-CALCULATE (
-    COUNTROWS ( fact_medicion_diaria ),
-    fact_medicion_diaria[ventana] = "24h",
-    fact_medicion_diaria[tiene_dato] = TRUE ()
-)
-
--- Completitud: días con dato / días del calendario (la fact es una grilla completa)
-Completitud % =
-DIVIDE (
-    [Días válidos],
-    CALCULATE ( COUNTROWS ( fact_medicion_diaria ), fact_medicion_diaria[ventana] = "24h" )
-)
-
--- % de días sobre la guía de 24 h (denominador: días CON DATO)
-Días sobre guía =
-CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[supera_guia] = TRUE () )
-
-% Días sobre guía =
-DIVIDE ( [Días sobre guía], COUNTROWS ( agg_cumplimiento_diario ) )
-
--- Promedio de los valores diarios (unidad de la guía: µg/m³; mg/m³ para CO)
-Promedio diario = AVERAGE ( agg_cumplimiento_diario[valor] )
-
--- Promedio anual (de agg_anual, ya con la regla del 75%: los períodos no válidos vienen vacíos).
--- Usar con UNA estación, UN contaminante y UN período por celda (tarjeta o matriz).
-Promedio anual =
-CALCULATE ( AVERAGE ( agg_anual[promedio_anual] ), agg_anual[es_valido] = TRUE () )
-
-Veces sobre guía anual =
-DIVIDE ( [Promedio anual], AVERAGE ( agg_anual[guia_anual] ) )
-
-Nivel OMS anual = SELECTEDVALUE ( agg_anual[nivel_oms], "—" )
-
--- Percentil 99 de los valores diarios (definición formal de la guía de 24 h).
--- PERCENTILE.INC = mismo método que quantile_cont de DuckDB. Solo si la completitud llega al 75%.
-Percentil 99 =
-IF (
-    [Completitud %] >= 0.75,
-    PERCENTILE.INC ( agg_cumplimiento_diario[valor], 0.99 )
-)
-
-Guía OMS 24 h = CALCULATE ( MAX ( ref_oms[guia_oms] ), ref_oms[promedio] = "24h" )
-Guía OMS anual = CALCULATE ( MAX ( ref_oms[guia_oms] ), ref_oms[promedio] = "anual" )
-
-P99 veces la guía = DIVIDE ( [Percentil 99], [Guía OMS 24 h] )
-
--- Racha más larga de días seguidos sobre la guía (calculada en SQL con gaps and islands)
-Racha máxima = MAX ( agg_rachas[dias] )
-
--- % de días que cumplen el objetivo intermedio IT2 diario o uno más exigente (NO2: 50 µg/m³).
-% Días que cumplen IT2 =
-DIVIDE (
-    CALCULATE ( COUNTROWS ( agg_cumplimiento_diario ), agg_cumplimiento_diario[orden_nivel_oms] <= 4 ),
-    COUNTROWS ( agg_cumplimiento_diario )
-)
-
--- Variación contra el día hábil (para la matriz por tipo de día)
-Variación vs. hábil =
-VAR habil = CALCULATE ( [Promedio diario], dim_calendario[tipo_dia] = "habil" )
-RETURN DIVIDE ( [Promedio diario] - habil, habil )
-
--- Estación con mayor % de días sobre la guía (tarjeta de la página Resumen)
-Estación más comprometida =
-VAR t = ADDCOLUMNS ( VALUES ( dim_estacion[nombre] ), "@pct", [% Días sobre guía] )
-RETURN MAXX ( TOPN ( 1, t, [@pct], DESC ), dim_estacion[nombre] )
-
--- Texto para tarjetas: "94,7% de 944 días" (en FORMAT el patrón usa punto decimal; la salida sale
--- con coma si el informe está en español)
-% Días sobre guía (texto) =
-FORMAT ( [% Días sobre guía], "0.0%" ) & " de " & FORMAT ( COUNTROWS ( agg_cumplimiento_diario ), "#,0" ) & " días"
-```
-
-Formato: `% Días sobre guía`, `Completitud %` y `Variación vs. hábil` como porcentaje con 1 decimal; promedios con
-1 decimal; `Veces sobre guía anual` con 1 decimal y sufijo "×".
-
-## 4. Páginas
+## 2. Páginas
 
 ### Página 1 · Resumen ("¿Cuán lejos estamos de la OMS?")
 
@@ -171,7 +66,7 @@ intermedios y La Boca no alcanza ni el primero.**
   4. `Racha máxima` ("216 días seguidos sobre la guía").
 - **Barras 100% apiladas "en qué escalón cae cada día"**: eje `dim_estacion[nombre]`, leyenda
   `agg_cumplimiento_diario[nivel_oms]` (ordenada por `orden_nivel_oms`), valores = recuento de filas, mostrado
-  como % del total. Colores por nivel (sección 6). Responde "¿en qué escalón está cada estación?" (figura
+  como % del total. Colores por nivel (sección 4). Responde "¿en qué escalón está cada estación?" (figura
   `reports/figures/06_niveles_oms_diarios.png` del EDA).
 - **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `Nivel OMS anual`,
   `Promedio anual` (últimos 12 meses), `% Días sobre guía`.
@@ -194,7 +89,7 @@ intermedios y La Boca no alcanza ni el primero.**
 - **Barras horizontales**: `Promedio anual` por estación y período, con líneas constantes en la guía anual y los
   objetivos intermedios (tomar los valores de `ref_oms`).
 - **Matriz**: filas `tipo_dia_etiqueta`, columnas `estacion_del_anio`, valores `% Días sobre guía` (formato
-  condicional: escala de un solo tono, ver sección 6) y, en información sobre herramientas, `Días válidos`.
+  condicional: escala de un solo tono, ver sección 4) y, en información sobre herramientas, `Días válidos`.
 - **Barras**: `Variación vs. hábil` por tipo de día y estación (mensaje: "el domingo baja 17 a 27%, pero en La Boca
   el 90% de los domingos sigue sobre la guía").
 
@@ -208,7 +103,7 @@ intermedios y La Boca no alcanza ni el primero.**
 - **Tabla de archivos**: `calidad_archivos` filtrado por estado distinto de `ok` (2 descartados y 3 con aviso).
 - **Barras**: `calidad_resumen` (valores por categoría): 93% válidos, 5,7% sin dato en la fuente, 0,7% descartados.
 
-## 5. Segmentadores
+## 3. Segmentadores
 
 En una fila arriba de cada página, sincronizados entre páginas (*Ver → Sincronizar segmentaciones*):
 **estación** (`dim_estacion[nombre]`), **contaminante** (`dim_contaminante[nombre]`), **año**
@@ -216,7 +111,7 @@ En una fila arriba de cada página, sincronizados entre páginas (*Ver → Sincr
 (`dim_calendario[estacion_del_anio]`). En la página 2, para los visuales anuales, un segmentador de **período**
 (`dim_periodo[etiqueta]`).
 
-## 6. Colores y accesibilidad
+## 4. Colores y accesibilidad
 
 No usar rojo/verde como única codificación (daltonismo). Cada estación tiene **un color fijo en todo el TP** (igual
 que en las figuras del EDA); los niveles OMS van en una escala de **un solo tono** (más oscuro = más lejos de la
@@ -240,7 +135,7 @@ El tema está en [`powerbi_tema.json`](powerbi_tema.json) (*Vista → Temas → 
 estación están validados para las formas más comunes de daltonismo. El aqua tiene contraste bajo sobre fondo
 claro: mostrar siempre las etiquetas de datos o el nombre de la estación junto a la marca.
 
-## 7. Control de los números
+## 5. Control de los números
 
 Antes de presentar, comparar el dashboard con las vistas SQL (`analisis.v_resumen_estacion`) o con el notebook:
 

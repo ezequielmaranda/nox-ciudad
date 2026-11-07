@@ -92,7 +92,8 @@ ORDER BY dias_sin_fila DESC;
 -- A5 · Completitud por estación × contaminante × año y regla del 75%
 -- PREGUNTA  ¿Qué indicadores anuales se pueden calcular y cuáles no? (subpregunta 6)
 -- POR QUÉ   Un promedio anual con la mitad de los días puede estar sesgado (p. ej. si falta el invierno).
--- TÉCNICA   GROUP BY + COUNT con condición (COUNT(CASE WHEN ...)) + CASE para clasificar.
+-- TÉCNICA   GROUP BY + COUNT con condición (COUNT(CASE WHEN ...)) + CASE para clasificar. El umbral no se
+--           escribe acá: es_valido viene de agg_completitud_anual (variable umbral_completitud de dbt).
 SELECT
     f.id_estacion,
     f.id_contaminante,
@@ -101,14 +102,17 @@ SELECT
     count(CASE WHEN f.tiene_dato THEN 1 END)         AS dias_con_dato,
     round(100.0 * count(CASE WHEN f.tiene_dato THEN 1 END) / count(*), 1) AS completitud_pct,
     CASE
-        WHEN count(CASE WHEN f.tiene_dato THEN 1 END) >= 0.75 * count(*) THEN 'válido'
+        WHEN v.es_valido THEN 'válido'
         ELSE 'NO válido (< 75%)'
     END                                              AS regla_75
 FROM modelo.fact_medicion_diaria f
 JOIN modelo.dim_calendario c ON c.fecha = f.fecha
+JOIN calidad.agg_completitud_anual v
+  ON v.id_estacion = f.id_estacion AND v.id_contaminante = f.id_contaminante
+ AND v.id_periodo = CAST(c.anio AS VARCHAR)
 WHERE f.ventana = '24h'
   AND f.id_contaminante IN ('no2', 'pm10', 'co')
-GROUP BY f.id_estacion, f.id_contaminante, c.anio
+GROUP BY f.id_estacion, f.id_contaminante, c.anio, v.es_valido
 ORDER BY f.id_contaminante, f.id_estacion, c.anio;
 
 
@@ -247,7 +251,10 @@ SELECT
     r.unidad
 FROM anual a
 JOIN modelo.ref_oms r ON r.id_contaminante = a.id_contaminante AND r.promedio = 'anual'
-WHERE a.completitud >= 0.75
+JOIN calidad.agg_completitud_anual v
+  ON v.id_estacion = a.id_estacion AND v.id_contaminante = a.id_contaminante
+ AND v.id_periodo = CAST(a.anio AS VARCHAR)
+WHERE v.es_valido
 ORDER BY veces_la_guia DESC;
 
 
@@ -471,8 +478,8 @@ ORDER BY estaciones_con_outlier DESC, max_veces_mediana DESC;
 
 -- =====================================================================================================
 -- PARTE D · VISTAS (las tablas que muestra el dashboard, en SQL)
--- Power BI importa los CSV de data/final; estas vistas calculan lo mismo que las medidas DAX de
--- docs/powerbi_spec.md y sirven para verificar que el dashboard muestre los números correctos.
+-- Power BI importa los CSV de data/final; estas vistas calculan lo mismo que las medidas DAX del
+-- modelo (src/generar_pbip.py) y sirven para verificar que el dashboard muestre los números correctos.
 -- =====================================================================================================
 
 CREATE SCHEMA IF NOT EXISTS analisis;

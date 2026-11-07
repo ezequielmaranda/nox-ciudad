@@ -118,9 +118,12 @@ table dim_estacion
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_estacion.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_estacion.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"codigo_fuente", type text}, {"nombre", type text}, {"direccion", type text}, {"entorno", type text}, {"flujo_vehicular", type text}, {"fuentes_fijas", type text}, {"inicio_operacion", Int64.Type}, {"latitud_aprox", type number}, {"longitud_aprox", type number}, {"descripcion", type text}, {"orden", Int64.Type}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

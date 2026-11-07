@@ -4,7 +4,7 @@
 -- Períodos (dim_periodo): 2024, 2025, 2026 parcial (ene-sep) y últimos 12 meses (comparable).
 --
 -- Regla del 75% (agg_completitud_anual): si el período tiene < 75% de días con dato, el
--- indicador es 'no_valido' y promedio_anual / p99_24h quedan en NULL. El valor calculado igual
+-- indicador no es válido (es_valido = false) y promedio_anual / p99_24h quedan en NULL. El valor calculado igual
 -- se informa en promedio_referencial, solo para transparencia (no para sacar conclusiones).
 --
 -- Dos formas de comparar con la guía de 24 h (se reportan las dos):
@@ -64,7 +64,6 @@ base as (
         c.es_valido,
         c.completitud_peor_trimestre,
         c.cumple_criterio_trimestral,
-        case when c.es_valido then 'valido' else 'no_valido' end as estado_indicador,
         g.unidad,
         round(r.promedio_calculado, 2)                          as promedio_referencial,
         case when c.es_valido then round(r.promedio_calculado, 2) end as promedio_anual,
@@ -93,7 +92,6 @@ select
     es_valido,
     completitud_peor_trimestre,
     cumple_criterio_trimestral,
-    estado_indicador,
     unidad,
     promedio_anual,
     promedio_referencial,
@@ -125,13 +123,13 @@ select
         when promedio_anual > it4_anual  then 'IT4'
         when promedio_anual > guia_anual then 'AQG'
     end                                                         as proximo_nivel,
-    round(promedio_anual - coalesce(
-        case when promedio_anual > it1_anual  then it1_anual end,
-        case when promedio_anual > it2_anual  then it2_anual end,
-        case when promedio_anual > it3_anual  then it3_anual end,
-        case when promedio_anual > it4_anual  then it4_anual end,
-        case when promedio_anual > guia_anual then guia_anual end
-    ), 2)                                                       as ug_para_proximo_nivel,
+    round(promedio_anual - case
+        when promedio_anual > it1_anual  then it1_anual
+        when promedio_anual > it2_anual  then it2_anual
+        when promedio_anual > it3_anual  then it3_anual
+        when promedio_anual > it4_anual  then it4_anual
+        when promedio_anual > guia_anual then guia_anual
+    end, 2)                                                     as ug_para_proximo_nivel,
     p99_24h,
     guia_24h,
     round(p99_24h / guia_24h, 2)                                as p99_veces_guia_24h,

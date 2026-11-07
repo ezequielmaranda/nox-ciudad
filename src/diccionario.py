@@ -1,24 +1,34 @@
 """Genera docs/diccionario_datos.md: cada columna de las tablas finales con su tipo y descripción.
 
 Las descripciones se escriben UNA sola vez, en los .yml de dbt (dbt/models/**/_*.yml). De ahí
-salen la documentación navegable de dbt (`make docs`) y este diccionario, así que no se
+salen la documentación navegable de dbt (`dbt docs`) y este diccionario, así que no se
 desincronizan. Los tipos se leen de la base DuckDB ya construida.
 """
 
 import json
+import sys
 
 import duckdb
 
 from src import config
 
 
+def miles(n: int) -> str:
+    """Número con separador de miles a la argentina: 30120 -> 30.120."""
+    return f"{n:,}".replace(",", ".")
+
+
+def nodos_dbt() -> dict:
+    """Modelos y seeds de dbt con sus descripciones (del manifest que deja `dbt build`)."""
+    ruta = config.DIR_DBT / "target" / "manifest.json"
+    if not ruta.exists():
+        sys.exit("Falta dbt/target/manifest.json. Generarlo con: python -m src.etl")
+    manifest = json.loads(ruta.read_text(encoding="utf-8"))
+    return {n["name"]: n for n in manifest["nodes"].values() if n["resource_type"] in ("model", "seed")}
+
+
 def generar() -> None:
-    manifest = json.loads((config.DIR_DBT / "target" / "manifest.json").read_text(encoding="utf-8"))
-    nodos = {
-        n["name"]: n
-        for n in manifest["nodes"].values()
-        if n["resource_type"] in ("model", "seed")
-    }
+    nodos = nodos_dbt()
     con = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)
 
     lineas = [
@@ -27,7 +37,7 @@ def generar() -> None:
         "> Archivo generado por `python -m src.etl` a partir de las descripciones de los `.yml` de dbt.",
         "> No editar a mano: cambiar la descripción en `dbt/models/` y volver a correr el ETL.",
         "",
-        "Tablas finales que se exportan a `data/final/` (CSV y Parquet) y se cargan en Power BI.",
+        "Tablas finales que se exportan a `data/final/` (CSV) y se cargan en Power BI.",
         "",
         "| Tabla | Schema | Filas | Descripción |",
         "|---|---|---|---|",
@@ -38,8 +48,7 @@ def generar() -> None:
         nodo = nodos.get(nombre, {})
         filas = con.execute(f"select count(*) from {tabla}").fetchone()[0]
         descripcion = " ".join(nodo.get("description", "").split())
-        filas_txt = f"{filas:,}".replace(",", ".")  # separador de miles a la argentina
-        lineas.append(f"| [`{nombre}`](#{nombre}) | {schema} | {filas_txt} | {descripcion} |")
+        lineas.append(f"| [`{nombre}`](#{nombre}) | {schema} | {miles(filas)} | {descripcion} |")
 
         columnas = con.execute(
             """

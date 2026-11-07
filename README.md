@@ -116,49 +116,29 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 
 ## Cómo correrlo
 
-Requisitos: Python 3.11 o superior y Git. Todo corre local, sin servidores.
+Requisitos: Windows, Python 3.11 o superior y Git. Todo corre local, sin servidores. Desde la raíz del repo:
 
-```bash
+```powershell
 git clone https://github.com/ezequielmaranda/nox-ciudad
-```
-
-```bash
 cd nox-ciudad
-```
-
-```bash
-make install
-```
-
-```bash
-make all
-```
-
-`make all` corre el ETL (crudo → DuckDB → `data/final/`), los tests y el notebook de EDA (regenera
-`reports/figures/`). Tarda menos de un minuto. Por partes: `make etl`, `make test`, `make eda`; `make docs` abre la
-documentación de dbt con el linaje de las tablas; `make extract` vuelve a bajar los PDF de la APrA (opcional: el
-CSV crudo ya está en el repo).
-
-**En Windows** (sin `make`), desde la raíz del repo:
-
-```bash
 python -m venv .venv
-```
-
-```bash
 .venv\Scripts\pip install -r requirements.txt
 ```
 
-```bash
-.venv\Scripts\python -m src.etl
-```
+| Para qué | Comando |
+|---|---|
+| ETL: crudo → DuckDB → `data/final/` (unos 10 segundos) | `.venv\Scripts\python -m src.etl` |
+| Tests de pytest | `.venv\Scripts\python -m pytest -q` |
+| Notebook de EDA (regenera `reports/figures/`) | `.venv\Scripts\python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb` |
+| Proyecto de Power BI (no correrlo si ya hay gráficos armados) | `.venv\Scripts\python -m src.generar_pbip` |
+| Volver a bajar los PDF de la APrA (opcional: el CSV crudo ya está en el repo) | `.venv\Scripts\python -m src.extract` |
 
-```bash
-.venv\Scripts\python -m pytest -q
-```
+Para ver la documentación de dbt con el linaje de las tablas (después del ETL, en http://localhost:8080):
 
-```bash
-.venv\Scripts\python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb
+```powershell
+cd dbt
+..\.venv\Scripts\dbt docs generate
+..\.venv\Scripts\dbt docs serve
 ```
 
 Para explorar la base con SQL: abrir `data/warehouse/aire.duckdb` en DBeaver o DataGrip (driver DuckDB 1.x) o con la
@@ -169,17 +149,17 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ```
 .
 ├── README.md                      este archivo
-├── requirements.txt · Makefile · pytest.ini
+├── requirements.txt · pytest.ini
 ├── data/
 │   ├── raw/                       crudo de la extracción (no se modifica a mano)
 │   │   ├── aire_publico.csv           83.010 valores de 279 PDF de la APrA, todo texto
 │   │   └── aire_publico_manifiesto.csv  estado de cada PDF (procesado, aviso, descartado)
 │   ├── reference/                 tablas mantenidas a mano: guías OMS, estaciones, contaminantes, feriados, eventos
 │   ├── warehouse/aire.duckdb      base generada por el ETL (fuera de git)
-│   └── final/                     18 tablas en CSV y Parquet para Power BI y el EDA
+│   └── final/                     16 tablas en CSV para Power BI y el EDA
 ├── dbt/                           transformaciones SQL (dbt + DuckDB)
 │   ├── models/01_staging/         tipar, normalizar, reglas de validación física
-│   ├── models/02_dimensiones/     calendario, estación, contaminante, período, evento, referencias OMS
+│   ├── models/02_dimensiones/     calendario, estación, contaminante, período, referencias OMS
 │   ├── models/03_hechos/          fact_medicion_diaria (formato largo, grilla completa)
 │   ├── models/04_calidad/         completitud, regla del 75%, violaciones, outliers
 │   ├── models/05_indicadores/     cumplimiento diario, indicadores anuales, rachas
@@ -189,7 +169,6 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── config.py                  rutas relativas a la raíz y tablas a exportar
 │   ├── extract.py                 extracción: PDF de la APrA → data/raw/aire_publico.csv
 │   ├── etl.py                     orquesta extract → dbt build → export → consultas → diccionario
-│   ├── calidad.py                 perfil del crudo y resumen de calidad
 │   ├── diccionario.py             genera docs/diccionario_datos.md
 │   └── generar_pbip.py            genera el proyecto de Power BI (dashboard/)
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
@@ -213,7 +192,19 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 | **Granularidad** | estación × día (los datos horarios no son públicos) |
 | **Período** | 2024-01-01 a 2026-09-30 (2026 parcial) |
 | **Referencia** | Guías OMS 2021 (`data/reference/oms_2021.csv`), usadas siempre vía JOIN |
-| **Complementos** | Feriados nacionales (API ArgentinaDatos) y días de paro de transporte (notas de prensa) |
+| **Complementos** | Guías OMS, estaciones, contaminantes, feriados y paros: ver abajo |
+
+### De dónde sale cada tabla de referencia
+
+Están en `data/reference/`. No las descarga el ETL: se armaron una vez y se versionan en git.
+
+| Archivo | Origen | Cómo se obtuvo | Qué hay que aclarar |
+|---|---|---|---|
+| `oms_2021.csv` | OMS, *WHO global air quality guidelines* (2021), Tabla 0.1 del resumen ejecutivo | Transcripción manual de la tabla | Solo NO₂, PM10 y CO: los que tienen guía entre los que publican estos informes de la APrA |
+| `estaciones.csv` | Páginas de cada estación en el sitio de la APrA ([Centenario](https://buenosaires.gob.ar/calidad-del-aire/estacion-parque-centenario), [Córdoba](https://buenosaires.gob.ar/calidad-del-aire/estacion-cordoba), [La Boca](https://buenosaires.gob.ar/calidad-del-aire/estacion-la-boca)) | Carga manual de dirección, entorno, flujo vehicular, fuentes fijas e inicio de operación | `descripcion` es redacción del equipo y suma contexto que no está en esas páginas (por ejemplo, Dock Sud). Las coordenadas son aproximadas: se geocodificaron a mano desde la dirección |
+| `feriados.csv` | API pública [ArgentinaDatos](https://api.argentinadatos.com/v1/feriados/2024) (`/v1/feriados/<año>`) | Descarga de 2024, 2025 y 2026: 59 feriados | Feriados nacionales con puentes; no incluye días no laborables optativos como el Jueves Santo |
+| `eventos.csv` | Notas de prensa: el link de cada paro está en la columna `fuente_prensa` | Armado a mano por el equipo: 7 paros de transporte | Solo da contexto a días atípicos; no interviene en los indicadores |
+| `contaminantes.csv` | Pesos moleculares de la química; el resto, criterio del equipo | Armado a mano | Tolerancias y máximos físicos son decisiones nuestras; su uso está en [`docs/calidad_datos.md`](docs/calidad_datos.md) |
 
 ## Flujo técnico
 
@@ -223,7 +214,7 @@ flowchart LR
     B -- "dbt: staging" --> C["validación<br/>y tipado"]
     C -- "dbt" --> D["modelo estrella<br/>dims + fact"]
     D -- "dbt" --> E["calidad e<br/>indicadores OMS"]
-    E -- "src/etl.py" --> F["data/final<br/>CSV + Parquet"]
+    E -- "src/etl.py" --> F["data/final<br/>CSV"]
     F --> G["Power BI"]
     F --> H["EDA<br/>notebook"]
 ```
@@ -239,8 +230,8 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 |---|---|
 | **EDA en dos pasos:** perfil automático con **Sweetviz** y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Sweetviz da un barrido rápido de tipos, nulos, distribuciones y asociaciones, pero no conoce la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
 | **Partir de los PDF públicos** y no de una tabla ya procesada | La consigna pide un flujo completo y desaconseja datasets ya procesados. Desde el PDF aparecen los problemas reales: `s/d`, `<4`, coma decimal, archivos de otra estación, valores incoherentes |
-| **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV/Parquet y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
-| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 79 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
+| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 76 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
 | **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
 | **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, las consultas de `sql/99` y las funciones del extractor |
 | **Fact como grilla completa** (calendario × estación × contaminante) | Distingue "la fuente no publicó" de "publicó `s/d`" y de "lo descartó una regla"; la completitud es un promedio |

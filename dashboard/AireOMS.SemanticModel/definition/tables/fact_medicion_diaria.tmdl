@@ -164,9 +164,12 @@ table fact_medicion_diaria
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "fact_medicion_diaria.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_diaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"ventana", type text}, {"valor_crudo", type text}, {"estado_valor", type text}, {"tiene_fila", type logical}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}, {"es_imputado", type logical}, {"es_outlier", type logical}, {"umbral_outlier", type number}, {"archivo_pdf", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

@@ -81,9 +81,12 @@ table calidad_archivos
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "calidad_archivos.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "calidad_archivos.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"tipo_informe", type text}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"archivo", type text}, {"estado", type text}, {"estado_detalle", type text}, {"estacion_en_encabezado", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

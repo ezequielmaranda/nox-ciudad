@@ -34,7 +34,7 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-from src.config import DIR_PDF, DIR_RAW
+from src.config import DIR_PDF, DIR_RAW, RAW_AIRE, RAW_MANIFIESTO
 
 PAGINAS = {
     "CENTENARIO": "https://buenosaires.gob.ar/calidad-del-aire/estacion-parque-centenario",
@@ -219,7 +219,7 @@ def procesar_pdf(ruta: Path, tipo: str, estacion_pagina: str):
     return filas, {**info, "estado": "ok" + aviso}
 
 
-def obtener_html(estacion: str, url: str, sesion, carpeta_paginas: Path | None, landing: Path) -> str:
+def obtener_html(estacion: str, url: str, sesion, carpeta_paginas: Path | None) -> str:
     """Devuelve el HTML de la página de una estación.
 
     Con --paginas se usa el HTML guardado desde el navegador (<carpeta>/<ESTACION>.html).
@@ -229,7 +229,7 @@ def obtener_html(estacion: str, url: str, sesion, carpeta_paginas: Path | None, 
         return (carpeta_paginas / f"{estacion}.html").read_text(encoding="utf-8", errors="replace")
     r = sesion.get(url, headers=UA, timeout=60)
     if ".pdf" not in r.text.lower():
-        debug = landing / f"debug_pagina_{estacion.replace(' ', '_')}.html"
+        debug = DIR_RAW / f"debug_pagina_{estacion.replace(' ', '_')}.html"
         debug.write_text(r.text, encoding="utf-8", errors="replace")
         titulo = re.search(r"<title>(.*?)</title>", r.text, flags=re.IGNORECASE | re.DOTALL)
         print(f"AVISO {estacion}: la página no trae links a PDF. HTTP {r.status_code}, URL final {r.url}, "
@@ -278,34 +278,32 @@ def descargar_pdf(sesion, link: dict):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--desde", type=int, default=2024, help="primer año a procesar")
-    ap.add_argument("--raw", type=Path, default=DIR_PDF, help="carpeta de los PDF")
-    ap.add_argument("--landing", type=Path, default=DIR_RAW, help="carpeta del CSV de salida")
     ap.add_argument("--solo-parsear", action="store_true", help="no descarga; procesa lo ya bajado")
     ap.add_argument("--paginas", type=Path, default=None,
                     help="carpeta con las páginas de las estaciones guardadas desde el navegador "
                          "(CENTENARIO.html, CORDOBA.html, LA BOCA.html), si el sitio bloquea la descarga")
     args = ap.parse_args()
-    args.landing.mkdir(parents=True, exist_ok=True)
+    DIR_RAW.mkdir(parents=True, exist_ok=True)
 
     import requests
 
     sesion = requests.Session()
     manifiesto, filas = [], []
     if args.solo_parsear:
-        for ruta in sorted(args.raw.glob("*/*.pdf")):
+        for ruta in sorted(DIR_PDF.glob("*/*.pdf")):
             tipo = tipo_de_archivo(ruta.name)
             if tipo:
                 manifiesto.append({"estacion_pagina": ruta.parent.name, "tipo": tipo, "archivo": ruta.name,
                                    "url_original": "", "url_descarga": "", "ruta": ruta})
     else:
         for estacion, url in PAGINAS.items():
-            html = obtener_html(estacion, url, sesion, args.paginas, args.landing)
+            html = obtener_html(estacion, url, sesion, args.paginas)
             links = listar_links(estacion, html)
             print(f"{estacion}: {len(links)} PDF enlazados")
             for link in links:
                 if link["anio_nombre"] is not None and link["anio_nombre"] < args.desde:
                     continue
-                destino = args.raw / estacion / link["archivo"]
+                destino = DIR_PDF / estacion / link["archivo"]
                 destino.parent.mkdir(parents=True, exist_ok=True)
                 if not destino.exists():
                     contenido, estado = descargar_pdf(sesion, link)
@@ -342,8 +340,7 @@ def main():
     finales = [sorted(v, key=lambda x: x["archivo"])[-1] for v in vistos.values()]
     finales.sort(key=lambda f: (f["estacion"], f["fecha"], f["contaminante"], f["estadistico"]))
 
-    salida = args.landing / "aire_publico.csv"
-    with salida.open("w", newline="", encoding="utf-8") as fh:
+    with RAW_AIRE.open("w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=["estacion", "fecha", "contaminante", "estadistico",
                                            "valor_crudo", "unidad", "archivo"])
         w.writeheader()
@@ -351,7 +348,7 @@ def main():
 
     campos = ["estacion_pagina", "tipo", "archivo", "estacion_pdf", "mes", "anio", "estado",
               "url_original", "url_descarga"]
-    with (args.landing / "aire_publico_manifiesto.csv").open("w", newline="", encoding="utf-8") as fh:
+    with RAW_MANIFIESTO.open("w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=campos, extrasaction="ignore")
         w.writeheader()
         w.writerows(manifiesto)
@@ -360,7 +357,7 @@ def main():
     for m in manifiesto:
         clave = m.get("estado", "fuera del período").split(":")[0].split(" (")[0]
         estados[clave] = estados.get(clave, 0) + 1
-    print(f"\n{len(finales)} filas -> {salida}")
+    print(f"\n{len(finales)} filas -> {RAW_AIRE}")
     print("Archivos por estado:", estados)
     for m in manifiesto:
         estado = m.get("estado", "")

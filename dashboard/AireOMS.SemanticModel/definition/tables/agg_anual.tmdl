@@ -118,15 +118,6 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// 'valido' o 'no_valido'.
-	column estado_indicador
-		dataType: string
-		lineageTag: 77353f4e-84e8-5649-aaa1-3e8175923cdb
-		summarizeBy: none
-		sourceColumn: estado_indicador
-
-		annotation SummarizationSetBy = User
-
 	/// Unidad de la guía.
 	column unidad
 		dataType: string
@@ -279,9 +270,12 @@ table agg_anual
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_anual.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_anual.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"id_periodo", type text}, {"periodo", type text}, {"tipo_periodo", type text}, {"anio", Int64.Type}, {"n_dias_periodo", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"completitud_peor_trimestre", type number}, {"cumple_criterio_trimestral", type logical}, {"unidad", type text}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"proximo_nivel", type text}, {"ug_para_proximo_nivel", type number}, {"p99_24h", type number}, {"guia_24h", type number}, {"p99_veces_guia_24h", type number}, {"p99_supera_guia_24h", type logical}, {"maximo_diario", type number}, {"n_dias_supera_24h", Int64.Type}, {"pct_dias_supera_24h", type number}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 
