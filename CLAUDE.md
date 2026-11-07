@@ -46,9 +46,11 @@ Todo el equipo usa Windows: no hay Makefile, los comandos van con `.venv\Scripts
 Python 3.11+ con `requirements.txt`. DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
 las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest. Sin pdfminer, requests
 ni pyarrow (la descarga usa urllib; `data/final` es solo CSV).
-El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; correrlo dentro de `plt.rc_context()`
-porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
-heatmap) y matplotlib.
+El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`, layout vertical, sin logo, columnas en
+castellano con unidad) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%, heatmap) y matplotlib.
+Sweetviz se corre dentro de `plt.style.context("default")`: con el estilo del notebook (200 dpi, bbox tight) sus
+imágenes salen más grandes de lo que espera su HTML y se pisan con el texto; el bloque además deshace el cambio de
+fuentes que hace Sweetviz. Se revisaron con capturas de Chromium/Playwright.
 
 - `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export de gold a `data/final/`
   (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` (solo lectura) → genera
