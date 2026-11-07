@@ -10,6 +10,9 @@ pandas>=2.2
 matplotlib>=3.8
 seaborn>=0.13            # gráficos estadísticos (boxplot, barras con IC, heatmap)
 sweetviz>=2.3            # perfil automático del EDA (reportes HTML)
+ydata-profiling>=4.18    # otro perfil automático, más completo (alertas, faltantes, correlaciones de Spearman).
+                         # Pide pandas < 3: pip instala pandas 2.x
+setuptools<82            # ydata-profiling todavía usa pkg_resources, que setuptools sacó en la versión 82
 
 # Notebook
 ipykernel>=6.29
