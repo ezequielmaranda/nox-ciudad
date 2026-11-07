@@ -27,6 +27,7 @@ NOMBRE = "AireOMS"
 DIR_DASH = config.RAIZ / "dashboard"
 DIR_MODELO = DIR_DASH / f"{NOMBRE}.SemanticModel"
 DIR_INFORME = DIR_DASH / f"{NOMBRE}.Report"
+DIR_RECURSOS = config.RAIZ / "src" / "recursos"   # temas de Power BI (entradas del generador)
 TEMA_BASE = "Fluent2-CY26SU08"  # tema base de Power BI (copiado de un proyecto oficial de Microsoft, licencia MIT)
 TEMA_PROPIO = "TemaAireOMS.json"
 RUTA_POR_DEFECTO = r"C:\nox-ciudad\data\final" + "\\"
@@ -42,19 +43,17 @@ ORDENAR_POR = {
     ("dim_estacion", "nombre"): "orden",
     ("dim_contaminante", "nombre"): "orden",
     ("dim_contaminante", "codigo_fuente"): "orden",
-    ("dim_calendario", "nombre_mes"): "mes",
     ("dim_calendario", "nombre_dia"): "dia_semana",
     ("dim_calendario", "tipo_dia_etiqueta"): "orden_tipo_dia",
     ("dim_calendario", "estacion_del_anio"): "orden_estacion_del_anio",
     ("guia_oms", "nivel"): "orden_exigencia",
-    ("guia_oms", "nivel_etiqueta"): "orden_exigencia",
     ("fact_medicion_diaria", "nivel_oms"): "orden_nivel_oms",
     ("agg_anual", "periodo"): "orden_periodo",
     ("agg_anual", "nivel_oms"): "orden_nivel_oms",
 }
 
 # Columnas que se muestran como porcentaje
-PORCENTAJES = {"completitud", "completitud_peor_trimestre", "pct_dias_supera_24h", "pct_cumple_guia_24h",
+PORCENTAJES = {"completitud", "pct_dias_supera_24h", "pct_cumple_guia_24h",
                "pct_cumple_it4_24h", "pct_cumple_it3_24h", "pct_cumple_it2_24h", "pct_cumple_it1_24h",
                "proporcion"}
 
@@ -378,11 +377,11 @@ def generar_informe() -> None:
             "height": 720,
             "width": 1280,
         })
-    # Temas: el base (de Power BI) y el propio (colores del TP, docs/powerbi_tema.json)
+    # Temas: el base (de Power BI) y el propio (colores del TP); los dos están en src/recursos/
     base = DIR_INFORME / "StaticResources" / "SharedResources" / "BaseThemes" / f"{TEMA_BASE}.json"
     base.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy(config.RAIZ / "src" / "recursos" / f"{TEMA_BASE}.json", base)
-    tema = json.loads((config.DIR_DOCS / "powerbi_tema.json").read_text(encoding="utf-8"))
+    shutil.copy(DIR_RECURSOS / f"{TEMA_BASE}.json", base)
+    tema = json.loads((DIR_RECURSOS / "powerbi_tema.json").read_text(encoding="utf-8"))
     tema["name"] = TEMA_PROPIO
     escribir_json(DIR_INFORME / "StaticResources" / "RegisteredResources" / TEMA_PROPIO, tema)
 

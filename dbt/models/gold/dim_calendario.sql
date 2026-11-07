@@ -24,7 +24,7 @@ base as (
         year(dias.fecha)                     as anio,
         month(dias.fecha)                    as mes,
         isodow(dias.fecha)                   as dia_semana,   -- 1 = lunes … 7 = domingo
-        feriados.nombre                      as nombre_feriado
+        feriados.fecha is not null           as es_feriado
     from dias
     left join {{ ref('feriados') }} as feriados on feriados.fecha = dias.fecha
 )
@@ -33,12 +33,6 @@ select
     fecha,
     anio,
     mes,
-    case mes
-        when 1 then 'enero' when 2 then 'febrero' when 3 then 'marzo' when 4 then 'abril'
-        when 5 then 'mayo' when 6 then 'junio' when 7 then 'julio' when 8 then 'agosto'
-        when 9 then 'septiembre' when 10 then 'octubre' when 11 then 'noviembre'
-        when 12 then 'diciembre'
-    end                                                        as nombre_mes,
     make_date(anio, mes, 1)                                    as anio_mes,
     case
         when mes in (12, 1, 2) then 'verano'
@@ -59,22 +53,21 @@ select
     end                                                        as nombre_dia,
     -- Código sin tildes (para filtrar) y etiqueta legible (para mostrar)
     case
-        when nombre_feriado is not null then 'feriado'
+        when es_feriado then 'feriado'
         when dia_semana = 6 then 'sabado'
         when dia_semana = 7 then 'domingo'
         else 'habil'
     end                                                        as tipo_dia,
     case
-        when nombre_feriado is not null then 'Feriado'
+        when es_feriado then 'Feriado'
         when dia_semana = 6 then 'Sábado'
         when dia_semana = 7 then 'Domingo'
         else 'Hábil'
     end                                                        as tipo_dia_etiqueta,
     case
-        when nombre_feriado is not null then 4
+        when es_feriado then 4
         when dia_semana = 6 then 2
         when dia_semana = 7 then 3
         else 1
-    end                                                        as orden_tipo_dia,
-    nombre_feriado
+    end                                                        as orden_tipo_dia
 from base

@@ -20,10 +20,6 @@ select
     id_contaminante,
     promedio,                                                                 -- '24h' o 'anual'
     case nivel_columna when 'guia_oms' then 'AQG' else upper(nivel_columna) end as nivel,
-    case nivel_columna
-        when 'guia_oms' then 'Guía OMS'
-        else 'Objetivo intermedio ' || upper(nivel_columna)
-    end                                                                       as nivel_etiqueta,
     -- 1 = más exigente (guía) … 5 = menos exigente (IT1)
     case nivel_columna
         when 'guia_oms' then 1 when 'it4' then 2 when 'it3' then 3

@@ -50,67 +50,12 @@ table dim_contaminante
 
 		annotation SummarizationSetBy = User
 
-	/// Peso molecular en g/mol (vacío para PM10).
-	column peso_molecular
-		dataType: double
-		lineageTag: 53d0e604-ce23-5c40-b47d-84c6e8fbfa33
-		summarizeBy: none
-		sourceColumn: peso_molecular
-
-		annotation SummarizationSetBy = User
-
 	/// Multiplicador de unidad_medicion a unidad_masa: peso_molecular / 24,45 (25 °C, 1 atm).
 	column factor_masa
 		dataType: double
 		lineageTag: 1a681ffb-6bc1-53ee-ad0e-15bb41b24c3f
 		summarizeBy: none
 		sourceColumn: factor_masa
-
-		annotation SummarizationSetBy = User
-
-	/// Cómo publica la red el contaminante: 'horario' (NO2), 'movil_8h' (CO) o 'movil_24h' (PM10).
-	column promedio_fuente
-		dataType: string
-		lineageTag: db62270b-21b6-594d-a157-4cdef5c5fa02
-		summarizeBy: none
-		sourceColumn: promedio_fuente
-
-		annotation SummarizationSetBy = User
-
-	/// Horas que abarca cada valor publicado (1, 8 o 24).
-	column horas_promedio_fuente
-		dataType: int64
-		formatString: 0
-		lineageTag: f42ebb8b-fff4-5f8f-9ebf-6b6d909f1f71
-		summarizeBy: none
-		sourceColumn: horas_promedio_fuente
-
-		annotation SummarizationSetBy = User
-
-	/// Máximo plausible para un valor horario en la Ciudad (regla fuera_de_rango).
-	column maximo_plausible
-		dataType: double
-		lineageTag: 74e396b3-c04a-5be3-a22e-95302f581d5c
-		summarizeBy: none
-		sourceColumn: maximo_plausible
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si la OMS tiene guía de 24 h para el contaminante.
-	column tiene_guia_24h
-		dataType: boolean
-		lineageTag: 74a6829a-66a1-5a20-97ee-e646f4c01b71
-		summarizeBy: none
-		sourceColumn: tiene_guia_24h
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si la OMS tiene guía anual para el contaminante.
-	column tiene_guia_anual
-		dataType: boolean
-		lineageTag: 53f48fd1-ffef-56cb-ab9f-bbd42322bc06
-		summarizeBy: none
-		sourceColumn: tiene_guia_anual
 
 		annotation SummarizationSetBy = User
 
@@ -140,7 +85,7 @@ table dim_contaminante
 				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_contaminante.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"codigo_fuente", type text}, {"nombre", type text}, {"unidad_medicion", type text}, {"unidad_masa", type text}, {"peso_molecular", type number}, {"factor_masa", type number}, {"promedio_fuente", type text}, {"horas_promedio_fuente", Int64.Type}, {"maximo_plausible", type number}, {"tiene_guia_24h", type logical}, {"tiene_guia_anual", type logical}, {"orden", Int64.Type}, {"descripcion", type text}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"codigo_fuente", type text}, {"nombre", type text}, {"unidad_medicion", type text}, {"unidad_masa", type text}, {"factor_masa", type number}, {"orden", Int64.Type}, {"descripcion", type text}}, "en-US")
 				in
 				    Tipos
 

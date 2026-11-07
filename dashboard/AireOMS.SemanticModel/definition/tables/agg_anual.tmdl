@@ -119,34 +119,6 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Completitud del trimestre con menos datos dentro del período.
-	column completitud_peor_trimestre
-		dataType: double
-		formatString: 0.0%
-		lineageTag: 05030fee-61c7-58a6-8c8f-c99070fb0bb0
-		summarizeBy: none
-		sourceColumn: completitud_peor_trimestre
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si todos los trimestres tienen >= 75% de días con dato (criterio EPA; advertencia, no excluye).
-	column cumple_criterio_trimestral
-		dataType: boolean
-		lineageTag: f42d37ae-4e0c-5800-9827-b78acfa97492
-		summarizeBy: none
-		sourceColumn: cumple_criterio_trimestral
-
-		annotation SummarizationSetBy = User
-
-	/// Unidad de las guías (µg/m³; mg/m³ para el CO).
-	column unidad
-		dataType: string
-		lineageTag: 9aa05e14-3626-56ee-95a2-6a50be0057a2
-		summarizeBy: none
-		sourceColumn: unidad
-
-		annotation SummarizationSetBy = User
-
 	/// Promedio de los valores diarios. Vacío si el período no es válido.
 	column promedio_anual
 		dataType: double
@@ -230,49 +202,12 @@ table agg_anual
 
 		annotation SummarizationSetBy = User
 
-	/// Guía OMS de 24 h.
-	column guia_24h
-		dataType: double
-		lineageTag: c6cfe9af-5155-5929-bac7-be56e38bf433
-		summarizeBy: none
-		sourceColumn: guia_24h
-
-		annotation SummarizationSetBy = User
-
-	/// p99_24h / guia_24h.
+	/// p99_24h / guía OMS de 24 h (más de 1 = no se cumple la guía en sentido formal).
 	column p99_veces_guia_24h
 		dataType: double
 		lineageTag: 5e9ca89b-4a86-5304-ac2f-f72b7b218dc4
 		summarizeBy: none
 		sourceColumn: p99_veces_guia_24h
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si el P99 supera la guía de 24 h (no se cumple en sentido formal).
-	column p99_supera_guia_24h
-		dataType: boolean
-		lineageTag: fe69fdf4-c4b9-5d9b-af67-90f640a82c76
-		summarizeBy: none
-		sourceColumn: p99_supera_guia_24h
-
-		annotation SummarizationSetBy = User
-
-	/// Máximo promedio diario del período.
-	column maximo_diario
-		dataType: double
-		lineageTag: af0657bf-1a7f-5c88-918c-2f1285464021
-		summarizeBy: none
-		sourceColumn: maximo_diario
-
-		annotation SummarizationSetBy = User
-
-	/// Días con promedio de 24 h sobre la guía.
-	column n_dias_supera_24h
-		dataType: int64
-		formatString: 0
-		lineageTag: 151deaac-bb44-5d7f-8081-3880fb2b0e72
-		summarizeBy: none
-		sourceColumn: n_dias_supera_24h
 
 		annotation SummarizationSetBy = User
 
@@ -377,7 +312,7 @@ table agg_anual
 				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_anual.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"id_periodo", type text}, {"periodo", type text}, {"tipo_periodo", type text}, {"anio", Int64.Type}, {"orden_periodo", Int64.Type}, {"es_periodo_estudio", type logical}, {"n_dias_periodo", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"completitud_peor_trimestre", type number}, {"cumple_criterio_trimestral", type logical}, {"unidad", type text}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"proximo_nivel", type text}, {"ug_para_proximo_nivel", type number}, {"p99_24h", type number}, {"guia_24h", type number}, {"p99_veces_guia_24h", type number}, {"p99_supera_guia_24h", type logical}, {"maximo_diario", type number}, {"n_dias_supera_24h", Int64.Type}, {"pct_dias_supera_24h", type number}, {"pct_cumple_guia_24h", type number}, {"pct_cumple_it4_24h", type number}, {"pct_cumple_it3_24h", type number}, {"pct_cumple_it2_24h", type number}, {"pct_cumple_it1_24h", type number}, {"racha_maxima_dias", Int64.Type}, {"racha_desde", type date}, {"racha_hasta", type date}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"id_contaminante", type text}, {"id_periodo", type text}, {"periodo", type text}, {"tipo_periodo", type text}, {"anio", Int64.Type}, {"orden_periodo", Int64.Type}, {"es_periodo_estudio", type logical}, {"n_dias_periodo", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"proximo_nivel", type text}, {"ug_para_proximo_nivel", type number}, {"p99_24h", type number}, {"p99_veces_guia_24h", type number}, {"pct_dias_supera_24h", type number}, {"pct_cumple_guia_24h", type number}, {"pct_cumple_it4_24h", type number}, {"pct_cumple_it3_24h", type number}, {"pct_cumple_it2_24h", type number}, {"pct_cumple_it1_24h", type number}, {"racha_maxima_dias", Int64.Type}, {"racha_desde", type date}, {"racha_hasta", type date}}, "en-US")
 				in
 				    Tipos
 

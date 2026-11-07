@@ -69,7 +69,8 @@ intermedios y La Boca no alcanza ni el primero.**
   como % del total; filtro del visual `tiene_dato = verdadero`. Colores por nivel (sección 4). Responde "¿en qué escalón está cada estación?" (figura
   `reports/figures/06_niveles_oms_diarios.png` del EDA).
 - **Una tarjeta por estación** (tarjeta de varias filas o pequeños múltiplos): nombre, `Nivel OMS anual`,
-  `Promedio anual` (últimos 12 meses), `% Días sobre guía`.
+  `Promedio anual` (últimos 12 meses), `% Días sobre guía` y, en texto chico, `flujo_vehicular` y
+  `fuentes_fijas` de `dim_estacion` (son la base de H2: Córdoba tiene el flujo más alto y La Boca, fuentes fijas).
 - **Mapa** (visual Mapa o Azure Maps) con `latitud` / `longitud` de `dim_estacion`; tamaño de la burbuja
   = `% Días sobre guía`. Si el mapa no aporta, reemplazarlo por las tarjetas por estación.
 - **Cuadro de texto** con 3 conclusiones en lenguaje simple (ver README, sección Hallazgos).
@@ -135,7 +136,7 @@ guía) y siempre con la etiqueta del nivel escrita.
 | Línea de la guía OMS | `#52514E`, guiones |
 | Fondo / texto | `#FCFCFB` / `#0B0B0B` |
 
-El tema está en [`powerbi_tema.json`](powerbi_tema.json) (*Vista → Temas → Buscar temas*). Los colores de
+El tema está en [`src/recursos/powerbi_tema.json`](../src/recursos/powerbi_tema.json) (el generador ya lo aplica; a mano: *Vista → Temas → Buscar temas*). Los colores de
 estación están validados para las formas más comunes de daltonismo. El aqua tiene contraste bajo sobre fondo
 claro: mostrar siempre las etiquetas de datos o el nombre de la estación junto a la marca.
 

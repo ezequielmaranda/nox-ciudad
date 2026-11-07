@@ -10,20 +10,14 @@ models:
       - name: id_estacion
         description: Clave de la estación ('centenario', 'cordoba', 'la_boca').
         data_tests: [unique, not_null]
-      - name: codigo_fuente
-        description: Nombre de la estación como figura en la fuente ('LA BOCA').
       - name: nombre
         description: Nombre legible para mostrar.
-      - name: direccion
-        description: Ubicación de la cabina según la APrA.
       - name: entorno
         description: Tipo de zona según la APrA (residencial-comercial, mixta).
       - name: flujo_vehicular
         description: Flujo vehicular de la zona según la APrA (alto, medio, medio-bajo).
       - name: fuentes_fijas
         description: Incidencia de fuentes fijas (industrias, puerto) según la APrA.
-      - name: inicio_operacion
-        description: Año de inicio de actividad según BA Data (estaciones-ambientales.csv).
       - name: latitud
         description: Latitud de la estación (BA Data, estaciones-ambientales.csv).
       - name: longitud
@@ -47,21 +41,9 @@ models:
         description: Unidad en que se mide y publica (ppb, ppm o µg/m³).
       - name: unidad_masa
         description: Unidad de la guía OMS (µg/m³ o mg/m³).
-      - name: peso_molecular
-        description: Peso molecular en g/mol (vacío para PM10).
       - name: factor_masa
         description: "Multiplicador de unidad_medicion a unidad_masa: peso_molecular / 24,45 (25 °C, 1 atm)."
         data_tests: [not_null]
-      - name: promedio_fuente
-        description: "Cómo publica la red el contaminante: 'horario' (NO2), 'movil_8h' (CO) o 'movil_24h' (PM10)."
-      - name: horas_promedio_fuente
-        description: Horas que abarca cada valor publicado (1, 8 o 24).
-      - name: maximo_plausible
-        description: Máximo plausible para un valor horario en la Ciudad (regla fuera_de_rango).
-      - name: tiene_guia_24h
-        description: Verdadero si la OMS tiene guía de 24 h para el contaminante.
-      - name: tiene_guia_anual
-        description: Verdadero si la OMS tiene guía anual para el contaminante.
       - name: orden
         description: Orden para gráficos (NO2 primero).
       - name: descripcion
@@ -77,8 +59,6 @@ models:
         description: Año.
       - name: mes
         description: Mes (1-12).
-      - name: nombre_mes
-        description: Nombre del mes en castellano.
       - name: anio_mes
         description: Primer día del mes (para ejes y agrupaciones mensuales).
       - name: estacion_del_anio
@@ -104,10 +84,6 @@ models:
         description: Etiqueta legible del tipo de día (Hábil, Sábado, Domingo, Feriado).
       - name: orden_tipo_dia
         description: 1 = hábil, 2 = sábado, 3 = domingo, 4 = feriado.
-      - name: es_feriado
-        description: Verdadero si es feriado nacional o puente.
-      - name: nombre_feriado
-        description: Nombre del feriado (vacío si no es feriado; nulo estructural, no faltante).
 
   - name: guia_oms
     description: >
@@ -130,8 +106,6 @@ models:
                 values: ["24h", "anual"]
       - name: nivel
         description: AQG (guía), IT4, IT3, IT2 o IT1.
-      - name: nivel_etiqueta
-        description: Etiqueta legible del nivel.
       - name: orden_exigencia
         description: 1 = guía (más exigente) … 5 = IT1 (menos exigente). Para ordenar.
       - name: umbral
@@ -181,8 +155,6 @@ models:
               arguments:
                 minimo: 0
                 maximo: 24
-      - name: tiene_fila
-        description: Verdadero si la fuente tiene al menos una hora de ese día.
       - name: tiene_dato
         description: Verdadero si hay promedio de 24 h válido.
         data_tests: [not_null]
@@ -193,31 +165,21 @@ models:
               arguments:
                 values: ["sin_fila", "sin_dato_fuente", "incompleto"]
       - name: valor
-        description: Promedio de 24 h en la unidad original (solo si tiene_dato).
+        description: Promedio de 24 h en la unidad original, la de dim_contaminante.unidad_medicion (solo si tiene_dato).
         data_tests:
           - entre:
               arguments:
                 minimo: 0
                 maximo: 1000
-      - name: unidad
-        description: Unidad original (ppb, ppm, µg/m³).
       - name: valor_masa
-        description: Promedio de 24 h en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato.
+        description: Promedio de 24 h en la unidad de la guía OMS, la de dim_contaminante.unidad_masa (µg/m³; mg/m³ para CO). Solo si tiene_dato.
         data_tests:
           - entre:
               arguments:
                 minimo: 0
                 maximo: 2000
-      - name: unidad_masa
-        description: Unidad de valor_masa.
-      - name: es_imputado
-        description: Verdadero si el valor usa alguna hora '<límite' imputada como límite / 2.
-      - name: guia_24h
-        description: Guía OMS de 24 h del contaminante.
       - name: supera_guia
         description: Verdadero si valor_masa supera la guía de 24 h (vacío si no hay dato).
-      - name: veces_guia
-        description: valor_masa / guía de 24 h.
       - name: nivel_oms
         description: "Escalón OMS de 24 h del día: AQG (cumple la guía), IT4 … IT1 o '> IT1'. Vacío si no hay dato."
         data_tests:
@@ -229,8 +191,6 @@ models:
       - name: es_outlier
         description: Verdadero si valor > Q3 + 3·IQR de su estación × contaminante. Se marca, no se borra.
         data_tests: [not_null]
-      - name: umbral_outlier
-        description: Umbral Q3 + 3·IQR de esa estación × contaminante.
     data_tests:
       - clave_unica:
           arguments:
@@ -274,16 +234,10 @@ models:
                 values: ["no2"]
       - name: es_valido
         description: Verdadero si el valor horario pasa las reglas de calidad.
-      - name: motivo_invalido
-        description: Motivo por el que la hora no se usa (vacío si es válida).
       - name: valor
         description: NO2 horario en ppb (solo si es válido).
-      - name: unidad
-        description: ppb.
       - name: valor_masa
         description: NO2 horario en µg/m³ (solo si es válido).
-      - name: unidad_masa
-        description: µg/m³.
     data_tests:
       - clave_unica:
           arguments:
@@ -343,12 +297,6 @@ models:
       - name: es_valido
         description: Verdadero si el período tiene >= 75% de días con dato.
         data_tests: [not_null]
-      - name: completitud_peor_trimestre
-        description: Completitud del trimestre con menos datos dentro del período.
-      - name: cumple_criterio_trimestral
-        description: Verdadero si todos los trimestres tienen >= 75% de días con dato (criterio EPA; advertencia, no excluye).
-      - name: unidad
-        description: Unidad de las guías (µg/m³; mg/m³ para el CO).
       - name: promedio_anual
         description: Promedio de los valores diarios. Vacío si el período no es válido.
       - name: promedio_referencial
@@ -367,16 +315,8 @@ models:
         description: Cuánto tendría que bajar el promedio para subir un escalón.
       - name: p99_24h
         description: Percentil 99 de los valores diarios (definición formal de la guía de 24 h). Vacío si no es válido.
-      - name: guia_24h
-        description: Guía OMS de 24 h.
       - name: p99_veces_guia_24h
-        description: p99_24h / guia_24h.
-      - name: p99_supera_guia_24h
-        description: Verdadero si el P99 supera la guía de 24 h (no se cumple en sentido formal).
-      - name: maximo_diario
-        description: Máximo promedio diario del período.
-      - name: n_dias_supera_24h
-        description: Días con promedio de 24 h sobre la guía.
+        description: p99_24h / guía OMS de 24 h (más de 1 = no se cumple la guía en sentido formal).
       - name: pct_dias_supera_24h
         description: n_dias_supera_24h / n_dias_con_dato (0 a 1).
         data_tests:
@@ -432,8 +372,8 @@ models:
 
   - name: calidad_resumen
     description: >
-      Qué pasó con cada valor horario del período de estudio, por contaminante: válido, válido
-      imputado o el motivo por el que se descartó, con en cuántos días y entre qué fechas aparece.
+      Qué pasó con cada valor horario del período de estudio, por contaminante: válido o el motivo
+      por el que se descartó, con en cuántos días y entre qué fechas aparece.
     columns:
       - name: id_contaminante
         description: Contaminante.
@@ -443,7 +383,7 @@ models:
                 to: ref('dim_contaminante')
                 field: id_contaminante
       - name: categoria
-        description: valido, valido_imputado o el motivo por el que se descartó.
+        description: valido o el motivo por el que se descartó (silver.medicion_horaria.motivo_invalido).
       - name: n_valores
         description: Cantidad de valores horarios (celdas del CSV).
       - name: proporcion

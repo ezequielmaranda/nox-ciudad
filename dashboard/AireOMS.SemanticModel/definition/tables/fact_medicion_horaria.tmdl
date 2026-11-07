@@ -53,30 +53,12 @@ table fact_medicion_horaria
 
 		annotation SummarizationSetBy = User
 
-	/// Motivo por el que la hora no se usa (vacío si es válida).
-	column motivo_invalido
-		dataType: string
-		lineageTag: b4c2d5d8-beae-5c47-8855-be9daf700d7b
-		summarizeBy: none
-		sourceColumn: motivo_invalido
-
-		annotation SummarizationSetBy = User
-
 	/// NO2 horario en ppb (solo si es válido).
 	column valor
 		dataType: double
 		lineageTag: 091ba36f-9b7b-54c8-9fc0-ce9d3f55ca77
 		summarizeBy: none
 		sourceColumn: valor
-
-		annotation SummarizationSetBy = User
-
-	/// ppb.
-	column unidad
-		dataType: string
-		lineageTag: 9f45a55f-c6da-536e-a83f-87fedeafbe28
-		summarizeBy: none
-		sourceColumn: unidad
 
 		annotation SummarizationSetBy = User
 
@@ -89,15 +71,6 @@ table fact_medicion_horaria
 
 		annotation SummarizationSetBy = User
 
-	/// µg/m³.
-	column unidad_masa
-		dataType: string
-		lineageTag: 1f34ae54-c31c-55f8-a62a-b4d3df988bf0
-		summarizeBy: none
-		sourceColumn: unidad_masa
-
-		annotation SummarizationSetBy = User
-
 	partition fact_medicion_horaria = m
 		mode: import
 		source =
@@ -105,7 +78,7 @@ table fact_medicion_horaria
 				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_horaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"hora", Int64.Type}, {"id_estacion", type text}, {"id_contaminante", type text}, {"es_valido", type logical}, {"motivo_invalido", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"hora", Int64.Type}, {"id_estacion", type text}, {"id_contaminante", type text}, {"es_valido", type logical}, {"valor", type number}, {"valor_masa", type number}}, "en-US")
 				in
 				    Tipos
 

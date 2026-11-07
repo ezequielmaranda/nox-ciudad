@@ -1,20 +1,20 @@
-id_contaminante,promedio,nivel,nivel_etiqueta,orden_exigencia,umbral,unidad
-co,24h,AQG,Guía OMS,1,4.0,mg/m³
-co,24h,IT1,Objetivo intermedio IT1,5,7.0,mg/m³
-no2,24h,AQG,Guía OMS,1,25.0,µg/m³
-no2,24h,IT1,Objetivo intermedio IT1,5,120.0,µg/m³
-no2,24h,IT2,Objetivo intermedio IT2,4,50.0,µg/m³
-no2,anual,AQG,Guía OMS,1,10.0,µg/m³
-no2,anual,IT1,Objetivo intermedio IT1,5,40.0,µg/m³
-no2,anual,IT2,Objetivo intermedio IT2,4,30.0,µg/m³
-no2,anual,IT3,Objetivo intermedio IT3,3,20.0,µg/m³
-pm10,24h,AQG,Guía OMS,1,45.0,µg/m³
-pm10,24h,IT1,Objetivo intermedio IT1,5,150.0,µg/m³
-pm10,24h,IT2,Objetivo intermedio IT2,4,100.0,µg/m³
-pm10,24h,IT3,Objetivo intermedio IT3,3,75.0,µg/m³
-pm10,24h,IT4,Objetivo intermedio IT4,2,50.0,µg/m³
-pm10,anual,AQG,Guía OMS,1,15.0,µg/m³
-pm10,anual,IT1,Objetivo intermedio IT1,5,70.0,µg/m³
-pm10,anual,IT2,Objetivo intermedio IT2,4,50.0,µg/m³
-pm10,anual,IT3,Objetivo intermedio IT3,3,30.0,µg/m³
-pm10,anual,IT4,Objetivo intermedio IT4,2,20.0,µg/m³
+id_contaminante,promedio,nivel,orden_exigencia,umbral,unidad
+co,24h,AQG,1,4.0,mg/m³
+co,24h,IT1,5,7.0,mg/m³
+no2,24h,AQG,1,25.0,µg/m³
+no2,24h,IT1,5,120.0,µg/m³
+no2,24h,IT2,4,50.0,µg/m³
+no2,anual,AQG,1,10.0,µg/m³
+no2,anual,IT1,5,40.0,µg/m³
+no2,anual,IT2,4,30.0,µg/m³
+no2,anual,IT3,3,20.0,µg/m³
+pm10,24h,AQG,1,45.0,µg/m³
+pm10,24h,IT1,5,150.0,µg/m³
+pm10,24h,IT2,4,100.0,µg/m³
+pm10,24h,IT3,3,75.0,µg/m³
+pm10,24h,IT4,2,50.0,µg/m³
+pm10,anual,AQG,1,15.0,µg/m³
+pm10,anual,IT1,5,70.0,µg/m³
+pm10,anual,IT2,4,50.0,µg/m³
+pm10,anual,IT3,3,30.0,µg/m³
+pm10,anual,IT4,2,20.0,µg/m³

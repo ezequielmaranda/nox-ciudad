@@ -62,7 +62,8 @@ heatmap) y matplotlib.
   Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
   su reserialización) y con los esquemas de microsoft/json-schemas, también después del cambio a medallón; no se
   abrió en Power BI Desktop. Lee los CSV con `Csv.Document` + tipos en-US. El tema base
-  `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
+  `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT); el tema propio está en
+  `src/recursos/powerbi_tema.json`. No regenera si ya hay gráficos.
 - `python -m src.extract`: baja `calidad-aire.csv` de la CDN de BA Data
   (`cdn.buenosaires.gob.ar/datosabiertos/datasets/agencia-de-proteccion-ambiental/calidad-aire/`), con reintentos, y
   verifica el encabezado. Desde la nube de Claude funciona con `cdn.buenosaires.gob.ar` en los hosts permitidos del
@@ -93,10 +94,15 @@ Simplificado en noviembre 2026 (antes: 6 schemas y 21 modelos). Tres schemas = t
   (OMS en largo, una fila por nivel), `fact_medicion_diaria`, `fact_medicion_horaria`, `agg_anual` (por año
   2010-2026 + `movil_12m`: regla del 75%, promedio anual y escalón, P99, % de días por escalón, racha máxima;
   `es_periodo_estudio` separa estudio de contexto) y `calidad_resumen`. La completitud mensual se calcula de la fact.
-`sql/99` son solo consultas (no crea vistas).
+`sql/99` son solo consultas (21, no crea vistas).
+Columnas revisadas una por una en noviembre 2026 (gold: 120 → 91): sin columnas que no use nadie (SQL, notebook,
+PBIP, spec o tests); las unidades solo en `dim_contaminante` y las guías solo en `guia_oms` (las facts no las repiten);
+sin el criterio trimestral de la EPA (la tabla de sensibilidad de `calidad_datos.md` §3.4 quedó como verificación
+hecha una vez). Se dejaron a propósito, aunque nada las lea: `entorno`, `flujo_vehicular`, `fuentes_fijas` (base de
+H2) y `descripcion` en las dimensiones.
 
 - Reglas por hora: hora_invalida, sin_dato_fuente, texto_invalido, fuera_de_rango, fila_en_cero, valor_trabado
-  (NO2 igual ≥ 10 h). `<x` → x/2 (`es_imputado`).
+  (NO2 igual ≥ 10 h). `<x` → x/2 (queda marcado en `estado_valor = 'bajo_limite_deteccion'`).
 - Valor diario: NO2 = promedio con ≥ 18 de 24 horas válidas (`horas_minimas_dia`, criterio UE); PM10 = móvil de la
   hora 24; CO = promedio de las horas 8, 16 y 24. Coincide con los PDF de la APrA en 94% (NO2), 97% (CO) y 98%
   (PM10) de los días; ±1 unidad: 98,8-99,6%.
@@ -106,7 +112,7 @@ Simplificado en noviembre 2026 (antes: 6 schemas y 21 modelos). Tres schemas = t
 - Regla del 75% sobre días por período (`agg_anual.id_periodo`: años, 2026 parcial, `movil_12m`).
 - Rachas: un día con dato bajo la guía corta; huecos sin dato de hasta 7 días (`dias_hueco_maximo_racha`) no cortan.
 - Contexto 2010-2025: filas de `agg_anual` con `es_periodo_estudio = false`, misma regla del 75%.
-- Último build: 11 modelos, 4 seeds, 88 tests: PASS 102, WARN 1 (`silver_valores_descartados`, esperado: 239).
+- Último build: 11 modelos, 4 seeds, 87 tests: PASS 101, WARN 1 (`silver_valores_descartados`, esperado: 239).
 
 ## Resultados verificados
 

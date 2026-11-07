@@ -21,6 +21,9 @@
 -- es_outlier: valor > Q3 + 3·IQR de su estación × contaminante. Se MARCA, no se borra: un pico
 -- de contaminación real es justamente lo que la guía de 24 h quiere detectar.
 --
+-- Las unidades no se repiten acá: `valor` está en dim_contaminante.unidad_medicion y `valor_masa`
+-- en dim_contaminante.unidad_masa. La guía de 24 h, en gold.guia_oms.
+--
 -- Por qué formato largo y no ancho (una columna por contaminante): el JOIN con la OMS es por
 -- contaminante, en Power BI un solo segmentador elige el contaminante y agregar uno nuevo no
 -- cambia la estructura. Ver docs/modelo_datos.md.
@@ -30,8 +33,6 @@ with grilla as (
         cal.fecha,
         est.id_estacion,
         con.id_contaminante,
-        con.unidad_medicion,
-        con.unidad_masa,
         con.factor_masa
     from {{ ref('dim_calendario') }}         as cal
     cross join {{ ref('dim_estacion') }}     as est
@@ -50,15 +51,11 @@ unido as (
         g.id_estacion,
         g.id_contaminante,
         coalesce(d.n_horas_validas, 0)                                as n_horas_validas,
-        d.id_estacion is not null                                     as tiene_fila,
         coalesce(d.tiene_dato, false)                                 as tiene_dato,
         case when d.id_estacion is null then 'sin_fila'
              else d.motivo_sin_dato end                               as motivo_sin_dato,
         d.valor_diario                                                as valor,
-        g.unidad_medicion                                             as unidad,
-        round(d.valor_diario * g.factor_masa, 3)                      as valor_masa,
-        g.unidad_masa,
-        coalesce(d.es_imputado, false)                                as es_imputado
+        round(d.valor_diario * g.factor_masa, 3)                      as valor_masa
     from grilla as g
     left join {{ ref('medicion_diaria') }} as d
         on  d.id_estacion     = g.id_estacion
@@ -69,9 +66,7 @@ unido as (
 comparado as (
     select
         u.*,
-        o.guia_oms                                     as guia_24h,
         u.valor_masa > o.guia_oms                      as supera_guia,
-        round(u.valor_masa / o.guia_oms, 3)            as veces_guia,
         case
             when u.valor_masa is null       then null
             when u.valor_masa <= o.guia_oms then 'AQG'
@@ -113,20 +108,13 @@ select
     c.id_estacion,
     c.id_contaminante,
     c.n_horas_validas,
-    c.tiene_fila,
     c.tiene_dato,
     c.motivo_sin_dato,
     c.valor,
-    c.unidad,
     c.valor_masa,
-    c.unidad_masa,
-    c.es_imputado,
-    c.guia_24h,
     c.supera_guia,
-    c.veces_guia,
     c.nivel_oms,
     c.orden_nivel_oms,
-    coalesce(c.tiene_dato and c.valor > q.q3 + {{ var('factor_iqr') }} * (q.q3 - q.q1), false) as es_outlier,
-    round(q.q3 + {{ var('factor_iqr') }} * (q.q3 - q.q1), 3)                                   as umbral_outlier
+    coalesce(c.tiene_dato and c.valor > q.q3 + {{ var('factor_iqr') }} * (q.q3 - q.q1), false) as es_outlier
 from comparado as c
 left join cuartiles as q using (id_estacion, id_contaminante)

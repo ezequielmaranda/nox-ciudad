@@ -20,31 +20,7 @@ sorprende, se mira el valor diario en silver; si el valor diario sorprende, se m
 original en bronze. Y un test de dbt verifica que no se pierde nada en el camino: silver tiene exactamente 9 filas
 por cada fila del CSV (3 estaciones × 3 contaminantes).
 
-```mermaid
-flowchart LR
-    subgraph BRONZE["bronze"]
-        B1["calidad_aire<br/>CSV tal cual"]
-        B2["oms_2021 · contaminantes<br/>estaciones · feriados"]
-    end
-    subgraph SILVER["silver"]
-        S1["medicion_horaria<br/>UNPIVOT · tipos · reglas"]
-        S2["medicion_diaria<br/>horas → día"]
-    end
-    subgraph GOLD["gold"]
-        G1["dim_calendario · dim_estacion<br/>dim_contaminante · guia_oms"]
-        G2["fact_medicion_diaria<br/>fact_medicion_horaria"]
-        G3["agg_anual<br/>calidad_resumen"]
-    end
-    B1 --> S1 --> S2
-    B2 --> S1
-    B2 --> G1
-    S2 --> G2
-    S1 --> G2
-    G1 --> G2
-    S2 --> G3
-    S1 --> G3
-    G1 --> G3
-```
+El recorrido completo, con cada paso, está en [`diagrama_etl.md`](diagrama_etl.md).
 
 ## 2. Esquema estrella (gold)
 
@@ -89,7 +65,6 @@ erDiagram
         int mes
         varchar estacion_del_anio
         varchar tipo_dia "habil | sabado | domingo | feriado"
-        varchar nombre_feriado
     }
     dim_estacion {
         varchar id_estacion PK
@@ -200,7 +175,10 @@ cambiar un umbral no obliga a tocar consultas.
 ### Valores en dos unidades
 
 `valor` (unidad publicada: ppb, ppm, µg/m³) sirve para las reglas de calidad y para comparar con la fuente;
-`valor_masa` (unidad de la OMS: µg/m³; mg/m³ para el CO) sirve para los indicadores.
+`valor_masa` (unidad de la OMS: µg/m³; mg/m³ para el CO) sirve para los indicadores. Las unidades y el factor de
+conversión están una sola vez, en `dim_contaminante` (`unidad_medicion`, `unidad_masa`, `factor_masa`): las tablas
+de hechos no las repiten en cada fila. Lo mismo con las guías: están en `guia_oms`, y la fact guarda solo el
+resultado de la comparación (`supera_guia`, `nivel_oms`).
 
 ### Por qué DuckDB y dbt
 
