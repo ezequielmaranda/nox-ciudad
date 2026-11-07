@@ -14,7 +14,7 @@ install:
 	$(PY) -m pip install --upgrade pip
 	$(PY) -m pip install -r requirements.txt
 
-## make extract: vuelve a bajar los PDF de la APrA y regenera data/raw/aire_publico.csv
+## make extract: vuelve a bajar el CSV horario de BA Data a data/raw/calidad-aire.csv
 ## (opcional: el CSV crudo ya está en el repo)
 extract:
 	$(PY) -m src.extract

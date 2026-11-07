@@ -54,24 +54,28 @@ seeds:
             columnas: [id_contaminante, promedio]
 
   - name: contaminantes
-    description: Contaminantes medidos, unidades, peso molecular y parámetros de las reglas de calidad.
+    description: >
+      Contaminantes medidos: unidades, peso molecular, cómo los publica la red (promedio horario o
+      móvil, según contaminantes.csv de BA Data) y máximo plausible para la regla fuera_de_rango.
     config:
       column_types:
         peso_molecular: double
-        tolerancia_coherencia: double
-        maximo_fisico: double
+        horas_promedio_fuente: integer
+        maximo_plausible: double
         orden: integer
     columns:
       - name: id_contaminante
         data_tests: [unique, not_null]
 
   - name: estaciones
-    description: Estaciones de monitoreo de la APrA (datos de las páginas de cada estación).
+    description: >
+      Estaciones de monitoreo de la APrA: descripción de las páginas de cada estación y coordenadas
+      e inicio de actividad del archivo estaciones-ambientales.csv de BA Data.
     config:
       column_types:
         inicio_operacion: integer
-        latitud_aprox: double
-        longitud_aprox: double
+        latitud: double
+        longitud: double
     columns:
       - name: id_estacion
         data_tests: [unique, not_null]

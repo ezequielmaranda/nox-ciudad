@@ -1,6 +1,4 @@
-id_contaminante,codigo_fuente,nombre,unidad_medicion,unidad_masa,peso_molecular,tolerancia_coherencia,maximo_fisico,orden,descripcion
-no2,NO2,Dióxido de nitrógeno,ppb,µg/m³,46.0055,2,500,1,"Gas irritante de las vías respiratorias. Se forma sobre todo por la oxidación del NO que emiten los motores (en especial diésel). Es el contaminante principal del análisis."
-pm10,PM10,Material particulado PM10,µg/m³,µg/m³,,2,1000,2,"Partículas de menos de 10 µm (polvo, hollín, sal marina, desgaste de frenos y neumáticos). Depende también de fuentes regionales y del viento."
-co,CO,Monóxido de carbono,ppm,mg/m³,28.010,0.2,50,3,"Gas de combustión incompleta; en la ciudad sale sobre todo de los autos a nafta."
-no,NO,Monóxido de nitrógeno,ppb,µg/m³,30.006,2,2000,4,"Gas que emiten directamente los motores; se oxida a NO2 en minutos a horas. Sin guía OMS: se usa como contexto y para validar el NOx."
-nox,NOx,Óxidos de nitrógeno (NO + NO2),ppb,µg/m³,46.0055,2,2500,5,"Suma de NO y NO2 (en masa se expresa como NO2, por convención). Sin guía OMS de salud: se usa como contexto y para validar el NO2."
+id_contaminante,codigo_fuente,nombre,unidad_medicion,unidad_masa,peso_molecular,promedio_fuente,horas_promedio_fuente,maximo_plausible,orden,descripcion
+no2,NO2,Dióxido de nitrógeno,ppb,µg/m³,46.0055,horario,1,500,1,"Gas irritante de las vías respiratorias. Se forma sobre todo por la oxidación del NO que emiten los motores (en especial diésel). Es el contaminante principal del análisis. La fuente publica el promedio de cada hora."
+pm10,PM10,Material particulado PM10,µg/m³,µg/m³,,movil_24h,24,1000,2,"Partículas de menos de 10 µm (polvo, hollín, sal marina, desgaste de frenos y neumáticos). Depende también de fuentes regionales y del viento. La fuente publica, en cada hora, el promedio móvil de las 24 horas anteriores."
+co,CO,Monóxido de carbono,ppm,mg/m³,28.010,movil_8h,8,15,3,"Gas de combustión incompleta; en la ciudad sale sobre todo de los autos a nafta. La fuente publica, en cada hora, el promedio móvil de las 8 horas anteriores."

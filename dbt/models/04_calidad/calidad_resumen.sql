@@ -1,6 +1,7 @@
 -- =====================================================================================
--- 04 · CALIDAD: cuántos valores crudos hay en cada categoría, por contaminante.
--- Grano: contaminante × categoría. Base: las 83.010 celdas de los PDF (stg_aire_validado).
+-- 04 · CALIDAD: cuántos valores horarios del período de estudio hay en cada categoría, por
+-- contaminante. Grano: contaminante × categoría. Base: stg_aire_horario_validado (una fila
+-- por celda del CSV de BA Data), recortado al período del estudio.
 -- =====================================================================================
 with categorizado as (
     select
@@ -10,7 +11,8 @@ with categorizado as (
             when es_valido                 then 'valido'
             else motivo_invalido
         end as categoria
-    from {{ ref('stg_aire_validado') }}
+    from {{ ref('stg_aire_horario_validado') }}
+    where fecha between '{{ var("fecha_inicio") }}' and '{{ var("fecha_fin") }}'
 )
 
 select

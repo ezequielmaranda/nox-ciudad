@@ -1,121 +1,121 @@
 id_estacion,id_contaminante,id_periodo,nivel,nivel_etiqueta,orden_exigencia,umbral,unidad,n_dias_con_dato,n_dias_cumple,completitud,es_valido,cumple_criterio_trimestral,pct_dias_cumple,pct_referencial
-centenario,co,2024,AQG,Guía OMS,1,4.0,mg/m³,297,297,0.8115,true,false,1.0,1.0
-centenario,co,2024,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,297,297,0.8115,true,false,1.0,1.0
-centenario,co,2025,AQG,Guía OMS,1,4.0,mg/m³,350,350,0.9589,true,true,1.0,1.0
-centenario,co,2025,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,350,350,0.9589,true,true,1.0,1.0
-centenario,co,2026,AQG,Guía OMS,1,4.0,mg/m³,269,269,0.9853,true,true,1.0,1.0
-centenario,co,2026,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,269,269,0.9853,true,true,1.0,1.0
-centenario,co,movil_12m,AQG,Guía OMS,1,4.0,mg/m³,353,353,0.9671,true,true,1.0,1.0
-centenario,co,movil_12m,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,353,353,0.9671,true,true,1.0,1.0
-centenario,no2,2024,AQG,Guía OMS,1,25.0,µg/m³,69,46,0.1885,false,false,,0.6667
+centenario,co,2024,AQG,Guía OMS,1,4.0,mg/m³,277,277,0.7568,true,false,1.0,1.0
+centenario,co,2024,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,277,277,0.7568,true,false,1.0,1.0
+centenario,co,2025,AQG,Guía OMS,1,4.0,mg/m³,335,335,0.9178,true,true,1.0,1.0
+centenario,co,2025,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,335,335,0.9178,true,true,1.0,1.0
+centenario,co,2026,AQG,Guía OMS,1,4.0,mg/m³,262,262,0.9597,true,true,1.0,1.0
+centenario,co,2026,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,262,262,0.9597,true,true,1.0,1.0
+centenario,co,movil_12m,AQG,Guía OMS,1,4.0,mg/m³,343,343,0.9397,true,true,1.0,1.0
+centenario,co,movil_12m,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,343,343,0.9397,true,true,1.0,1.0
+centenario,no2,2024,AQG,Guía OMS,1,25.0,µg/m³,69,45,0.1885,false,false,,0.6522
 centenario,no2,2024,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,69,69,0.1885,false,false,,1.0
 centenario,no2,2024,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,69,67,0.1885,false,false,,0.971
-centenario,no2,2025,AQG,Guía OMS,1,25.0,µg/m³,324,145,0.8877,true,false,0.4475,0.4475
-centenario,no2,2025,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,324,324,0.8877,true,false,1.0,1.0
-centenario,no2,2025,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,324,317,0.8877,true,false,0.9784,0.9784
-centenario,no2,2026,AQG,Guía OMS,1,25.0,µg/m³,269,138,0.9853,true,true,0.513,0.513
-centenario,no2,2026,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,269,269,0.9853,true,true,1.0,1.0
-centenario,no2,2026,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,269,269,0.9853,true,true,1.0,1.0
-centenario,no2,movil_12m,AQG,Guía OMS,1,25.0,µg/m³,353,170,0.9671,true,true,0.4816,0.4816
-centenario,no2,movil_12m,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,353,353,0.9671,true,true,1.0,1.0
-centenario,no2,movil_12m,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,353,351,0.9671,true,true,0.9943,0.9943
-centenario,pm10,2024,AQG,Guía OMS,1,45.0,µg/m³,334,320,0.9126,true,true,0.9581,0.9581
-centenario,pm10,2024,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,334,334,0.9126,true,true,1.0,1.0
-centenario,pm10,2024,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,334,334,0.9126,true,true,1.0,1.0
-centenario,pm10,2024,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,334,333,0.9126,true,true,0.997,0.997
-centenario,pm10,2024,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,334,328,0.9126,true,true,0.982,0.982
-centenario,pm10,2025,AQG,Guía OMS,1,45.0,µg/m³,347,343,0.9507,true,true,0.9885,0.9885
-centenario,pm10,2025,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,347,347,0.9507,true,true,1.0,1.0
-centenario,pm10,2025,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,347,346,0.9507,true,true,0.9971,0.9971
-centenario,pm10,2025,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,347,346,0.9507,true,true,0.9971,0.9971
-centenario,pm10,2025,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,347,344,0.9507,true,true,0.9914,0.9914
-centenario,pm10,2026,AQG,Guía OMS,1,45.0,µg/m³,256,252,0.9377,true,true,0.9844,0.9844
-centenario,pm10,2026,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,256,256,0.9377,true,true,1.0,1.0
-centenario,pm10,2026,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,256,256,0.9377,true,true,1.0,1.0
-centenario,pm10,2026,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,256,256,0.9377,true,true,1.0,1.0
-centenario,pm10,2026,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,256,254,0.9377,true,true,0.9922,0.9922
-centenario,pm10,movil_12m,AQG,Guía OMS,1,45.0,µg/m³,335,329,0.9178,true,true,0.9821,0.9821
-centenario,pm10,movil_12m,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,335,335,0.9178,true,true,1.0,1.0
-centenario,pm10,movil_12m,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,335,334,0.9178,true,true,0.997,0.997
-centenario,pm10,movil_12m,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,335,334,0.9178,true,true,0.997,0.997
-centenario,pm10,movil_12m,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,335,331,0.9178,true,true,0.9881,0.9881
-cordoba,co,2024,AQG,Guía OMS,1,4.0,mg/m³,242,242,0.6612,false,false,,1.0
-cordoba,co,2024,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,242,242,0.6612,false,false,,1.0
-cordoba,co,2025,AQG,Guía OMS,1,4.0,mg/m³,347,347,0.9507,true,true,1.0,1.0
-cordoba,co,2025,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,347,347,0.9507,true,true,1.0,1.0
-cordoba,co,2026,AQG,Guía OMS,1,4.0,mg/m³,265,265,0.9707,true,true,1.0,1.0
-cordoba,co,2026,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,265,265,0.9707,true,true,1.0,1.0
-cordoba,co,movil_12m,AQG,Guía OMS,1,4.0,mg/m³,353,353,0.9671,true,true,1.0,1.0
-cordoba,co,movil_12m,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,353,353,0.9671,true,true,1.0,1.0
-cordoba,no2,2024,AQG,Guía OMS,1,25.0,µg/m³,311,37,0.8497,true,false,0.119,0.119
-cordoba,no2,2024,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,311,311,0.8497,true,false,1.0,1.0
-cordoba,no2,2024,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,311,260,0.8497,true,false,0.836,0.836
-cordoba,no2,2025,AQG,Guía OMS,1,25.0,µg/m³,334,71,0.9151,true,true,0.2126,0.2126
-cordoba,no2,2025,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,334,334,0.9151,true,true,1.0,1.0
-cordoba,no2,2025,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,334,294,0.9151,true,true,0.8802,0.8802
-cordoba,no2,2026,AQG,Guía OMS,1,25.0,µg/m³,265,34,0.9707,true,true,0.1283,0.1283
-cordoba,no2,2026,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,265,265,0.9707,true,true,1.0,1.0
-cordoba,no2,2026,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,265,244,0.9707,true,true,0.9208,0.9208
-cordoba,no2,movil_12m,AQG,Guía OMS,1,25.0,µg/m³,353,62,0.9671,true,true,0.1756,0.1756
-cordoba,no2,movil_12m,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,353,353,0.9671,true,true,1.0,1.0
-cordoba,no2,movil_12m,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,353,327,0.9671,true,true,0.9263,0.9263
-cordoba,pm10,2024,AQG,Guía OMS,1,45.0,µg/m³,348,335,0.9508,true,true,0.9626,0.9626
-cordoba,pm10,2024,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,348,348,0.9508,true,true,1.0,1.0
-cordoba,pm10,2024,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,348,348,0.9508,true,true,1.0,1.0
-cordoba,pm10,2024,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,348,346,0.9508,true,true,0.9943,0.9943
-cordoba,pm10,2024,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,348,341,0.9508,true,true,0.9799,0.9799
-cordoba,pm10,2025,AQG,Guía OMS,1,45.0,µg/m³,279,273,0.7644,true,false,0.9785,0.9785
-cordoba,pm10,2025,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,279,279,0.7644,true,false,1.0,1.0
-cordoba,pm10,2025,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,279,278,0.7644,true,false,0.9964,0.9964
-cordoba,pm10,2025,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,279,277,0.7644,true,false,0.9928,0.9928
-cordoba,pm10,2025,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,279,275,0.7644,true,false,0.9857,0.9857
-cordoba,pm10,2026,AQG,Guía OMS,1,45.0,µg/m³,228,219,0.8352,true,false,0.9605,0.9605
-cordoba,pm10,2026,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,228,228,0.8352,true,false,1.0,1.0
-cordoba,pm10,2026,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,228,228,0.8352,true,false,1.0,1.0
-cordoba,pm10,2026,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,228,228,0.8352,true,false,1.0,1.0
-cordoba,pm10,2026,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,228,225,0.8352,true,false,0.9868,0.9868
-cordoba,pm10,movil_12m,AQG,Guía OMS,1,45.0,µg/m³,311,298,0.8521,true,false,0.9582,0.9582
-cordoba,pm10,movil_12m,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,311,311,0.8521,true,false,1.0,1.0
-cordoba,pm10,movil_12m,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,311,310,0.8521,true,false,0.9968,0.9968
-cordoba,pm10,movil_12m,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,311,309,0.8521,true,false,0.9936,0.9936
-cordoba,pm10,movil_12m,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,311,305,0.8521,true,false,0.9807,0.9807
-la_boca,co,2024,AQG,Guía OMS,1,4.0,mg/m³,331,331,0.9044,true,true,1.0,1.0
-la_boca,co,2024,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,331,331,0.9044,true,true,1.0,1.0
-la_boca,co,2025,AQG,Guía OMS,1,4.0,mg/m³,361,361,0.989,true,true,1.0,1.0
-la_boca,co,2025,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,361,361,0.989,true,true,1.0,1.0
-la_boca,co,2026,AQG,Guía OMS,1,4.0,mg/m³,232,232,0.8498,true,false,1.0,1.0
-la_boca,co,2026,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,232,232,0.8498,true,false,1.0,1.0
-la_boca,co,movil_12m,AQG,Guía OMS,1,4.0,mg/m³,321,321,0.8795,true,false,1.0,1.0
-la_boca,co,movil_12m,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,321,321,0.8795,true,false,1.0,1.0
-la_boca,no2,2024,AQG,Guía OMS,1,25.0,µg/m³,351,15,0.959,true,true,0.0427,0.0427
-la_boca,no2,2024,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,351,350,0.959,true,true,0.9972,0.9972
-la_boca,no2,2024,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,351,141,0.959,true,true,0.4017,0.4017
-la_boca,no2,2025,AQG,Guía OMS,1,25.0,µg/m³,361,22,0.989,true,true,0.0609,0.0609
-la_boca,no2,2025,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,361,361,0.989,true,true,1.0,1.0
-la_boca,no2,2025,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,361,193,0.989,true,true,0.5346,0.5346
-la_boca,no2,2026,AQG,Guía OMS,1,25.0,µg/m³,232,13,0.8498,true,false,0.056,0.056
-la_boca,no2,2026,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,232,232,0.8498,true,false,1.0,1.0
-la_boca,no2,2026,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,232,135,0.8498,true,false,0.5819,0.5819
-la_boca,no2,movil_12m,AQG,Guía OMS,1,25.0,µg/m³,321,16,0.8795,true,false,0.0498,0.0498
-la_boca,no2,movil_12m,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,321,321,0.8795,true,false,1.0,1.0
-la_boca,no2,movil_12m,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,321,198,0.8795,true,false,0.6168,0.6168
-la_boca,pm10,2024,AQG,Guía OMS,1,45.0,µg/m³,297,286,0.8115,true,false,0.963,0.963
-la_boca,pm10,2024,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,297,297,0.8115,true,false,1.0,1.0
-la_boca,pm10,2024,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,297,297,0.8115,true,false,1.0,1.0
-la_boca,pm10,2024,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,297,296,0.8115,true,false,0.9966,0.9966
-la_boca,pm10,2024,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,297,288,0.8115,true,false,0.9697,0.9697
-la_boca,pm10,2025,AQG,Guía OMS,1,45.0,µg/m³,306,293,0.8384,true,false,0.9575,0.9575
-la_boca,pm10,2025,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,306,306,0.8384,true,false,1.0,1.0
-la_boca,pm10,2025,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,306,305,0.8384,true,false,0.9967,0.9967
-la_boca,pm10,2025,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,306,304,0.8384,true,false,0.9935,0.9935
-la_boca,pm10,2025,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,306,300,0.8384,true,false,0.9804,0.9804
+centenario,no2,2025,AQG,Guía OMS,1,25.0,µg/m³,342,134,0.937,true,true,0.3918,0.3918
+centenario,no2,2025,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,342,342,0.937,true,true,1.0,1.0
+centenario,no2,2025,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,342,334,0.937,true,true,0.9766,0.9766
+centenario,no2,2026,AQG,Guía OMS,1,25.0,µg/m³,265,126,0.9707,true,true,0.4755,0.4755
+centenario,no2,2026,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,265,265,0.9707,true,true,1.0,1.0
+centenario,no2,2026,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,265,265,0.9707,true,true,1.0,1.0
+centenario,no2,movil_12m,AQG,Guía OMS,1,25.0,µg/m³,347,151,0.9507,true,true,0.4352,0.4352
+centenario,no2,movil_12m,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,347,347,0.9507,true,true,1.0,1.0
+centenario,no2,movil_12m,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,347,345,0.9507,true,true,0.9942,0.9942
+centenario,pm10,2024,AQG,Guía OMS,1,45.0,µg/m³,321,307,0.877,true,true,0.9564,0.9564
+centenario,pm10,2024,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,321,321,0.877,true,true,1.0,1.0
+centenario,pm10,2024,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,321,321,0.877,true,true,1.0,1.0
+centenario,pm10,2024,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,321,320,0.877,true,true,0.9969,0.9969
+centenario,pm10,2024,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,321,315,0.877,true,true,0.9813,0.9813
+centenario,pm10,2025,AQG,Guía OMS,1,45.0,µg/m³,338,335,0.926,true,true,0.9911,0.9911
+centenario,pm10,2025,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,338,338,0.926,true,true,1.0,1.0
+centenario,pm10,2025,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,338,338,0.926,true,true,1.0,1.0
+centenario,pm10,2025,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,338,338,0.926,true,true,1.0,1.0
+centenario,pm10,2025,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,338,336,0.926,true,true,0.9941,0.9941
+centenario,pm10,2026,AQG,Guía OMS,1,45.0,µg/m³,254,249,0.9304,true,true,0.9803,0.9803
+centenario,pm10,2026,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,254,254,0.9304,true,true,1.0,1.0
+centenario,pm10,2026,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,254,254,0.9304,true,true,1.0,1.0
+centenario,pm10,2026,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,254,254,0.9304,true,true,1.0,1.0
+centenario,pm10,2026,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,254,252,0.9304,true,true,0.9921,0.9921
+centenario,pm10,movil_12m,AQG,Guía OMS,1,45.0,µg/m³,332,326,0.9096,true,true,0.9819,0.9819
+centenario,pm10,movil_12m,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,332,332,0.9096,true,true,1.0,1.0
+centenario,pm10,movil_12m,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,332,332,0.9096,true,true,1.0,1.0
+centenario,pm10,movil_12m,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,332,332,0.9096,true,true,1.0,1.0
+centenario,pm10,movil_12m,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,332,329,0.9096,true,true,0.991,0.991
+cordoba,co,2024,AQG,Guía OMS,1,4.0,mg/m³,225,225,0.6148,false,false,,1.0
+cordoba,co,2024,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,225,225,0.6148,false,false,,1.0
+cordoba,co,2025,AQG,Guía OMS,1,4.0,mg/m³,332,332,0.9096,true,true,1.0,1.0
+cordoba,co,2025,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,332,332,0.9096,true,true,1.0,1.0
+cordoba,co,2026,AQG,Guía OMS,1,4.0,mg/m³,260,260,0.9524,true,true,1.0,1.0
+cordoba,co,2026,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,260,260,0.9524,true,true,1.0,1.0
+cordoba,co,movil_12m,AQG,Guía OMS,1,4.0,mg/m³,346,346,0.9479,true,true,1.0,1.0
+cordoba,co,movil_12m,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,346,346,0.9479,true,true,1.0,1.0
+cordoba,no2,2024,AQG,Guía OMS,1,25.0,µg/m³,291,32,0.7951,true,false,0.11,0.11
+cordoba,no2,2024,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,291,291,0.7951,true,false,1.0,1.0
+cordoba,no2,2024,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,291,242,0.7951,true,false,0.8316,0.8316
+cordoba,no2,2025,AQG,Guía OMS,1,25.0,µg/m³,312,61,0.8548,true,false,0.1955,0.1955
+cordoba,no2,2025,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,312,312,0.8548,true,false,1.0,1.0
+cordoba,no2,2025,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,312,275,0.8548,true,false,0.8814,0.8814
+cordoba,no2,2026,AQG,Guía OMS,1,25.0,µg/m³,261,31,0.956,true,true,0.1188,0.1188
+cordoba,no2,2026,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,261,261,0.956,true,true,1.0,1.0
+cordoba,no2,2026,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,261,240,0.956,true,true,0.9195,0.9195
+cordoba,no2,movil_12m,AQG,Guía OMS,1,25.0,µg/m³,347,57,0.9507,true,true,0.1643,0.1643
+cordoba,no2,movil_12m,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,347,347,0.9507,true,true,1.0,1.0
+cordoba,no2,movil_12m,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,347,321,0.9507,true,true,0.9251,0.9251
+cordoba,pm10,2024,AQG,Guía OMS,1,45.0,µg/m³,333,320,0.9098,true,true,0.961,0.961
+cordoba,pm10,2024,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,333,333,0.9098,true,true,1.0,1.0
+cordoba,pm10,2024,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,333,333,0.9098,true,true,1.0,1.0
+cordoba,pm10,2024,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,333,331,0.9098,true,true,0.994,0.994
+cordoba,pm10,2024,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,333,326,0.9098,true,true,0.979,0.979
+cordoba,pm10,2025,AQG,Guía OMS,1,45.0,µg/m³,302,297,0.8274,true,false,0.9834,0.9834
+cordoba,pm10,2025,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,302,302,0.8274,true,false,1.0,1.0
+cordoba,pm10,2025,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,302,302,0.8274,true,false,1.0,1.0
+cordoba,pm10,2025,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,302,301,0.8274,true,false,0.9967,0.9967
+cordoba,pm10,2025,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,302,299,0.8274,true,false,0.9901,0.9901
+cordoba,pm10,2026,AQG,Guía OMS,1,45.0,µg/m³,253,243,0.9267,true,true,0.9605,0.9605
+cordoba,pm10,2026,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,253,253,0.9267,true,true,1.0,1.0
+cordoba,pm10,2026,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,253,253,0.9267,true,true,1.0,1.0
+cordoba,pm10,2026,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,253,253,0.9267,true,true,1.0,1.0
+cordoba,pm10,2026,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,253,250,0.9267,true,true,0.9881,0.9881
+cordoba,pm10,movil_12m,AQG,Guía OMS,1,45.0,µg/m³,335,322,0.9178,true,true,0.9612,0.9612
+cordoba,pm10,movil_12m,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,335,335,0.9178,true,true,1.0,1.0
+cordoba,pm10,movil_12m,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,335,335,0.9178,true,true,1.0,1.0
+cordoba,pm10,movil_12m,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,335,334,0.9178,true,true,0.997,0.997
+cordoba,pm10,movil_12m,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,335,330,0.9178,true,true,0.9851,0.9851
+la_boca,co,2024,AQG,Guía OMS,1,4.0,mg/m³,306,306,0.8361,true,true,1.0,1.0
+la_boca,co,2024,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,306,306,0.8361,true,true,1.0,1.0
+la_boca,co,2025,AQG,Guía OMS,1,4.0,mg/m³,339,339,0.9288,true,true,1.0,1.0
+la_boca,co,2025,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,339,339,0.9288,true,true,1.0,1.0
+la_boca,co,2026,AQG,Guía OMS,1,4.0,mg/m³,226,226,0.8278,true,false,1.0,1.0
+la_boca,co,2026,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,226,226,0.8278,true,false,1.0,1.0
+la_boca,co,movil_12m,AQG,Guía OMS,1,4.0,mg/m³,311,311,0.8521,true,false,1.0,1.0
+la_boca,co,movil_12m,IT1,Objetivo intermedio IT1,5,7.0,mg/m³,311,311,0.8521,true,false,1.0,1.0
+la_boca,no2,2024,AQG,Guía OMS,1,25.0,µg/m³,329,14,0.8989,true,true,0.0426,0.0426
+la_boca,no2,2024,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,329,328,0.8989,true,true,0.997,0.997
+la_boca,no2,2024,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,329,133,0.8989,true,true,0.4043,0.4043
+la_boca,no2,2025,AQG,Guía OMS,1,25.0,µg/m³,341,18,0.9342,true,true,0.0528,0.0528
+la_boca,no2,2025,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,341,341,0.9342,true,true,1.0,1.0
+la_boca,no2,2025,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,341,181,0.9342,true,true,0.5308,0.5308
+la_boca,no2,2026,AQG,Guía OMS,1,25.0,µg/m³,230,13,0.8425,true,false,0.0565,0.0565
+la_boca,no2,2026,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,230,230,0.8425,true,false,1.0,1.0
+la_boca,no2,2026,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,230,136,0.8425,true,false,0.5913,0.5913
+la_boca,no2,movil_12m,AQG,Guía OMS,1,25.0,µg/m³,317,16,0.8685,true,false,0.0505,0.0505
+la_boca,no2,movil_12m,IT1,Objetivo intermedio IT1,5,120.0,µg/m³,317,317,0.8685,true,false,1.0,1.0
+la_boca,no2,movil_12m,IT2,Objetivo intermedio IT2,4,50.0,µg/m³,317,198,0.8685,true,false,0.6246,0.6246
+la_boca,pm10,2024,AQG,Guía OMS,1,45.0,µg/m³,292,280,0.7978,true,false,0.9589,0.9589
+la_boca,pm10,2024,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,292,292,0.7978,true,false,1.0,1.0
+la_boca,pm10,2024,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,292,292,0.7978,true,false,1.0,1.0
+la_boca,pm10,2024,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,292,291,0.7978,true,false,0.9966,0.9966
+la_boca,pm10,2024,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,292,282,0.7978,true,false,0.9658,0.9658
+la_boca,pm10,2025,AQG,Guía OMS,1,45.0,µg/m³,302,291,0.8274,true,false,0.9636,0.9636
+la_boca,pm10,2025,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,302,302,0.8274,true,false,1.0,1.0
+la_boca,pm10,2025,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,302,302,0.8274,true,false,1.0,1.0
+la_boca,pm10,2025,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,302,301,0.8274,true,false,0.9967,0.9967
+la_boca,pm10,2025,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,302,297,0.8274,true,false,0.9834,0.9834
 la_boca,pm10,2026,AQG,Guía OMS,1,45.0,µg/m³,218,208,0.7985,true,false,0.9541,0.9541
 la_boca,pm10,2026,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,218,218,0.7985,true,false,1.0,1.0
 la_boca,pm10,2026,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,218,218,0.7985,true,false,1.0,1.0
 la_boca,pm10,2026,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,218,218,0.7985,true,false,1.0,1.0
 la_boca,pm10,2026,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,218,212,0.7985,true,false,0.9725,0.9725
-la_boca,pm10,movil_12m,AQG,Guía OMS,1,45.0,µg/m³,299,283,0.8192,true,false,0.9465,0.9465
-la_boca,pm10,movil_12m,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,299,299,0.8192,true,false,1.0,1.0
-la_boca,pm10,movil_12m,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,299,298,0.8192,true,false,0.9967,0.9967
-la_boca,pm10,movil_12m,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,299,297,0.8192,true,false,0.9933,0.9933
-la_boca,pm10,movil_12m,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,299,290,0.8192,true,false,0.9699,0.9699
+la_boca,pm10,movil_12m,AQG,Guía OMS,1,45.0,µg/m³,298,283,0.8164,true,false,0.9497,0.9497
+la_boca,pm10,movil_12m,IT1,Objetivo intermedio IT1,5,150.0,µg/m³,298,298,0.8164,true,false,1.0,1.0
+la_boca,pm10,movil_12m,IT2,Objetivo intermedio IT2,4,100.0,µg/m³,298,298,0.8164,true,false,1.0,1.0
+la_boca,pm10,movil_12m,IT3,Objetivo intermedio IT3,3,75.0,µg/m³,298,297,0.8164,true,false,0.9966,0.9966
+la_boca,pm10,movil_12m,IT4,Objetivo intermedio IT4,2,50.0,µg/m³,298,290,0.8164,true,false,0.9732,0.9732

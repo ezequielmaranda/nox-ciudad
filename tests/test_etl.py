@@ -4,7 +4,7 @@ División del trabajo:
   * dbt prueba los DATOS (claves, nulos, relaciones, reglas físicas, regla del 75%...) en cada
     `dbt build`: ver dbt/models/**/_*.yml y dbt/tests/.
   * pytest prueba lo que dbt no puede: el pipeline completo (idempotencia), las consultas de
-    análisis que viven fuera de dbt (sql/99) y el código Python del extractor de PDF.
+    análisis que viven fuera de dbt (sql/99) y el código Python del extractor.
 """
 
 import hashlib
@@ -16,7 +16,7 @@ import duckdb
 import pytest
 
 from src import config
-from src.extract import estacion_de_texto, mes_anio_de_texto, tipo_de_archivo
+from src.extract import COLUMNAS_ESPERADAS, columnas_faltantes
 
 
 def correr_etl() -> None:
@@ -61,21 +61,15 @@ def test_consultas_de_analisis_corren(tmp_path):
 
 # --- Extractor (funciones puras, no necesitan red) ---------------------------------------------
 
-@pytest.mark.parametrize("nombre, esperado", [
-    ("pm10_la%20boca_mayo_2025.pdf", "LA BOCA"),
-    ("nox_laboca_enero_2024.pdf", "LA BOCA"),
-    ("co_centenaeio_marzo_2025.pdf", "CENTENARIO"),   # nombre mal escrito en la fuente
-    ("nox_córdoba_julio_2024.pdf", "CORDOBA"),
-    ("informe.pdf", None),
-])
-def test_extractor_reconoce_estacion(nombre, esperado):
-    assert estacion_de_texto(nombre) == esperado
+def test_extractor_acepta_el_formato_de_ba_data():
+    # Encabezado real del CSV (con BOM de UTF-8 y las columnas de Palermo, que se ignoran)
+    encabezado = "\ufeff" + ",".join(COLUMNAS_ESPERADAS + ["CO_PALERMO", "NO2_PALERMO", "PM10_PALERMO"])
+    contenido = (encabezado + "\n12FEB2011:00:00:00,19,s/d,s/d,s/d,0.20,22,28,0.08,21,s/d,,,\n").encode("utf-8")
+    assert columnas_faltantes(contenido) == []
 
 
-def test_extractor_reconoce_mes_y_tipo():
-    assert mes_anio_de_texto("nox_cordoba_septiembre_2024.pdf") == (9, 2024)
-    assert mes_anio_de_texto("PM10 - Febrero 2026") == (2, 2026)
-    assert tipo_de_archivo("pm10_cordoba_enero_2025.pdf") == "pm10"
-    assert tipo_de_archivo("nox_cordoba_enero_2025.pdf") == "nox"
-    assert tipo_de_archivo("co_cordoba_enero_2025.pdf") == "co"
-    assert tipo_de_archivo("calendario.pdf") is None
+def test_extractor_detecta_un_cambio_de_formato():
+    contenido = b"fecha,hora,no2_centenario\n2025-01-01,1,15\n"
+    faltan = columnas_faltantes(contenido)
+    assert "NO2_CORDOBA" in faltan and "PM10_LA_BOCA" in faltan
+    assert "NO2_CENTENARIO" not in faltan   # mayúsculas o minúsculas da igual

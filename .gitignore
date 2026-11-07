@@ -8,9 +8,6 @@ __pycache__/
 # Base DuckDB generada por el ETL: se reconstruye con `make etl`
 data/warehouse/
 
-# PDF originales de la APrA: se bajan con `make extract` (pesan y están publicados)
-data/raw/pdf/
-
 # Power BI: caché local y configuración personal del proyecto .pbip
 **/.pbi/localSettings.json
 **/.pbi/cache.abf

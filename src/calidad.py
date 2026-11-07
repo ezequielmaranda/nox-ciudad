@@ -1,9 +1,9 @@
 """Controles de calidad que se corren desde Python (el ETL y el notebook de EDA los usan).
 
-Las REGLAS de calidad viven en SQL (dbt/models/01_staging/stg_aire_validado.sql y la carpeta
-04_calidad). Este módulo hace dos cosas complementarias:
-  * perfil_raw: perfila el CSV crudo ANTES de transformarlo (filas, columnas, fechas, nulos,
-    duplicados y valores no numéricos), para dejar registro de con qué se arrancó.
+Las REGLAS de calidad viven en SQL (dbt/models/01_staging/stg_aire_horario_validado.sql y la
+carpeta 04_calidad). Este módulo hace dos cosas complementarias:
+  * perfil_raw: perfila el CSV crudo ANTES de transformarlo (filas, columnas, fechas, horas
+    fuera de rango, duplicados y tipos de valor), para dejar registro de con qué se arrancó.
   * resumen_post_etl: después de la carga, junta los números de calidad que hay que mirar
     (valores descartados, completitud, indicadores anuales no válidos, outliers).
 """
@@ -15,51 +15,49 @@ import pandas as pd
 
 
 def perfil_raw(ruta_csv: Path) -> dict:
-    """Perfil del CSV crudo, leído todo como texto (igual que lo lee el staging)."""
+    """Perfil del CSV crudo de BA Data, leído todo como texto (igual que lo lee el staging).
+
+    El CSV es ANCHO: una fila por fecha y hora, una columna por estación × contaminante.
+    """
     con = duckdb.connect()
     con.execute(
         "create table crudo as select * from read_csv(?, header = true, all_varchar = true)",
         [ruta_csv.as_posix()],
     )
     columnas = [c[0] for c in con.execute("describe crudo").fetchall()]
-    (filas, fecha_min, fecha_max, n_estaciones, n_archivos) = con.execute(
+    columnas_valor = [c for c in columnas if c.upper() not in ("FECHA", "HORA")]
+    (filas, fecha_min, fecha_max, n_dias, horas_fuera) = con.execute(
         """
-        select count(*), min(fecha), max(fecha), count(distinct estacion), count(distinct archivo)
-        from crudo
+        with t as (
+            select cast(strptime(trim(fecha), '%d%b%Y:%H:%M:%S') as date) as f, try_cast(hora as integer) as h
+            from crudo
+        )
+        select count(*), min(f), max(f), count(distinct f), count(*) filter (where h not between 1 and 24)
+        from t
         """
     ).fetchone()
-    # Duplicados: la clave natural es estación + fecha + contaminante + estadístico
+    # Duplicados: la clave natural es fecha + hora
     duplicados = con.execute(
-        """
-        select count(*) from (
-            select estacion, fecha, contaminante, estadistico
-            from crudo group by all having count(*) > 1
-        )
-        """
+        "select count(*) from (select fecha, hora from crudo group by all having count(*) > 1)"
     ).fetchone()[0]
-    nulos = {
-        c: con.execute(f'select count(*) from crudo where "{c}" is null').fetchone()[0]
-        for c in columnas
-    }
-    # Textos que no son números (s/d, DND, <LD, otros)
-    no_numericos = con.execute(
-        r"""
+    # Celdas por tipo de valor, en todas las columnas de mediciones (formato largo con UNPIVOT)
+    lista = ", ".join(f'"{c}"' for c in columnas_valor)
+    tipos = con.execute(
+        rf"""
         select
             case
-                when lower(valor_crudo) in ('s/d', 'dnd') then lower(valor_crudo)
-                when valor_crudo like '<%' then '<límite de detección'
-                else 'otro texto: ' || valor_crudo
+                when v is null or trim(v) = ''                      then 'vacía'
+                when lower(trim(v)) = 's/d'                         then 's/d'
+                when trim(v) like '<%'                              then '<límite de detección'
+                when regexp_matches(trim(v), '^-?[0-9]+(\.[0-9]+)?$') then 'número'
+                else 'otro texto: ' || trim(v)
             end as tipo,
             count(*) as n
-        from crudo
-        where not regexp_matches(valor_crudo, '^-?[0-9]+(,[0-9]+)?$')
+        from crudo unpivot include nulls (v for columna in ({lista}))
         group by 1
         order by n desc
         """
     ).fetchall()
-    fechas_invalidas = con.execute(
-        "select count(*) from crudo where try_cast(fecha as date) is null"
-    ).fetchone()[0]
     con.close()
     return {
         "archivo": ruta_csv.name,
@@ -67,12 +65,10 @@ def perfil_raw(ruta_csv: Path) -> dict:
         "columnas": columnas,
         "fecha_min": fecha_min,
         "fecha_max": fecha_max,
-        "estaciones": n_estaciones,
-        "pdf_de_origen": n_archivos,
+        "dias": n_dias,
+        "horas_fuera_de_rango": horas_fuera,
         "duplicados_clave": duplicados,
-        "fechas_invalidas": fechas_invalidas,
-        "nulos_por_columna": nulos,
-        "valores_no_numericos": dict(no_numericos),
+        "celdas_por_tipo": dict(tipos),
     }
 
 
@@ -80,7 +76,7 @@ def resumen_post_etl(ruta_base: Path) -> dict[str, pd.DataFrame]:
     """Tablas chicas con lo que hay que revisar después de cada corrida del ETL."""
     con = duckdb.connect(ruta_base.as_posix(), read_only=True)
     resumen = {
-        # Qué pasó con cada celda de los PDF
+        # Qué pasó con cada valor horario del período (celdas del CSV)
         "categorias_de_valores": con.sql(
             """
             select categoria, sum(n_valores) as n_valores,
@@ -96,7 +92,6 @@ def resumen_post_etl(ruta_base: Path) -> dict[str, pd.DataFrame]:
             select id_estacion, id_contaminante,
                    round(100.0 * avg(tiene_dato::int), 1) as completitud_pct
             from modelo.fact_medicion_diaria
-            where ventana = '24h'
             group by all
             order by all
             """
@@ -113,7 +108,7 @@ def resumen_post_etl(ruta_base: Path) -> dict[str, pd.DataFrame]:
         # Outliers marcados (no borrados)
         "outliers": con.sql(
             """
-            select id_contaminante, ventana, count(*) as n_outliers
+            select id_contaminante, count(*) as n_outliers
             from calidad.calidad_outliers
             group by all
             order by all

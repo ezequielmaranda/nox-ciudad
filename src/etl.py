@@ -1,6 +1,6 @@
 """ETL del TP: del CSV crudo de calidad del aire a las tablas finales para Power BI.
 
-    EXTRACT    data/raw/aire_publico.csv  -> se verifica y se perfila (filas, columnas, fechas)
+    EXTRACT    data/raw/calidad-aire.csv  -> se verifica y se perfila (filas, fechas, tipos de valor)
     TRANSFORM  dbt build: referencias -> staging -> dimensiones y fact -> calidad -> indicadores,
     + LOAD     todo dentro de data/warehouse/aire.duckdb, con los tests de calidad de dbt
     EXPORT     tablas finales -> data/final/*.csv y *.parquet
@@ -12,7 +12,7 @@ Es idempotente: cada corrida reconstruye las tablas desde cero y sobrescribe las
 que correrlo dos veces da exactamente el mismo resultado.
 
 Uso (desde la raíz del repo):  python -m src.etl
-La extracción desde los PDF de la APrA es un paso aparte y opcional: python -m src.extract
+La descarga del CSV desde BA Data es un paso aparte y opcional: python -m src.extract
 """
 
 import logging
@@ -30,22 +30,20 @@ log = logging.getLogger("etl")
 
 def extraer() -> dict:
     """EXTRACT: verifica que esté el crudo y deja en el log con qué datos se arranca."""
-    for ruta in (config.RAW_AIRE, config.RAW_MANIFIESTO):
-        if not ruta.exists():
-            sys.exit(f"Falta {ruta.relative_to(config.RAIZ)}. Generarlo con: python -m src.extract")
+    if not config.RAW_AIRE.exists():
+        sys.exit(f"Falta {config.RAW_AIRE.relative_to(config.RAIZ)}. Bajarlo con: python -m src.extract")
     perfil = calidad.perfil_raw(config.RAW_AIRE)
     log.info(
-        "Crudo %s: %s filas × %s columnas, %s a %s, %s estaciones, %s PDF de origen",
+        "Crudo %s: %s filas (fecha × hora) × %s columnas, %s a %s (%s días)",
         perfil["archivo"], f"{perfil['filas']:,}".replace(",", "."), len(perfil["columnas"]),
-        perfil["fecha_min"], perfil["fecha_max"], perfil["estaciones"], perfil["pdf_de_origen"],
+        perfil["fecha_min"], perfil["fecha_max"], perfil["dias"],
     )
     log.info("Columnas: %s", ", ".join(perfil["columnas"]))
     log.info(
-        "Duplicados por clave: %s · fechas inválidas: %s · nulos: %s",
-        perfil["duplicados_clave"], perfil["fechas_invalidas"],
-        sum(perfil["nulos_por_columna"].values()),
+        "Duplicados por fecha + hora: %s · horas fuera de 1-24: %s",
+        perfil["duplicados_clave"], perfil["horas_fuera_de_rango"],
     )
-    log.info("Valores no numéricos: %s", perfil["valores_no_numericos"])
+    log.info("Celdas por tipo de valor: %s", perfil["celdas_por_tipo"])
     return perfil
 
 
