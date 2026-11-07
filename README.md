@@ -203,7 +203,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
 ├── dashboard/AireOMS.pbip         proyecto de Power BI: modelo, relaciones y medidas listos (se abre con Power BI Desktop)
-├── presentacion/                 presentación (.pptx, 19 slides) con el guion de cada integrante en las notas
+├── presentacion/                 presentación (.pptx, 21 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)
     └── sweetviz_*.html            perfil automático del EDA (Sweetviz)
