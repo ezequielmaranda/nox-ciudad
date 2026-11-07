@@ -13,8 +13,7 @@ sweetviz>=2.3            # perfil automático del EDA (reportes HTML)
 
 # Notebook
 ipykernel>=6.29
-nbconvert>=7.16
-nbformat>=5.10
+nbconvert>=7.16          # trae nbformat
 
 # Tests
 pytest>=8

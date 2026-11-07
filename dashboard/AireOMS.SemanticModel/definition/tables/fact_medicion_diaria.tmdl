@@ -44,15 +44,6 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Verdadero si la fuente tiene al menos una hora de ese día.
-	column tiene_fila
-		dataType: boolean
-		lineageTag: 74406046-dc9c-5761-a09e-9a4679674224
-		summarizeBy: none
-		sourceColumn: tiene_fila
-
-		annotation SummarizationSetBy = User
-
 	/// Verdadero si hay promedio de 24 h válido.
 	column tiene_dato
 		dataType: boolean
@@ -71,7 +62,7 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Promedio de 24 h en la unidad original (solo si tiene_dato).
+	/// Promedio de 24 h en la unidad original, la de dim_contaminante.unidad_medicion (solo si tiene_dato).
 	column valor
 		dataType: double
 		lineageTag: 908ccc53-67da-5613-bd49-084a29645f50
@@ -80,48 +71,12 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Unidad original (ppb, ppm, µg/m³).
-	column unidad
-		dataType: string
-		lineageTag: ab80d4f1-a0c4-522a-97fe-cded795e5486
-		summarizeBy: none
-		sourceColumn: unidad
-
-		annotation SummarizationSetBy = User
-
-	/// Promedio de 24 h en la unidad de la guía OMS (µg/m³; mg/m³ para CO). Solo si tiene_dato.
+	/// Promedio de 24 h en la unidad de la guía OMS, la de dim_contaminante.unidad_masa (µg/m³; mg/m³ para CO). Solo si tiene_dato.
 	column valor_masa
 		dataType: double
 		lineageTag: 4cb8e37f-a063-5a8c-910b-0e97b56950ec
 		summarizeBy: none
 		sourceColumn: valor_masa
-
-		annotation SummarizationSetBy = User
-
-	/// Unidad de valor_masa.
-	column unidad_masa
-		dataType: string
-		lineageTag: 80f05ac7-10df-534f-9b80-939926dd3d0d
-		summarizeBy: none
-		sourceColumn: unidad_masa
-
-		annotation SummarizationSetBy = User
-
-	/// Verdadero si el valor usa alguna hora '<límite' imputada como límite / 2.
-	column es_imputado
-		dataType: boolean
-		lineageTag: c06a7fe2-4800-544f-a5aa-d98adf160537
-		summarizeBy: none
-		sourceColumn: es_imputado
-
-		annotation SummarizationSetBy = User
-
-	/// Guía OMS de 24 h del contaminante.
-	column guia_24h
-		dataType: double
-		lineageTag: 11f1f54b-317d-500e-abdc-a5bd08612b13
-		summarizeBy: none
-		sourceColumn: guia_24h
 
 		annotation SummarizationSetBy = User
 
@@ -131,15 +86,6 @@ table fact_medicion_diaria
 		lineageTag: 8a67fd29-7db3-524b-ab40-862716d2728f
 		summarizeBy: none
 		sourceColumn: supera_guia
-
-		annotation SummarizationSetBy = User
-
-	/// valor_masa / guía de 24 h.
-	column veces_guia
-		dataType: double
-		lineageTag: 69896ea8-4f63-578c-a088-79d84f336317
-		summarizeBy: none
-		sourceColumn: veces_guia
 
 		annotation SummarizationSetBy = User
 
@@ -172,15 +118,6 @@ table fact_medicion_diaria
 
 		annotation SummarizationSetBy = User
 
-	/// Umbral Q3 + 3·IQR de esa estación × contaminante.
-	column umbral_outlier
-		dataType: double
-		lineageTag: c3dfa885-8cba-5925-91df-60987849e290
-		summarizeBy: none
-		sourceColumn: umbral_outlier
-
-		annotation SummarizationSetBy = User
-
 	partition fact_medicion_diaria = m
 		mode: import
 		source =
@@ -188,7 +125,7 @@ table fact_medicion_diaria
 				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_diaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_horas_validas", Int64.Type}, {"tiene_fila", type logical}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}, {"es_imputado", type logical}, {"guia_24h", type number}, {"supera_guia", type logical}, {"veces_guia", type number}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"es_outlier", type logical}, {"umbral_outlier", type number}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_horas_validas", Int64.Type}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"valor_masa", type number}, {"supera_guia", type logical}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"es_outlier", type logical}}, "en-US")
 				in
 				    Tipos
 

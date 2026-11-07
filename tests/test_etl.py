@@ -52,7 +52,7 @@ def test_consultas_de_analisis_son_de_solo_lectura():
     resultados = [c.execute(s.query).fetchall() for s in sentencias]
     c.close()
     assert len(sentencias) > 20
-    assert len(resultados[-2]) == 9   # D1: 3 estaciones × 3 contaminantes
+    assert len(resultados[-1]) == 9   # D1, la última: 3 estaciones × 3 contaminantes
 
 
 # --- Extractor (funciones puras, no necesitan red) ---------------------------------------------

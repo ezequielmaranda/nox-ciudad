@@ -1,20 +1,16 @@
 -- =====================================================================================
 -- GOLD · CALIDAD: qué pasó con cada valor horario del período de estudio.
 --
--- Grano: contaminante × categoría. Categoría = 'valido', 'valido_imputado' ('<LD' reemplazado
--- por LD/2) o el motivo por el que se descartó (las reglas de silver.medicion_horaria). Además
--- del conteo, dice en cuántos días y entre qué fechas aparece cada categoría: así se ve que,
--- por ejemplo, los '#REF!' son de dos días puntuales y no un problema repartido.
+-- Grano: contaminante × categoría. Categoría = 'valido' o el motivo por el que se descartó (las
+-- reglas de silver.medicion_horaria). Además del conteo, dice en cuántos días y entre qué fechas
+-- aparece cada categoría: así se ve que, por ejemplo, los '#REF!' son de dos días puntuales y no
+-- un problema repartido.
 -- =====================================================================================
 with horas as (
     select
         id_contaminante,
         fecha,
-        case
-            when es_valido and es_imputado then 'valido_imputado'
-            when es_valido                 then 'valido'
-            else motivo_invalido
-        end as categoria
+        coalesce(motivo_invalido, 'valido') as categoria
     from {{ ref('medicion_horaria') }}
     where fecha between '{{ var("fecha_inicio") }}' and '{{ var("fecha_fin") }}'
 )

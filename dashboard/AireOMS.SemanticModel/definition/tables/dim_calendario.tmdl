@@ -34,16 +34,6 @@ table dim_calendario
 
 		annotation SummarizationSetBy = User
 
-	/// Nombre del mes en castellano.
-	column nombre_mes
-		dataType: string
-		lineageTag: 467db490-75cb-5a2b-b132-958fca556bc5
-		summarizeBy: none
-		sourceColumn: nombre_mes
-		sortByColumn: mes
-
-		annotation SummarizationSetBy = User
-
 	/// Primer día del mes (para ejes y agrupaciones mensuales).
 	column anio_mes
 		dataType: dateTime
@@ -125,15 +115,6 @@ table dim_calendario
 
 		annotation SummarizationSetBy = User
 
-	/// Nombre del feriado (vacío si no es feriado; nulo estructural, no faltante).
-	column nombre_feriado
-		dataType: string
-		lineageTag: 629e30ba-0fb9-5c8e-be75-59150627f3fa
-		summarizeBy: none
-		sourceColumn: nombre_feriado
-
-		annotation SummarizationSetBy = User
-
 	partition dim_calendario = m
 		mode: import
 		source =
@@ -141,7 +122,7 @@ table dim_calendario
 				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_calendario.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"nombre_mes", type text}, {"anio_mes", type date}, {"estacion_del_anio", type text}, {"orden_estacion_del_anio", Int64.Type}, {"dia_semana", Int64.Type}, {"nombre_dia", type text}, {"tipo_dia", type text}, {"tipo_dia_etiqueta", type text}, {"orden_tipo_dia", Int64.Type}, {"nombre_feriado", type text}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"anio_mes", type date}, {"estacion_del_anio", type text}, {"orden_estacion_del_anio", Int64.Type}, {"dia_semana", Int64.Type}, {"nombre_dia", type text}, {"tipo_dia", type text}, {"tipo_dia_etiqueta", type text}, {"orden_tipo_dia", Int64.Type}}, "en-US")
 				in
 				    Tipos
 

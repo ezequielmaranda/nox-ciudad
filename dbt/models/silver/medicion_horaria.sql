@@ -74,8 +74,7 @@ tipado as (
         case
             when estado_valor = 'valido'                then cast(valor_crudo as double)
             when estado_valor = 'bajo_limite_deteccion' then cast(trim(substr(valor_crudo, 2)) as double) / 2
-        end                                                       as valor,
-        estado_valor = 'bajo_limite_deteccion'                    as es_imputado
+        end                                                       as valor
     from clasificado
 ),
 
@@ -148,7 +147,6 @@ select
     valor_crudo,
     estado_valor,
     valor,
-    es_imputado,
     motivo_invalido,
     motivo_invalido is null as es_valido
 from motivo

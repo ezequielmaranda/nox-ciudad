@@ -31,15 +31,13 @@ models:
       - name: valor_crudo
         description: Texto original de la celda (vacía = nulo).
       - name: estado_valor
-        description: Clasificación del texto original.
+        description: "Clasificación del texto original. 'bajo_limite_deteccion' = valor imputado como límite / 2."
         data_tests:
           - accepted_values:
               arguments:
                 values: ["valido", "sin_dato", "bajo_limite_deteccion", "invalido"]
       - name: valor
         description: Valor en la unidad original (ppb, ppm o µg/m³); imputado como límite / 2 si era '<x'.
-      - name: es_imputado
-        description: Verdadero si el valor era '<límite' y se imputó como límite / 2.
       - name: motivo_invalido
         description: Por qué no se usa el valor (vacío = válido).
         data_tests:
@@ -68,8 +66,6 @@ models:
         description: Verdadero si hay valor diario.
       - name: motivo_sin_dato
         description: "'sin_dato_fuente' (todas las horas en s/d) o 'incompleto'. Vacío si tiene_dato."
-      - name: es_imputado
-        description: Verdadero si el valor diario usa alguna hora imputada ('<límite').
     data_tests:
       - clave_unica:
           arguments:

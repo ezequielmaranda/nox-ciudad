@@ -37,8 +37,7 @@ dia as (
         avg(valor) filter (where es_valido)                        as promedio_horas_validas,
         max(valor) filter (where es_valido and hora = 8)           as valor_hora_8,
         max(valor) filter (where es_valido and hora = 16)          as valor_hora_16,
-        max(valor) filter (where es_valido and hora = 24)          as valor_hora_24,
-        coalesce(bool_or(es_valido and es_imputado), false)        as tiene_imputados
+        max(valor) filter (where es_valido and hora = 24)          as valor_hora_24
     from horario
     group by fecha, id_estacion, id_contaminante
 ),
@@ -67,6 +66,5 @@ select
         when valor_diario is not null                              then null
         when n_horas_validas = 0 and n_horas_sin_dato = n_horas_fila then 'sin_dato_fuente'
         else 'incompleto'
-    end                                                           as motivo_sin_dato,
-    valor_diario is not null and tiene_imputados                  as es_imputado
+    end                                                           as motivo_sin_dato
 from calculado

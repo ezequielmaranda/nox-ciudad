@@ -12,8 +12,7 @@
 -- Regla del 75%: si el período tiene menos de 75% de días con dato (`umbral_completitud`), el
 -- indicador no es válido (es_valido = false) y los promedios, el P99 y los % por escalón quedan
 -- en NULL. El promedio calculado igual se informa en promedio_referencial, solo por
--- transparencia. Además se informa el criterio trimestral de la EPA (75% en CADA trimestre)
--- como advertencia: cumple_criterio_trimestral. Ver docs/calidad_datos.md §3.
+-- transparencia. Ver docs/calidad_datos.md §3.
 --
 -- Qué tiene cada fila:
 --   1. completitud y validez
@@ -105,35 +104,18 @@ guias as (
         max(it4)      filter (where promedio = 'anual') as it4_anual,
         max(it3)      filter (where promedio = 'anual') as it3_anual,
         max(it2)      filter (where promedio = 'anual') as it2_anual,
-        max(it1)      filter (where promedio = 'anual') as it1_anual,
-        max(unidad)                                     as unidad
+        max(it1)      filter (where promedio = 'anual') as it1_anual
     from {{ ref('oms_2021') }}
     group by id_contaminante
 ),
 
--- 1. Completitud del peor trimestre (criterio trimestral de la EPA)
-trimestres as (
-    select
-        id_periodo, id_estacion, id_contaminante,
-        avg((valor is not null)::int) as completitud
-    from grilla
-    group by id_periodo, id_estacion, id_contaminante, year(fecha), quarter(fecha)
-),
-
-peor_trimestre as (
-    select id_periodo, id_estacion, id_contaminante, min(completitud) as completitud_peor_trimestre
-    from trimestres
-    group by id_periodo, id_estacion, id_contaminante
-),
-
--- 2 a 4. Promedio, P99 y conteos contra cada umbral de 24 h
+-- 1 a 4. Días con dato, promedio, P99 y conteos contra cada umbral de 24 h
 resumen as (
     select
         g.id_periodo, g.id_estacion, g.id_contaminante,
         count(g.valor)                                      as n_dias_con_dato,
         avg(g.valor)                                        as promedio,
         quantile_cont(g.valor, 0.99)                        as p99,
-        max(g.valor)                                        as maximo_diario,
         count(*) filter (where g.valor >  o.guia_24h)       as n_dias_supera_24h,
         count(*) filter (where g.valor <= o.guia_24h)       as n_cumple_guia,
         count(*) filter (where g.valor <= o.it4_24h)        as n_cumple_it4,
@@ -207,19 +189,15 @@ base as (
         r.n_dias_con_dato,
         round(r.n_dias_con_dato * 1.0 / p.n_dias_periodo, 4)                    as completitud,
         r.n_dias_con_dato * 1.0 / p.n_dias_periodo >= {{ var('umbral_completitud') }} as es_valido,
-        round(t.completitud_peor_trimestre, 4)                                  as completitud_peor_trimestre,
-        t.completitud_peor_trimestre >= {{ var('umbral_completitud') }}         as cumple_criterio_trimestral,
-        o.unidad,
         o.guia_24h, o.it4_24h, o.it3_24h, o.it2_24h, o.it1_24h,
         o.guia_anual, o.it4_anual, o.it3_anual, o.it2_anual, o.it1_anual,
-        r.promedio, r.p99, r.maximo_diario,
+        r.promedio, r.p99,
         r.n_dias_supera_24h, r.n_cumple_guia, r.n_cumple_it4, r.n_cumple_it3, r.n_cumple_it2, r.n_cumple_it1,
         k.dias  as racha_maxima_dias,
         k.desde as racha_desde,
         k.hasta as racha_hasta
     from resumen as r
     join periodos_etiquetados as p using (id_periodo)
-    join peor_trimestre as t using (id_periodo, id_estacion, id_contaminante)
     join guias as o using (id_contaminante)
     left join rachas as k
         on  k.id_periodo = r.id_periodo and k.id_estacion = r.id_estacion
@@ -247,9 +225,6 @@ select
     n_dias_con_dato,
     completitud,
     es_valido,
-    completitud_peor_trimestre,
-    cumple_criterio_trimestral,
-    unidad,
     -- 2. Promedio contra la guía anual (el CO no tiene guía anual: queda vacío)
     promedio_anual,
     round(promedio, 2)                                          as promedio_referencial,
@@ -290,11 +265,7 @@ select
     end, 2)                                                     as ug_para_proximo_nivel,
     -- 3. Contra la guía de 24 h
     p99_24h,
-    guia_24h,
     round(p99_24h / guia_24h, 2)                                as p99_veces_guia_24h,
-    p99_24h > guia_24h                                          as p99_supera_guia_24h,
-    round(maximo_diario, 2)                                     as maximo_diario,
-    n_dias_supera_24h,
     round(n_dias_supera_24h * 1.0 / nullif(n_dias_con_dato, 0), 4) as pct_dias_supera_24h,
     -- 4. % de días que cumplen cada escalón de 24 h (vacío si el nivel no existe o el período no es válido)
     case when es_valido then round(n_cumple_guia * 1.0 / n_dias_con_dato, 4) end                    as pct_cumple_guia_24h,

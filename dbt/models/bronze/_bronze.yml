@@ -17,7 +17,6 @@ seeds:
     config:
       column_types:
         id_contaminante: varchar
-        contaminante: varchar
         promedio: varchar
         guia_oms: double
         it1: double
@@ -34,8 +33,6 @@ seeds:
               arguments:
                 to: ref('contaminantes')
                 field: id_contaminante
-      - name: contaminante
-        description: Nombre corto del contaminante como lo escribe la OMS.
       - name: promedio
         description: Período de promedio de la guía ('24h' o 'anual').
         data_tests:
@@ -67,7 +64,6 @@ seeds:
     config:
       column_types:
         peso_molecular: double
-        horas_promedio_fuente: integer
         maximo_plausible: double
         orden: integer
     columns:
@@ -76,11 +72,10 @@ seeds:
 
   - name: estaciones
     description: >
-      Estaciones de monitoreo de la APrA: descripción de las páginas de cada estación y coordenadas
-      e inicio de actividad del archivo estaciones-ambientales.csv de BA Data.
+      Estaciones de monitoreo de la APrA: entorno, flujo vehicular y fuentes fijas de las páginas
+      de cada estación, y coordenadas del archivo estaciones-ambientales.csv de BA Data.
     config:
       column_types:
-        inicio_operacion: integer
         latitud: double
         longitud: double
     columns:
@@ -94,13 +89,7 @@ seeds:
     config:
       column_types:
         fecha: date
-        tipo: varchar
         nombre: varchar
     columns:
       - name: fecha
         data_tests: [unique, not_null]
-      - name: tipo
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ["inamovible", "trasladable", "puente"]

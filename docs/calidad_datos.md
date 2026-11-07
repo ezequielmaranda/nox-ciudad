@@ -39,7 +39,7 @@ Bronze (`dbt/models/bronze/calidad_aire.sql`) carga el CSV tal cual, todo como t
 | Formato ancho | Una columna por estación × contaminante | `UNPIVOT` (SQL estándar) a una fila por fecha × hora × estación × contaminante, con `INCLUDE NULLS` para no perder las celdas vacías (el test `silver_conserva_celdas_del_crudo` verifica filas del CSV × 9) |
 | Fecha en formato SAS | `12FEB2011:00:00:00` | `strptime(fecha, '%d%b%Y:%H:%M:%S')` → `DATE` |
 | Sin dato | `s/d`, `S/d` o celda vacía (11,9% de los valores del período) | `estado_valor = 'sin_dato'`, valor nulo |
-| Bajo el límite de detección | `<0.05`, `< 0.05` (solo en el CO de 2010 a 2017; ninguno en el período) | `estado_valor = 'bajo_limite_deteccion'`, valor **imputado = límite / 2**, `es_imputado = true`. Descartarlos sesgaría los promedios hacia arriba |
+| Bajo el límite de detección | `<0.05`, `< 0.05` (solo en el CO de 2010 a 2017; ninguno en el período) | `estado_valor = 'bajo_limite_deteccion'`, valor **imputado = límite / 2** (la marca queda en `estado_valor`). Descartarlos sesgaría los promedios hacia arriba |
 | Texto en una celda numérica | `#REF!` (error de fórmula de la planilla de origen, 17 y 18/05/2024 en todas las columnas), `x/d` (tipeo de `s/d`, NO2 de La Boca el 01/12/2025) | `estado_valor = 'invalido'`, valor nulo |
 | Categorías en el nombre de la columna | `NO2_LA_BOCA` | Se separan en `id_contaminante = 'no2'` e `id_estacion = 'la_boca'` (snake_case sin tildes); etiquetas legibles en las dimensiones |
 | Variables redundantes | La unidad depende del contaminante; el promedio móvil de 24 h de la hora 24 repite información de las horas anteriores | La unidad pasa a `dim_contaminante`. De cada promedio móvil se usa solo el valor que cierra el bloque (sección 2.4) |
@@ -166,8 +166,8 @@ Dos usos en el TP:
    fuente ya publica promedios móviles: cuántas horas tuvo cada promedio lo resolvió la APrA y el TP no lo puede
    verificar (limitación declarada).
 2. **Para los indicadores anuales**, el 75% al estilo EPA (con días en lugar de horas). Es más laxo que la UE (90%)
-   y, solo, no mira cómo se reparten los datos en el año. Por eso se informa además el **criterio trimestral de la
-   EPA** (`cumple_criterio_trimestral`: todos los trimestres con ≥ 75% de días) como **advertencia**, sin excluir.
+   y, solo, no mira cómo se reparten los datos en el año: eso se ve en el heatmap de completitud (figura 01) y en
+   la verificación de sensibilidad de la sección 3.4.
 
 ### 3.3 Rachas y huecos
 
@@ -180,7 +180,8 @@ de la exportación (sección 2.4); cortar la racha en cada uno la subestimaría.
 
 ### 3.4 Sensibilidad: ¿cambian las conclusiones con un criterio más estricto?
 
-Validez del promedio anual de NO2 según cada criterio:
+Verificación hecha una vez, al elegir el criterio (el modelo aplica solo el 75% anual). Validez del promedio anual
+de NO2 según cada criterio:
 
 | Estación | Período | Completitud | 75% anual (el usado) | 75% en cada trimestre (EPA) | 90% anual (UE) |
 |---|---|---|---|---|---|
@@ -252,5 +253,5 @@ El factor sale del peso molecular (`data/reference/contaminantes.csv`) y del vol
 
 | Dónde | Qué | Cantidad |
 |---|---|---|
-| Tests de dbt (`dbt build`): **los datos** | Claves únicas (también en silver horario: sin duplicados por fecha + hora), no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, silver conserva todas las celdas del crudo, el NO2 diario sale de 18 horas o más, el promedio diario coincide con las horas de la fact horaria, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 88 tests + 4 seeds; 1 aviso esperado (`silver_valores_descartados`: describe los 239 valores descartados del período) |
+| Tests de dbt (`dbt build`): **los datos** | Claves únicas (también en silver horario: sin duplicados por fecha + hora), no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, silver conserva todas las celdas del crudo, el NO2 diario sale de 18 horas o más, el promedio diario coincide con las horas de la fact horaria, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 87 tests + 4 seeds; 1 aviso esperado (`silver_valores_descartados`: describe los 239 valores descartados del período) |
 | `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que las consultas de `sql/99` corran en una conexión de solo lectura y que el extractor reconozca el formato del CSV y detecte un cambio de formato | 4 tests |

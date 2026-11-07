@@ -1,4 +1,4 @@
-/// Qué pasó con cada valor horario del período de estudio, por contaminante: válido, válido imputado o el motivo por el que se descartó, con en cuántos días y entre qué fechas aparece.
+/// Qué pasó con cada valor horario del período de estudio, por contaminante: válido o el motivo por el que se descartó, con en cuántos días y entre qué fechas aparece.
 table calidad_resumen
 	lineageTag: 6c67153c-0133-56d4-9444-0f11486a52a3
 
@@ -12,7 +12,7 @@ table calidad_resumen
 
 		annotation SummarizationSetBy = User
 
-	/// valido, valido_imputado o el motivo por el que se descartó.
+	/// valido o el motivo por el que se descartó (silver.medicion_horaria.motivo_invalido).
 	column categoria
 		dataType: string
 		lineageTag: 1e2f23a2-6ad7-5fcf-b2fb-e27e4a370bb1

@@ -176,7 +176,8 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── extract.py                 descarga: BA Data → data/raw/calidad-aire.csv
 │   ├── etl.py                     orquesta extract → dbt build → export → consultas → diccionario
 │   ├── diccionario.py             genera docs/diccionario_datos.md
-│   └── generar_pbip.py            genera el proyecto de Power BI (dashboard/)
+│   ├── generar_pbip.py            genera el proyecto de Power BI (dashboard/)
+│   └── recursos/                  temas de Power BI que usa generar_pbip.py (colores del TP y tema base)
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
 ├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
@@ -208,7 +209,7 @@ Están en `data/reference/`. No las descarga el ETL: se armaron una vez y se ver
 | Archivo | Origen | Cómo se obtuvo | Qué hay que aclarar |
 |---|---|---|---|
 | `oms_2021.csv` | OMS, *WHO global air quality guidelines* (2021), Tabla 0.1 del resumen ejecutivo | Transcripción manual de la tabla | Solo NO₂, PM10 y CO: los que mide la red de la APrA y tienen guía |
-| `estaciones.csv` | Páginas de cada estación en el sitio de la APrA ([Centenario](https://buenosaires.gob.ar/calidad-del-aire/estacion-parque-centenario), [Córdoba](https://buenosaires.gob.ar/calidad-del-aire/estacion-cordoba), [La Boca](https://buenosaires.gob.ar/calidad-del-aire/estacion-la-boca)) | Carga manual de dirección, entorno, flujo vehicular y fuentes fijas; inicio de operación y coordenadas, del archivo `estaciones-ambientales.csv` del dataset de BA Data | `descripcion` es redacción del equipo y suma contexto que no está en esas páginas (por ejemplo, Dock Sud) |
+| `estaciones.csv` | Páginas de cada estación en el sitio de la APrA ([Centenario](https://buenosaires.gob.ar/calidad-del-aire/estacion-parque-centenario), [Córdoba](https://buenosaires.gob.ar/calidad-del-aire/estacion-cordoba), [La Boca](https://buenosaires.gob.ar/calidad-del-aire/estacion-la-boca)) | Carga manual de entorno, flujo vehicular y fuentes fijas; coordenadas, del archivo `estaciones-ambientales.csv` del dataset de BA Data | `descripcion` es redacción del equipo y suma contexto que no está en esas páginas (por ejemplo, Dock Sud) |
 | `feriados.csv` | API pública [ArgentinaDatos](https://api.argentinadatos.com/v1/feriados/2024) (`/v1/feriados/<año>`) | Descarga de 2024, 2025 y 2026: 59 feriados | Feriados nacionales con puentes; no incluye días no laborables optativos como el Jueves Santo |
 | `contaminantes.csv` | Pesos moleculares de la química; tipo de promedio de cada contaminante (horario, móvil de 8 h o de 24 h), del `contaminantes.csv` de BA Data; el resto, criterio del equipo | Armado a mano | Los máximos plausibles son decisiones nuestras; su uso está en [`docs/calidad_datos.md`](docs/calidad_datos.md) |
 
@@ -237,7 +238,7 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 | **EDA en dos pasos:** perfil automático con **Sweetviz** y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Sweetviz da un barrido rápido de tipos, nulos, distribuciones y asociaciones, pero no conoce la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
 | **Partir de los datos horarios de BA Data** y no de los informes mensuales en PDF | Es lo más crudo que publica la APrA: los PDF son agregados diarios de esos mismos datos (se verificó que coinciden en el 94% al 98% de los días). Con las horas, el promedio diario lo arma el TP (regla de 18 de 24 horas), se pueden aplicar controles hora por hora y ver el perfil horario. Y simplifica: no hace falta extraer tablas de PDF. Aparecen igual los problemas reales: formato ancho, fecha en formato SAS, `s/d`, `#REF!`, horas inválidas, huecos de exportación |
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
-| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 88 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
+| **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 87 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
 | **Arquitectura medallón:** bronze → silver → gold, 11 tablas en 3 schemas | Cada capa responde una pregunta: qué llegó (bronze, sin tocar), qué es válido (silver, limpio y en formato largo) y qué se analiza (gold, lo único que se exporta). Si un número sorprende, se puede seguir hacia atrás capa por capa hasta el texto original del CSV |
 | **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
 | **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, que las consultas de `sql/99` corran sin modificar la base y la verificación de formato del extractor |

@@ -31,16 +31,6 @@ table guia_oms
 
 		annotation SummarizationSetBy = User
 
-	/// Etiqueta legible del nivel.
-	column nivel_etiqueta
-		dataType: string
-		lineageTag: d57a5469-3aec-5f26-bfe3-8c6b68a1e9d5
-		summarizeBy: none
-		sourceColumn: nivel_etiqueta
-		sortByColumn: orden_exigencia
-
-		annotation SummarizationSetBy = User
-
 	/// 1 = guía (más exigente) … 5 = IT1 (menos exigente). Para ordenar.
 	column orden_exigencia
 		dataType: int64
@@ -76,7 +66,7 @@ table guia_oms
 				    Origen = Csv.Document(File.Contents(RutaDatos & "guia_oms.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
 				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
-				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"promedio", type text}, {"nivel", type text}, {"nivel_etiqueta", type text}, {"orden_exigencia", Int64.Type}, {"umbral", type number}, {"unidad", type text}}, "en-US")
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"promedio", type text}, {"nivel", type text}, {"orden_exigencia", Int64.Type}, {"umbral", type number}, {"unidad", type text}}, "en-US")
 				in
 				    Tipos
 

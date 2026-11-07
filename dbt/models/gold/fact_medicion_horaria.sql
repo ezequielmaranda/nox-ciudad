@@ -18,11 +18,8 @@ select
     h.id_estacion,
     h.id_contaminante,
     h.es_valido,
-    h.motivo_invalido,
-    case when h.es_valido then h.valor end                         as valor,
-    c.unidad_medicion                                               as unidad,
-    case when h.es_valido then round(h.valor * c.factor_masa, 3) end as valor_masa,
-    c.unidad_masa
+    case when h.es_valido then h.valor end                           as valor,
+    case when h.es_valido then round(h.valor * c.factor_masa, 3) end as valor_masa
 from {{ ref('medicion_horaria') }} as h
 join {{ ref('dim_contaminante') }} as c using (id_contaminante)
 where h.id_contaminante = 'no2'

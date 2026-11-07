@@ -209,8 +209,7 @@ SELECT
     round(100 * a.pct_cumple_guia_24h, 1)         AS pct_cumple_guia_25,
     round(100 * a.pct_cumple_it2_24h, 1)          AS pct_cumple_it2_50,
     round(100 * a.pct_cumple_it1_24h, 1)          AS pct_cumple_it1_120,
-    a.nivel_oms                                   AS escalon_promedio_anual,
-    a.cumple_criterio_trimestral                  AS todos_los_trimestres_75
+    a.nivel_oms                                   AS escalon_promedio_anual
 FROM gold.agg_anual a
 JOIN gold.dim_estacion e ON e.id_estacion = a.id_estacion
 WHERE a.id_contaminante = 'no2'
@@ -283,55 +282,41 @@ ORDER BY veces_la_guia DESC;
 -- POR QUÉ   La OMS define la guía de 24 h como el percentil 99 de los valores diarios del año
 --           (se toleran 3 o 4 días por año por encima). El "% de días" es una simplificación.
 -- TÉCNICA   Agregado de percentil: percentile_cont(p) WITHIN GROUP (ORDER BY x), SQL estándar
---           (DuckDB lo acepta y también tiene el atajo quantile_cont(x, p)).
+--           (DuckDB lo acepta y también tiene el atajo quantile_cont(x, p)) + JOIN con las guías.
 SELECT
     d.id_estacion,
     d.id_contaminante,
-    year(d.fecha)                                                     AS anio,
-    count(*)                                                          AS dias_con_dato,
-    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor_masa), 1)   AS p99,
-    max(d.guia_24h)                                                        AS guia_24h,
-    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor_masa) / max(d.guia_24h), 2) AS p99_veces_guia
+    year(d.fecha)                                                        AS anio,
+    count(*)                                                             AS dias_con_dato,
+    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor_masa), 1) AS p99,
+    r.umbral                                                             AS guia_24h,
+    round(percentile_cont(0.99) WITHIN GROUP (ORDER BY d.valor_masa) / r.umbral, 2) AS p99_veces_guia
 FROM gold.fact_medicion_diaria d
+JOIN gold.guia_oms r ON r.id_contaminante = d.id_contaminante AND r.promedio = '24h' AND r.nivel = 'AQG'
 WHERE d.tiene_dato
   AND d.id_contaminante IN ('no2', 'pm10')
-GROUP BY d.id_estacion, d.id_contaminante, year(d.fecha)
+GROUP BY d.id_estacion, d.id_contaminante, year(d.fecha), r.umbral
 ORDER BY d.id_contaminante, d.id_estacion, anio;
 
 
--- B4 · ¿En qué escalón de la OMS está cada estación? (últimos 12 meses)
--- PREGUNTA  Subpregunta 2: más allá de "cumple / no cumple", ¿qué objetivo intermedio se alcanza y
---           cuánto falta para el siguiente?
+-- B4 · Escalón y ranking de las estaciones (últimos 12 meses)
+-- PREGUNTA  Subpreguntas 2 y 3, H2: ¿qué objetivo intermedio alcanza cada estación, cuánto le falta
+--           para el siguiente y cuál está peor? (H2 espera que sea Córdoba, la de tránsito intenso).
 -- POR QUÉ   Para un tomador de decisión es más útil "bajar 6 µg/m³ para llegar al IT1" que "no cumple".
---           Se usan los últimos 12 meses (oct-2025 a sep-2026): un año completo y el más reciente.
--- TÉCNICA   Lectura de una tabla agregada (gold.agg_anual) + JOIN con dimensiones + ORDER BY.
+--           El ranking usa dos criterios (veces la guía anual y % de días sobre la guía diaria) para
+--           ver si coinciden. Se usan los últimos 12 meses (oct-2025 a sep-2026): un año completo y
+--           el más reciente.
+-- TÉCNICA   Lectura de una tabla agregada (gold.agg_anual) + JOIN con dimensiones + funciones de
+--           ventana RANK() OVER (PARTITION BY ... ORDER BY ...).
 SELECT
-    e.nombre               AS estacion,
     a.id_contaminante,
-    a.periodo,
+    e.nombre                                                                          AS estacion,
     a.promedio_anual,
     a.guia_anual,
     a.veces_guia_anual,
     a.nivel_oms,
     a.proximo_nivel,
-    a.ug_para_proximo_nivel
-FROM gold.agg_anual a
-JOIN gold.dim_estacion e ON e.id_estacion = a.id_estacion
-WHERE a.id_periodo = 'movil_12m'
-  AND a.guia_anual IS NOT NULL
-ORDER BY a.id_contaminante, a.veces_guia_anual DESC;
-
-
--- B5 · Ranking de estaciones
--- PREGUNTA  Subpregunta 3 y H2: ¿qué estación tiene la peor situación? (H2 espera que sea Córdoba, la de
---           tránsito intenso; el ranking muestra que es La Boca).
--- POR QUÉ   Ordenar las estaciones con dos criterios (veces la guía anual y % de días sobre la guía
---           diaria) y ver si coinciden.
--- TÉCNICA   Funciones de ventana RANK() OVER (PARTITION BY ... ORDER BY ...).
-SELECT
-    a.id_contaminante,
-    e.nombre                                                                          AS estacion,
-    a.veces_guia_anual,
+    a.ug_para_proximo_nivel,
     round(100 * a.pct_dias_supera_24h, 1)                                             AS pct_dias_sobre_guia_24h,
     RANK() OVER (PARTITION BY a.id_contaminante ORDER BY a.veces_guia_anual DESC)     AS ranking_anual,
     RANK() OVER (PARTITION BY a.id_contaminante ORDER BY a.pct_dias_supera_24h DESC)  AS ranking_diario
@@ -342,7 +327,7 @@ WHERE a.id_periodo = 'movil_12m'
 ORDER BY a.id_contaminante, ranking_anual;
 
 
--- B6 · Racha más larga de días seguidos por encima de la guía de NO2
+-- B5 · Racha más larga de días seguidos por encima de la guía de NO2
 -- PREGUNTA  Subpregunta 3: ¿cuánto tiempo seguido se respira aire por encima de la guía?
 -- POR QUÉ   "254 días con dato seguidos sobre la guía" comunica la persistencia del problema mejor que
 --           un promedio. Solo un día con dato que cumple la guía corta la racha; un hueco de más de 7
@@ -521,19 +506,19 @@ ORDER BY criterio, anio;
 -- PREGUNTA  ¿Los valores atípicos son errores o episodios reales?
 -- POR QUÉ   Si el mismo día aparece alto en las tres estaciones, es un episodio atmosférico
 --           (p. ej. una inversión térmica), no un error de un equipo: por eso no se borran.
--- TÉCNICA   Filtro por la marca es_outlier de la fact + GROUP BY + HAVING + STRING_AGG para listar
---           estaciones. umbral_outlier = Q3 + 3·IQR de cada estación × contaminante.
+-- TÉCNICA   Filtro por la marca es_outlier de la fact (valor > Q3 + 3·IQR de su estación ×
+--           contaminante) + GROUP BY + HAVING + STRING_AGG para listar estaciones.
 SELECT
     fecha,
     id_contaminante,
     count(DISTINCT id_estacion)                                  AS estaciones_con_outlier,
     string_agg(DISTINCT id_estacion, ', ' ORDER BY id_estacion)  AS estaciones,
-    max(round(valor / umbral_outlier, 2))                        AS max_veces_umbral
+    max(valor_masa)                                              AS valor_maximo
 FROM gold.fact_medicion_diaria
 WHERE es_outlier
 GROUP BY fecha, id_contaminante
 HAVING count(DISTINCT id_estacion) >= 2
-ORDER BY estaciones_con_outlier DESC, max_veces_umbral DESC;
+ORDER BY estaciones_con_outlier DESC, valor_maximo DESC;
 
 
 -- =====================================================================================================
@@ -578,15 +563,3 @@ LEFT JOIN gold.agg_anual a
 LEFT JOIN racha r ON r.id_estacion = d.id_estacion AND r.id_contaminante = d.id_contaminante
 ORDER BY d.id_contaminante, pct_dias_sobre_guia_24h DESC;
 
-
--- D2 · Qué quedó afuera y por qué (página "Calidad de datos")
-SELECT
-    id_estacion,
-    id_contaminante,
-    periodo,
-    round(100 * completitud, 1) AS completitud_pct,
-    'Menos de 75% de días con dato: el promedio anual y el P99 no se calculan' AS motivo
-FROM gold.agg_anual
-WHERE es_periodo_estudio
-  AND NOT es_valido
-ORDER BY id_contaminante, id_estacion, orden_periodo;
