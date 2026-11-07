@@ -70,6 +70,10 @@ Pearson casi igual). `leer()` del notebook pasa a booleana `supera_guia` si pand
   abrió en Power BI Desktop. Lee los CSV con `Csv.Document` + tipos en-US. El tema base
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT); el tema propio está en
   `src/recursos/powerbi_tema.json`. No regenera si ya hay gráficos.
+- `presentacion/presentacion_tp_aire_oms.pptx` (21 slides, guion en las notas): generada con pptxgenjs desde un script
+  que no está en el repo (scratchpad de Claude). Tema propio con Calibri, NO₂ con el carácter ₂ (no con subíndice:
+  desparejaba el interlineado), motivo de escalones OMS (IT1 → guía) en portada y cierre, figuras de `reports/figures`.
+  Revisada contra los datos en noviembre 2026. Si el equipo la edita en PowerPoint, no regenerarla.
 - `python -m src.extract`: baja `calidad-aire.csv` de la CDN de BA Data
   (`cdn.buenosaires.gob.ar/datosabiertos/datasets/agencia-de-proteccion-ambiental/calidad-aire/`), con reintentos, y
   verifica el encabezado. Desde la nube de Claude funciona con `cdn.buenosaires.gob.ar` en los hosts permitidos del
