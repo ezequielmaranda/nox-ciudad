@@ -115,7 +115,7 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 | 4. Consultas SQL | [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (cada consulta dice qué responde, por qué y qué técnica usa) y los modelos de `dbt/models/` |
 | 5. Limpieza, calidad y normalización | [`docs/calidad_datos.md`](docs/calidad_datos.md) (nulos, duplicados, tipos, fechas, categorías, atípicos, redundancias, formato, unidades) y `dbt/models/silver/` |
 | 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
-| 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz e ydata-profiling + pandas, matplotlib y seaborn) |
+| 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
 | 8. Visualizaciones e indicadores | `reports/figures/`, `gold.fact_medicion_diaria` (cumplimiento diario) y `gold.agg_anual` (anual, escalones, rachas, contexto) |
 | 9. Dashboard en Power BI | [`dashboard/AireOMS.pbip`](dashboard/) (modelo, relaciones y medidas DAX listos) + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (qué gráficos van en cada página) |
 | 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §12 y presentación |
@@ -185,8 +185,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 ├── presentacion/                 presentación (.pptx, 21 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)
-    ├── sweetviz_*.html            perfil automático del EDA (Sweetviz: perfil y hábil contra no hábil)
-    └── ydata_perfil.html          perfil automático del EDA (ydata-profiling: alertas, faltantes, correlaciones)
+    └── sweetviz_*.html            perfil automático del EDA (Sweetviz)
 ```
 
 ## Datos
@@ -236,8 +235,8 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 
 | Decisión | Por qué |
 |---|---|
-| **EDA en dos pasos:** perfil automático con **Sweetviz** y **ydata-profiling**, y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Los perfiles automáticos dan un barrido rápido de tipos, nulos, distribuciones y asociaciones (Sweetviz compara días hábiles con no hábiles; ydata-profiling suma alertas, la matriz de faltantes y correlaciones de Spearman), pero no conocen la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
-| **Correlación de Spearman** y no Pearson; mediana y percentiles para describir | Las concentraciones tienen asimetría positiva (NO₂ moderada: 0,45 a 1,08 por estación; PM10 y CO, 0,8 a 1,9) y días extremos. Spearman usa rangos y no la arrastran los picos; igual, con Pearson las conclusiones no cambian. Los indicadores OMS siguen siendo el promedio y el P99, porque así están definidas las guías |
+| **EDA en dos pasos:** perfil automático con **Sweetviz** y después EDA guiado por las subpreguntas (**pandas**, **matplotlib**, **seaborn**) | Sweetviz da un barrido rápido de tipos, nulos, distribuciones y asociaciones, pero no conoce la guía OMS ni la regla del 75%: el análisis de fondo se hace a mano |
+| **Correlación de Spearman** y no Pearson; mediana y percentiles para describir | Las concentraciones tienen asimetría positiva (NO₂ moderada: 0,45 a 1,08 por estación; PM10 y CO, 0,8 a 1,9) y días extremos. Spearman usa rangos y no la arrastran los picos (Sweetviz muestra Pearson); igual, con Pearson las conclusiones no cambian. Los indicadores OMS siguen siendo el promedio y el P99, porque así están definidas las guías |
 | **Partir de los datos horarios de BA Data** y no de los informes mensuales en PDF | Es lo más crudo que publica la APrA: los PDF son agregados diarios de esos mismos datos (se verificó que coinciden en el 94% al 98% de los días). Con las horas, el promedio diario lo arma el TP (regla de 18 de 24 horas), se pueden aplicar controles hora por hora y ver el perfil horario. Y simplifica: no hace falta extraer tablas de PDF. Aparecen igual los problemas reales: formato ancho, fecha en formato SAS, `s/d`, `#REF!`, horas inválidas, huecos de exportación |
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
 | **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 87 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |

@@ -44,19 +44,17 @@ Data**: más crudo, sin extracción de PDF. El usuario trabaja en la agencia que
 
 Todo el equipo usa Windows: no hay Makefile, los comandos van con `.venv\Scripts\python`.
 Python 3.11+ con `requirements.txt`. DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
-las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, ydata-profiling, pytest. Sin pdfminer, requests
+las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest. Sin pdfminer, requests
 ni pyarrow (la descarga usa urllib; `data/final` es solo CSV).
 El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`, layout vertical, sin logo, columnas en
 castellano con unidad) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%, heatmap) y matplotlib.
 Sweetviz se corre dentro de `plt.style.context("default")`: con el estilo del notebook (200 dpi, bbox tight) sus
 imágenes salen más grandes de lo que espera su HTML y se pisan con el texto; el bloque además deshace el cambio de
 fuentes que hace Sweetviz. Se revisaron con capturas de Chromium/Playwright.
-ydata-profiling 4.18 (`reports/ydata_perfil.html`, sección 1.2 del notebook): pide pandas < 3 (por eso el entorno quedó
-en pandas 2.3, numpy 2.3, matplotlib 3.10) y `setuptools<82` (usa `pkg_resources`). Manda estadísticas de uso a
-packages.ydata.ai: se desactiva con `YDATA_PROFILING_NO_ANALYTICS=True` antes de importarlo. Al importarse avisa que
-sigue como `fg-data-profiling`; no se instaló (sin verificar). Correlaciones: Spearman (las distribuciones tienen
-asimetría positiva; NO₂ moderada, 0,45-1,08 por estación), Pearson para comparar, V de Cramér; alerta de asimetría
-desde 1. Con pandas 2, `leer()` del notebook pasa a booleana `supera_guia` (viene vacía en los días sin dato).
+ydata-profiling se probó y se descartó (noviembre 2026): aporta poco sobre Sweetviz + el EDA a mano (alertas y
+dispersión; faltantes y Spearman ya están mejor en las figuras 01 y 12) y obliga pandas < 3, `setuptools<82`, trae
+telemetría y está deprecado. Correlaciones con Spearman (asimetría positiva; NO₂ moderada, 0,45-1,08 por estación;
+Pearson casi igual). `leer()` del notebook pasa a booleana `supera_guia` si pandas 2 la lee como texto.
 
 - `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export de gold a `data/final/`
   (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` (solo lectura) → genera
