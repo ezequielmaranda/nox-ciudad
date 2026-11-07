@@ -45,9 +45,12 @@ table calidad_resumen
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "calidad_resumen.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "calidad_resumen.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"categoria", type text}, {"n_valores", Int64.Type}, {"proporcion", type number}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

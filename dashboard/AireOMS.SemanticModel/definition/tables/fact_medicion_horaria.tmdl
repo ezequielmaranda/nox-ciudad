@@ -102,9 +102,12 @@ table fact_medicion_horaria
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "fact_medicion_horaria.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_horaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"hora", Int64.Type}, {"id_estacion", type text}, {"id_contaminante", type text}, {"es_valido", type logical}, {"motivo_invalido", type text}, {"valor", type number}, {"unidad", type text}, {"valor_masa", type number}, {"unidad_masa", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

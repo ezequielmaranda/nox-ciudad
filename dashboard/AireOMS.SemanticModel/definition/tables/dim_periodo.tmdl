@@ -89,9 +89,12 @@ table dim_periodo
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_periodo.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_periodo.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_periodo", type text}, {"etiqueta", type text}, {"tipo_periodo", type text}, {"anio", Int64.Type}, {"fecha_desde", type date}, {"fecha_hasta", type date}, {"n_dias", Int64.Type}, {"orden", Int64.Type}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

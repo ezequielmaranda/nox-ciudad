@@ -1,6 +1,6 @@
 # Proyecto dbt del TP: transforma el CSV horario de calidad del aire (BA Data) en un modelo estrella
-# y en los indicadores contra las guías de la OMS (2021). Se corre con `make etl`
-# (o, a mano, desde esta carpeta: dbt build --profiles-dir .).
+# y en los indicadores contra las guías de la OMS (2021). Se corre con `python -m src.etl`
+# (o, a mano, desde esta carpeta: dbt build).
 name: aire_oms
 version: "1.0.0"
 profile: aire_oms

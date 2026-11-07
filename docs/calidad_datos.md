@@ -15,9 +15,10 @@ Todo está en SQL (`dbt/models/`) y se prueba en cada corrida (tests de dbt y de
 | **Período del estudio** | 2024-01-01 a 2026-09-30 (1.004 días; 2026 parcial). La serie 2010-2025 se usa solo como contexto (`agg_contexto_anual`) |
 | **Fuera del alcance** | Palermo: la estación está desactivada desde el 30/06/2010 (`estaciones-ambientales.csv` de BA Data) y sus columnas vienen vacías. NO y NOx: la fuente horaria no los publica |
 
-Perfil del crudo (lo registra `python -m src.etl` en cada corrida): 0 duplicados por fecha + hora, 284 filas con
-hora fuera de 1-24; en las 12 columnas de mediciones, 1.010.455 números, 469.968 celdas vacías (casi todas de
-Palermo), 278.459 `s/d`, 10.459 `<límite de detección`, 288 `#REF!` y 11 `x/d`.
+Perfil del crudo (sobre el CSV completo; en el TP lo cubren las consultas A1 a A4 de `sql/99` y los tests de dbt sobre
+el staging): 0 duplicados por fecha + hora, 284 filas con hora fuera de 1-24; en las 12 columnas de mediciones,
+1.010.455 números, 469.968 celdas vacías (casi todas de Palermo), 278.459 `s/d`, 10.459 `<límite de detección`,
+288 `#REF!` y 11 `x/d`.
 
 ## 2. Problemas encontrados y cómo se resolvieron
 
@@ -41,7 +42,7 @@ Palermo), 278.459 `s/d`, 10.459 `<límite de detección`, 288 `#REF!` y 11 `x/d`
 | Texto en una celda numérica | `#REF!` (error de fórmula de la planilla de origen, 17 y 18/05/2024 en todas las columnas), `x/d` (tipeo de `s/d`, NO2 de La Boca el 01/12/2025) | `estado_valor = 'invalido'`, valor nulo |
 | Categorías en el nombre de la columna | `NO2_LA_BOCA` | Se separan en `id_contaminante = 'no2'` e `id_estacion = 'la_boca'` (snake_case sin tildes); etiquetas legibles en las dimensiones |
 | Variables redundantes | La unidad depende del contaminante; el promedio móvil de 24 h de la hora 24 repite información de las horas anteriores | La unidad pasa a `dim_contaminante`. De cada promedio móvil se usa solo el valor que cierra el bloque (sección 2.4) |
-| Codificación y formato | BOM de UTF-8 al inicio del archivo; tildes y símbolos (`µg/m³`, `Córdoba`) | DuckDB lee UTF-8 con BOM; identificadores sin tildes ni espacios y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (en Power BI, importar con configuración regional inglés o usar Parquet) |
+| Codificación y formato | BOM de UTF-8 al inicio del archivo; tildes y símbolos (`µg/m³`, `Córdoba`) | DuckDB lee UTF-8 con BOM; identificadores sin tildes ni espacios y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (el modelo de Power BI los importa con configuración regional inglés) |
 
 ### 2.3 Reglas de validación sobre cada valor horario
 
@@ -197,7 +198,7 @@ períodos que pasan (Parque Centenario siempre; Córdoba 2024, 2026 y últimos 1
 IT3 anual y guía diaria cumplida el 95% a 99% de los días.
 
 Cambiar el umbral es una línea: `umbral_completitud` en `dbt/dbt_project.yml` (por ejemplo, 0.90 para el criterio
-de la UE) y volver a correr `make etl`.
+de la UE) y volver a correr `python -m src.etl`.
 
 **Qué queda afuera con el 75% anual:**
 
@@ -246,6 +247,5 @@ El factor sale del peso molecular (`data/reference/contaminantes.csv`) y del vol
 
 | Dónde | Qué | Cantidad |
 |---|---|---|
-| Tests de dbt (`dbt build`): **los datos** | Claves únicas (también en el staging horario: sin duplicados por fecha + hora), no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, el staging conserva todas las celdas del crudo, el NO2 diario sale de 18 horas o más, el promedio diario coincide con las horas de la fact horaria, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 92 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 239 violaciones del período) |
-| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que todas las consultas de `sql/99` corran y que el extractor reconozca el formato del CSV y detecte un cambio de formato | 4 tests |
-| `src/calidad.py` | Perfil del crudo antes de transformar y resumen de calidad al final de cada corrida | — |
+| Tests de dbt (`dbt build`): **los datos** | Claves únicas (también en el staging horario: sin duplicados por fecha + hora), no nulos, valores aceptados, relaciones entre tablas (claves foráneas), rangos, grilla completa, el staging conserva todas las celdas del crudo, el NO2 diario sale de 18 horas o más, el promedio diario coincide con las horas de la fact horaria, factor NO2, outliers marcados y no borrados, cobertura de la tabla OMS, regla del 75%, casos conocidos y cumplimiento acumulativo por escalón | 89 tests + 5 seeds; 1 aviso esperado (`stg_reglas_de_calidad`: describe las 239 violaciones del período) |
+| `tests/test_etl.py` (pytest): **el código y el pipeline** | Lo que dbt no puede probar: idempotencia (dos corridas dan archivos idénticos), que las vistas de `sql/99` existan y que el extractor reconozca el formato del CSV y detecte un cambio de formato | 4 tests |

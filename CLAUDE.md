@@ -37,29 +37,31 @@ Data**: más crudo, sin extracción de PDF. El usuario trabaja en la agencia que
 - **No se borran filas:** se marcan (flags, `motivo_sin_dato`, `es_outlier`). La limpieza vive en SQL (dbt).
 - **Umbrales en tablas** (`data/reference/`, variables de `dbt_project.yml`), nunca escritos en el SQL.
 - Código, comentarios y documentación en español; identificadores en snake_case sin tildes.
-- Rutas relativas a la raíz (`src/config.py`; dbt usa la variable de entorno `AIRE_RAIZ`).
+- Rutas relativas a la raíz (`src/config.py`); dbt se corre siempre desde `dbt/` y llega a los archivos con `../`.
 - Lenguaje de resultados: "es consistente con", "estimamos"; sin meteorología no se atribuyen causas.
 
 ## Stack y comandos
 
-Python 3.11+ con `requirements.txt` (`make install`). DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
-las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest. Sin pdfminer ni
-requests (la descarga usa urllib).
+Todo el equipo usa Windows: no hay Makefile, los comandos van con `.venv\Scripts\python`.
+Python 3.11+ con `requirements.txt`. DuckDB **fijado <2** (DuckDB 2 cambió el formato de archivo y
+las herramientas 1.x no lo abren). dbt-duckdb. pandas, matplotlib, seaborn, sweetviz, pytest. Sin pdfminer, requests
+ni pyarrow (la descarga usa urllib; `data/final` es solo CSV).
 El EDA tiene un perfil automático con Sweetviz (`reports/sweetviz_*.html`; correrlo dentro de `plt.rc_context()`
 porque cambia las fuentes de matplotlib) y gráficos con seaborn (boxplot, histograma, barras y líneas con IC 95%,
 heatmap) y matplotlib.
 
-- `make etl` (= `python -m src.etl`): perfil del crudo → `dbt build` (en subproceso) → export a `data/final/`
-  (CSV + Parquet, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
-- `make test`: 4 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
-  (idempotencia, que corra `sql/99`, verificación de formato del extractor). No duplicar tests de datos en pytest. `make eda`: ejecuta `notebooks/eda.ipynb`.
-- `make pbip` (= `python -m src.generar_pbip`): genera `dashboard/AireOMS.pbip` (modelo TMDL con 15 tablas + `_Medidas`,
+- `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export a `data/final/`
+  (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` → genera `docs/diccionario_datos.md`.
+- `python -m pytest -q`: 4 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
+  (idempotencia, vistas de `sql/99`, verificación de formato del extractor). No duplicar tests de datos en pytest. El
+  EDA se ejecuta con `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
+- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con 15 tablas + `_Medidas`,
   24 relaciones, 20 medidas DAX, orden de columnas, lat/long como categoría de mapa, descripciones de dbt, tema;
-  informe PBIR con 3 páginas vacías).
+  informe PBIR con 3 páginas vacías; lee los CSV con configuración regional en-US).
   Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
-  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. El tema base
+  su reserialización) y con los esquemas de microsoft/json-schemas; no se abrió en Power BI Desktop. Después pasó de Parquet a CSV (`Csv.Document` + tipos en-US): ese cambio no se revalidó. El tema base
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT). No regenera si ya hay gráficos.
-- `make extract` (= `python -m src.extract`): baja `calidad-aire.csv` de la CDN de BA Data
+- `python -m src.extract`: baja `calidad-aire.csv` de la CDN de BA Data
   (`cdn.buenosaires.gob.ar/datosabiertos/datasets/agencia-de-proteccion-ambiental/calidad-aire/`), con reintentos, y
   verifica el encabezado. Desde la nube de Claude funciona con `cdn.buenosaires.gob.ar` en los hosts permitidos del
   entorno; `data.buenosaires.gob.ar` (la página del dataset) corta la conexión. El CSV crudo está en git.
@@ -82,8 +84,8 @@ heatmap) y matplotlib.
 
 Schemas: `referencia` (seeds) → `staging` (`stg_aire_horario` UNPIVOT a largo, `stg_aire_horario_validado` reglas
 por hora, `stg_aire_diario` valor diario de toda la serie) → `modelo` (`dim_calendario`, `dim_estacion`,
-`dim_contaminante`, `dim_periodo`, `dim_evento`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria`,
-`fact_medicion_horaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_resumen/violaciones/outliers`) →
+`dim_contaminante`, `dim_periodo`, `ref_oms`, `ref_oms_niveles`, `fact_medicion_diaria`,
+`fact_medicion_horaria`) → `calidad` (`agg_completitud_mensual/anual`, `calidad_resumen/violaciones/outliers`; `agg_completitud_anual` no se exporta) →
 `indicadores` (`agg_cumplimiento_diario`, `agg_anual`, `agg_cumplimiento_niveles`, `agg_rachas`,
 `agg_contexto_anual`). `sql/99` crea vistas en `analisis`.
 
@@ -98,7 +100,7 @@ por hora, `stg_aire_diario` valor diario de toda la serie) → `modelo` (`dim_ca
 - Regla del 75% sobre días por período (`dim_periodo`: 2024, 2025, 2026 parcial, `movil_12m`).
 - Rachas: un día con dato bajo la guía corta; huecos sin dato de hasta 7 días (`dias_hueco_maximo_racha`) no cortan.
 - Contexto 2010-2025 (`agg_contexto_anual`): NO2 y PM10 anual con la misma regla del 75%.
-- Último build: 22 modelos, 92 tests + 5 seeds, PASS 118, WARN 1 (`stg_reglas_de_calidad`, esperado: 239 violaciones).
+- Último build: 21 modelos, 89 tests + 5 seeds, PASS 114, WARN 1 (`stg_reglas_de_calidad`, esperado: 239 violaciones).
 
 ## Resultados verificados
 
@@ -126,6 +128,6 @@ por hora, `stg_aire_diario` valor diario de toda la serie) → `modelo` (`dim_ca
 
 - Abrir `dashboard/AireOMS.pbip` en Power BI Desktop (parámetro `RutaDatos` con la ruta local de `data/final\`,
   Actualizar) y armar los gráficos de las 3 páginas siguiendo `docs/powerbi_spec.md` (lo hace el equipo). Después
-  de armar gráficos, el modelo se toca desde Power BI, no con `make pbip`.
+  de armar gráficos, el modelo se toca desde Power BI, no con `src.generar_pbip`.
 - Preguntar a la APrA por los saltos de la serie larga de La Boca (¿cambios de equipo, calibración o fuentes?).
 - Preparar la presentación (guion en el README).

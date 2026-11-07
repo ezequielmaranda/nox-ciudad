@@ -201,9 +201,12 @@ table dim_calendario
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_calendario.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_calendario.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"nombre_mes", type text}, {"anio_mes", type date}, {"estacion_del_anio", type text}, {"orden_estacion_del_anio", Int64.Type}, {"dia_semana", Int64.Type}, {"nombre_dia", type text}, {"tipo_dia", type text}, {"tipo_dia_etiqueta", type text}, {"orden_tipo_dia", Int64.Type}, {"es_feriado", type logical}, {"nombre_feriado", type text}, {"tipo_feriado", type text}, {"es_fin_de_semana", type logical}, {"es_anio_parcial", type logical}, {"es_dia_evento", type logical}, {"evento", type text}, {"grupo_evento", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

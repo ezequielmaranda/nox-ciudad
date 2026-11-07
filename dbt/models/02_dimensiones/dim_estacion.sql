@@ -1,7 +1,8 @@
 -- =====================================================================================
 -- 02 · DIMENSIÓN ESTACIÓN: una fila por estación de monitoreo de la APrA.
--- Sale de data/reference/estaciones.csv: descripción tomada de las páginas de cada estación y
--- coordenadas del archivo estaciones-ambientales.csv del mismo dataset de BA Data.
+-- Sale de data/reference/estaciones.csv: dirección, entorno, flujo vehicular y fuentes fijas vienen de las
+-- páginas de cada estación en la web de la APrA; inicio de operación y coordenadas, del archivo
+-- estaciones-ambientales.csv del dataset de BA Data; `descripcion` es redacción del equipo.
 -- =====================================================================================
 select
     id_estacion,

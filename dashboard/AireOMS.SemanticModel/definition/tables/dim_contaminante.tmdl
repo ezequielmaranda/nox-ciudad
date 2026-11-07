@@ -137,9 +137,12 @@ table dim_contaminante
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "dim_contaminante.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_contaminante.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"codigo_fuente", type text}, {"nombre", type text}, {"unidad_medicion", type text}, {"unidad_masa", type text}, {"peso_molecular", type number}, {"factor_masa", type number}, {"promedio_fuente", type text}, {"horas_promedio_fuente", Int64.Type}, {"maximo_plausible", type number}, {"tiene_guia_24h", type logical}, {"tiene_guia_anual", type logical}, {"orden", Int64.Type}, {"descripcion", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

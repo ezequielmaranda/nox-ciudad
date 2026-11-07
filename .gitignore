@@ -5,7 +5,7 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# Base DuckDB generada por el ETL: se reconstruye con `make etl`
+# Base DuckDB generada por el ETL: se reconstruye con `python -m src.etl`
 data/warehouse/
 
 # Power BI: caché local y configuración personal del proyecto .pbip

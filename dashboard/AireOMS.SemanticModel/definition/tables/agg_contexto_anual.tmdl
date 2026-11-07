@@ -129,9 +129,12 @@ table agg_contexto_anual
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "agg_contexto_anual.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "agg_contexto_anual.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"anio", Int64.Type}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_dias_anio", Int64.Type}, {"n_dias_con_dato", Int64.Type}, {"completitud", type number}, {"es_valido", type logical}, {"unidad", type text}, {"promedio_anual", type number}, {"promedio_referencial", type number}, {"guia_anual", type number}, {"veces_guia_anual", type number}, {"nivel_oms", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

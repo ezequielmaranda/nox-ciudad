@@ -1,4 +1,4 @@
-"""Tests del pipeline y del código Python (pytest). Se corren con `make test` o `python -m pytest -q`.
+"""Tests del pipeline y del código Python (pytest). Se corren con `python -m pytest -q`.
 
 División del trabajo:
   * dbt prueba los DATOS (claves, nulos, relaciones, reglas físicas, regla del 75%...) en cada
@@ -8,7 +8,6 @@ División del trabajo:
 """
 
 import hashlib
-import shutil
 import subprocess
 import sys
 
@@ -45,16 +44,9 @@ def test_etl_es_idempotente():
     assert primera == segunda
 
 
-def test_consultas_de_analisis_corren(tmp_path):
-    # Se corren sobre una copia de la base, porque el archivo crea vistas
-    copia = tmp_path / "aire.duckdb"
-    shutil.copy(config.BASE_DUCKDB, copia)
-    c = duckdb.connect(copia.as_posix())
-    texto = (config.DIR_SQL / "99_consultas_analisis.sql").read_text(encoding="utf-8")
-    sentencias = duckdb.extract_statements(texto)
-    for s in sentencias:
-        c.execute(s.query)
-    assert len(sentencias) > 20
+def test_vistas_de_analisis_existen():
+    # El ETL corre sql/99 entero (si una consulta falla, se frena): acá se mira que haya creado las vistas
+    c = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)
     assert c.execute("select count(*) from analisis.v_resumen_estacion").fetchone()[0] == 9
     c.close()
 

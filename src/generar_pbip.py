@@ -5,9 +5,9 @@
     dashboard/AireOMS.Report/              informe en PBIR: 3 páginas vacías + tema de colores
 
 El modelo sale de lo que ya existe en el repo, así no se desincroniza:
-  * tablas y tipos: los Parquet de data/final;
+  * tablas y tipos: la base DuckDB que arma el ETL (los datos se cargan de los CSV de data/final);
   * descripciones de tablas y columnas: los .yml de dbt (dbt/target/manifest.json);
-  * relaciones y medidas: las de docs/powerbi_spec.md (definidas abajo).
+  * relaciones y medidas: definidas abajo, en este archivo.
 Los gráficos se arman a mano en Power BI Desktop siguiendo docs/powerbi_spec.md.
 
 Uso (después del ETL):  python -m src.generar_pbip
@@ -21,7 +21,7 @@ import uuid
 
 import duckdb
 
-from src import config
+from src import config, diccionario
 
 NOMBRE = "AireOMS"
 DIR_DASH = config.RAIZ / "dashboard"
@@ -93,7 +93,7 @@ RELACIONES = [
     ("calidad_resumen", "id_contaminante", "dim_contaminante", "id_contaminante"),
 ]
 
-# Medidas DAX (las mismas de docs/powerbi_spec.md): (nombre, formato, descripción, expresión)
+# Medidas DAX: (nombre, formato, descripción, expresión)
 MEDIDAS = [
     ("Días válidos", "#,0",
      "Días con dato válido del promedio de 24 h. Mostrar siempre junto a un porcentaje.",
@@ -176,6 +176,10 @@ RETURN
 
 TIPOS = {"VARCHAR": "string", "BIGINT": "int64", "INTEGER": "int64", "DOUBLE": "double",
          "BOOLEAN": "boolean", "DATE": "dateTime"}
+# Cómo se le dice a Power Query cada tipo del modelo al leer el CSV
+TIPOS_M = {"string": "type text", "int64": "Int64.Type", "double": "type number",
+           "boolean": "type logical", "dateTime": "type date"}
+ESQUEMAS = {t.split(".")[1]: t for t in config.TABLAS_FINALES}  # dim_estacion -> modelo.dim_estacion
 
 
 def guid(*partes) -> str:
@@ -208,7 +212,8 @@ def escribir_json(ruta, datos) -> None:
 
 
 def tabla_tmdl(con, tabla: str, nodo: dict) -> str:
-    columnas = con.execute(f"describe select * from '{(config.DIR_FINAL / (tabla + '.parquet')).as_posix()}'").fetchall()
+    columnas = con.execute(f"describe {ESQUEMAS[tabla]}").fetchall()
+    tipos_m = ", ".join(f'{{"{col}", {TIPOS_M[TIPOS[tipo]]}}}' for col, tipo, *_ in columnas)
     desc_cols = nodo.get("columns", {})
     L = descripcion(nodo.get("description", ""), "")
     L += [f"table {nombre_tmdl(tabla)}", f"\tlineageTag: {guid('tabla', tabla)}", ""]
@@ -241,9 +246,16 @@ def tabla_tmdl(con, tabla: str, nodo: dict) -> str:
         "\t\tmode: import",
         "\t\tsource =",
         "\t\t\t\tlet",
-        f'\t\t\t\t    Origen = Parquet.Document(File.Contents(RutaDatos & "{tabla}.parquet"))',
+        f'\t\t\t\t    Origen = Csv.Document(File.Contents(RutaDatos & "{tabla}.csv"), '
+        '[Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),',
+        "\t\t\t\t    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),",
+        # En el CSV un nulo es una celda vacía: se vuelve a null para que no quede como texto vacío
+        '\t\t\t\t    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, '
+        "Table.ColumnNames(Encabezados)),",
+        # "en-US" porque el CSV usa punto decimal; con la configuración en español, 0.229 se leería como 229
+        f'\t\t\t\t    Tipos = Table.TransformColumnTypes(SinVacios, {{{tipos_m}}}, "en-US")',
         "\t\t\t\tin",
-        "\t\t\t\t    Origen",
+        "\t\t\t\t    Tipos",
         "",
         "\tannotation PBI_ResultType = Table",
         "",
@@ -252,7 +264,7 @@ def tabla_tmdl(con, tabla: str, nodo: dict) -> str:
 
 
 def medidas_tmdl() -> str:
-    L = ["/// Medidas DAX del dashboard (ver docs/powerbi_spec.md).", "table _Medidas",
+    L = ["/// Medidas DAX del dashboard.", "table _Medidas",
          f"\tlineageTag: {guid('tabla', '_Medidas')}", ""]
     for nombre, formato, desc, expr in MEDIDAS:
         L += descripcion(desc, "\t")
@@ -289,8 +301,7 @@ def medidas_tmdl() -> str:
 
 
 def generar_modelo() -> None:
-    manifest = json.loads((config.DIR_DBT / "target" / "manifest.json").read_text(encoding="utf-8"))
-    nodos = {n["name"]: n for n in manifest["nodes"].values() if n["resource_type"] in ("model", "seed")}
+    nodos = diccionario.nodos_dbt()
     d = DIR_MODELO / "definition"
     if d.exists():
         shutil.rmtree(d)
@@ -332,7 +343,7 @@ def generar_modelo() -> None:
                 f"\tfromColumn: {nombre_tmdl(desde)}.{nombre_tmdl(cd)}",
                 f"\ttoColumn: {nombre_tmdl(hacia)}.{nombre_tmdl(ch)}", ""]
     escribir(d / "relationships.tmdl", "\n".join(rel) + "\n")
-    con = duckdb.connect()
+    con = duckdb.connect(config.BASE_DUCKDB.as_posix(), read_only=True)
     escribir(d / "tables" / "_Medidas.tmdl", medidas_tmdl())
     for t in TABLAS:
         escribir(d / "tables" / f"{t}.tmdl", tabla_tmdl(con, t, nodos.get(t, {})))

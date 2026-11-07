@@ -3,7 +3,7 @@
 -- filtro o un JOIN perdiera o duplicara filas, falla.
 with crudo as (
     select count(*) * 9 as filas
-    from read_csv('{{ ruta("data/raw/calidad-aire.csv") }}', header = true, all_varchar = true)
+    from read_csv('../data/raw/calidad-aire.csv', header = true, all_varchar = true)
 ),
 staging as (
     select count(*) as filas from {{ ref('stg_aire_horario_validado') }}

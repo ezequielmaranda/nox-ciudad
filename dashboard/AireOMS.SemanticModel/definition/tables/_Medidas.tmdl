@@ -1,4 +1,4 @@
-/// Medidas DAX del dashboard (ver docs/powerbi_spec.md).
+/// Medidas DAX del dashboard.
 table _Medidas
 	lineageTag: 12f55d6f-c117-5d92-a795-3cf465f803ac
 

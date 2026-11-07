@@ -8,10 +8,9 @@ RAIZ = Path(__file__).resolve().parent.parent
 # Datos
 DIR_RAW = RAIZ / "data" / "raw"                    # crudos (no se modifican a mano)
 RAW_AIRE = DIR_RAW / "calidad-aire.csv"            # CSV horario de BA Data, tal como se publica
-DIR_REFERENCIA = RAIZ / "data" / "reference"       # tablas de referencia (OMS, feriados, etc.)
 DIR_WAREHOUSE = RAIZ / "data" / "warehouse"
 BASE_DUCKDB = DIR_WAREHOUSE / "aire.duckdb"        # base analítica que arma dbt
-DIR_FINAL = RAIZ / "data" / "final"                # CSV y Parquet para Power BI y el EDA
+DIR_FINAL = RAIZ / "data" / "final"                # CSV para Power BI y el EDA
 
 # Fuente: dataset "Calidad del aire" de BA Data (Buenos Aires Data, GCBA), publicado por la APrA.
 # Página: https://data.buenosaires.gob.ar/dataset/calidad-aire
@@ -23,7 +22,6 @@ URL_CALIDAD_AIRE = (
 # Transformaciones y salidas
 DIR_DBT = RAIZ / "dbt"
 DIR_SQL = RAIZ / "sql"
-DIR_FIGURAS = RAIZ / "reports" / "figures"
 DIR_DOCS = RAIZ / "docs"
 
 # Tablas que se exportan a data/final (schema.tabla de la base DuckDB).
@@ -33,7 +31,6 @@ TABLAS_FINALES = [
     "modelo.dim_contaminante",
     "modelo.dim_calendario",
     "modelo.dim_periodo",
-    "modelo.dim_evento",
     "modelo.ref_oms",
     "modelo.ref_oms_niveles",
     "modelo.fact_medicion_diaria",
@@ -44,7 +41,6 @@ TABLAS_FINALES = [
     "indicadores.agg_rachas",
     "indicadores.agg_contexto_anual",
     "calidad.agg_completitud_mensual",
-    "calidad.agg_completitud_anual",
     "calidad.calidad_resumen",
     "calidad.calidad_violaciones",
     "calidad.calidad_outliers",

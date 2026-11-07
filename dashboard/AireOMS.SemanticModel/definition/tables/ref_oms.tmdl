@@ -88,9 +88,12 @@ table ref_oms
 		mode: import
 		source =
 				let
-				    Origen = Parquet.Document(File.Contents(RutaDatos & "ref_oms.parquet"))
+				    Origen = Csv.Document(File.Contents(RutaDatos & "ref_oms.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"contaminante", type text}, {"promedio", type text}, {"guia_oms", type number}, {"it1", type number}, {"it2", type number}, {"it3", type number}, {"it4", type number}, {"unidad", type text}}, "en-US")
 				in
-				    Origen
+				    Tipos
 
 	annotation PBI_ResultType = Table
 

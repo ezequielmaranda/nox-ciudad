@@ -73,8 +73,6 @@ models:
         description: Completitud del trimestre con menos datos dentro del período.
       - name: cumple_criterio_trimestral
         description: Verdadero si todos los trimestres tienen >= 75% de días con dato (advertencia, no excluye).
-      - name: estado_indicador
-        description: "'valido' o 'no_valido'."
       - name: unidad
         description: Unidad de la guía.
       - name: promedio_anual
