@@ -3,7 +3,7 @@
 > Archivo generado por `python -m src.etl` a partir de las descripciones de los `.yml` de dbt.
 > No editar a mano: cambiar la descripción en `dbt/models/` y volver a correr el ETL.
 
-Capa gold de la base: las tablas que se exportan a `data/final/` (CSV) y se cargan en Power BI.
+Capa gold de la base: las tablas que se exportan a `data/final/` (CSV) y alimentan el EDA y las tablas de Looker Studio.
 
 | Tabla | Schema | Filas | Descripción |
 |---|---|---|---|
@@ -58,7 +58,7 @@ Un registro por día del período de estudio (2024-01-01 a 2026-09-30), haya o n
 | `mes` | BIGINT | Mes (1-12). |
 | `anio_mes` | DATE | Primer día del mes (para ejes y agrupaciones mensuales). |
 | `estacion_del_anio` | VARCHAR | Estación del año (hemisferio sur, meteorológica). Verano = dic, ene y feb. |
-| `orden_estacion_del_anio` | INTEGER | 1 = verano … 4 = primavera (para ordenar en Power BI). |
+| `orden_estacion_del_anio` | INTEGER | 1 = verano … 4 = primavera (para ordenar en los gráficos). |
 | `dia_semana` | BIGINT | Día de la semana ISO (1 = lunes … 7 = domingo). |
 | `nombre_dia` | VARCHAR | Nombre del día en castellano. |
 | `tipo_dia` | VARCHAR | Código del tipo de día. Un feriado tiene prioridad sobre sábado o domingo. |

@@ -9,7 +9,7 @@ TP integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Equi
 el aire de la Ciudad de Buenos Aires de las guías de la OMS 2021, y cómo varía entre estaciones, contaminantes, tipo
 de día y período? La referencia es la **consigna de la cátedra** (PDF "Trabajo Práctico Integrador", fuera del repo):
 10 etapas (problema e hipótesis, dataset, modelado, SQL, limpieza y calidad, ETL, EDA en Python, visualizaciones e
-indicadores, dashboard en **Power BI**, conclusiones), exposición grupal de 20 minutos y poder justificar cada
+indicadores, dashboard en **Looker Studio**, conclusiones), exposición grupal de 20 minutos y poder justificar cada
 decisión técnica. El README tiene la tabla "Cómo cubre el TP la consigna". La guía `PROYECTO_TP_AIRE_OMS.md`, que
 venía de otro chat, se sacó del repo: no es la consigna.
 
@@ -62,14 +62,13 @@ Pearson casi igual). `leer()` del notebook pasa a booleana `supera_guia` si pand
 - `python -m pytest -q`: 4 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
   (idempotencia, `sql/99` corre en conexión de solo lectura, verificación de formato del extractor). No duplicar tests de datos en pytest. El
   EDA se ejecuta con `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
-- `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con las 8 tablas de gold + `_Medidas`,
-  10 relaciones, 18 medidas DAX, orden de columnas, lat/long como categoría de mapa, descripciones de dbt, tema;
-  informe PBIR con 3 páginas vacías; lee los CSV con configuración regional en-US).
-  Validado con TmdlSerializer (paquete NuGet Microsoft.AnalysisServices.NetCore.retail.amd64; la salida es idéntica a
-  su reserialización) y con los esquemas de microsoft/json-schemas, también después del cambio a medallón; no se
-  abrió en Power BI Desktop. Lee los CSV con `Csv.Document` + tipos en-US. El tema base
-  `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT); el tema propio está en
-  `src/recursos/powerbi_tema.json`. No regenera si ya hay gráficos.
+- `python -m src.generar_looker` (lo corre también `src.etl`): arma `dashboard/looker/` con 5 CSV planos (diaria,
+  horaria, anual, tipo_dia, calidad) uniendo dimensiones y guías OMS a los hechos, a partir de `data/final/` (no
+  usa la base: corre aunque DBeaver la tenga abierta). Looker Studio no tiene relaciones ni medidas de contexto:
+  los campos calculados están en `docs/looker_spec.md` y la variación vs. hábil viene hecha en `looker_tipo_dia`.
+  Fechas `YYYYMMDD`, meses `YYYYMM`, banderas 1/0. Los números de la spec se recalcularon desde esos CSV; no se
+  probó en Looker Studio. Reemplazó al proyecto de Power BI (`.pbip`, generador y spec) en noviembre 2026: está
+  en la historia de git.
 - `presentacion/presentacion_tp_aire_oms.pptx` (21 slides, guion en las notas): generada con pptxgenjs desde un script
   que no está en el repo (scratchpad de Claude). Tema propio con Calibri, NO₂ con el carácter ₂ (no con subíndice:
   desparejaba el interlineado), motivo de escalones OMS (IT1 → guía) en portada y cierre, figuras de `reports/figures`.
@@ -106,7 +105,7 @@ Simplificado en noviembre 2026 (antes: 6 schemas y 21 modelos). Tres schemas = t
   `es_periodo_estudio` separa estudio de contexto) y `calidad_resumen`. La completitud mensual se calcula de la fact.
 `sql/99` son solo consultas (21, no crea vistas).
 Columnas revisadas una por una en noviembre 2026 (gold: 120 → 91): sin columnas que no use nadie (SQL, notebook,
-PBIP, spec o tests); las unidades solo en `dim_contaminante` y las guías solo en `guia_oms` (las facts no las repiten);
+dashboard/looker, spec o tests); las unidades solo en `dim_contaminante` y las guías solo en `guia_oms` (las facts no las repiten);
 sin el criterio trimestral de la EPA (la tabla de sensibilidad de `calidad_datos.md` §3.4 quedó como verificación
 hecha una vez). Se dejaron a propósito, aunque nada las lea: `entorno`, `flujo_vehicular`, `fuentes_fijas` (base de
 H2) y `descripcion` en las dimensiones.
@@ -148,8 +147,7 @@ H2) y `descripcion` en las dimensiones.
 
 ## Pendiente
 
-- Abrir `dashboard/AireOMS.pbip` en Power BI Desktop (parámetro `RutaDatos` con la ruta local de `data/final\`,
-  Actualizar) y armar los gráficos de las 3 páginas siguiendo `docs/powerbi_spec.md` (lo hace el equipo). Después
-  de armar gráficos, el modelo se toca desde Power BI, no con `src.generar_pbip`.
+- Cargar los 5 CSV de `dashboard/looker/` en Looker Studio y armar los gráficos de las 3 páginas siguiendo
+  `docs/looker_spec.md` (lo hace el equipo). Al sumar datos nuevos hay que volver a subir los CSV.
 - Preguntar a la APrA por los saltos de la serie larga de La Boca (¿cambios de equipo, calibración o fuentes?).
 - Preparar la presentación (guion en el README).

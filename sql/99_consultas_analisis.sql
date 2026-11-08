@@ -523,8 +523,8 @@ ORDER BY estaciones_con_outlier DESC, valor_maximo DESC;
 
 -- =====================================================================================================
 -- PARTE D · CONTROL DEL DASHBOARD
--- Power BI importa los CSV de data/final; estas consultas calculan lo mismo que las medidas DAX del
--- modelo (src/generar_pbip.py) y sirven para verificar que el dashboard muestre los números correctos.
+-- Looker Studio lee las tablas planas de dashboard/looker (src/generar_looker.py); estas consultas
+-- calculan lo mismo que los campos calculados del dashboard (docs/looker_spec.md) y sirven para verificar que el dashboard muestre los números correctos.
 -- =====================================================================================================
 
 -- D1 · Resumen por estación y contaminante (tarjetas y KPIs de la página "Resumen")

@@ -8,10 +8,6 @@ __pycache__/
 # Base DuckDB generada por el ETL: se reconstruye con `python -m src.etl`
 data/warehouse/
 
-# Power BI: caché local y configuración personal del proyecto .pbip
-**/.pbi/localSettings.json
-**/.pbi/cache.abf
-
 # dbt
 dbt/target/
 dbt/logs/
