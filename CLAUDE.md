@@ -51,6 +51,10 @@ castellano con unidad) y gráficos con seaborn (boxplot, histograma, barras y l�
 Sweetviz se corre dentro de `plt.style.context("default")`: con el estilo del notebook (200 dpi, bbox tight) sus
 imágenes salen más grandes de lo que espera su HTML y se pisan con el texto; el bloque además deshace el cambio de
 fuentes que hace Sweetviz. Se revisaron con capturas de Chromium/Playwright.
+ydata-profiling se probó y se descartó (noviembre 2026): aporta poco sobre Sweetviz + el EDA a mano (alertas y
+dispersión; faltantes y Spearman ya están mejor en las figuras 01 y 12) y obliga pandas < 3, `setuptools<82`, trae
+telemetría y está deprecado. Correlaciones con Spearman (asimetría positiva; NO₂ moderada, 0,45-1,08 por estación;
+Pearson casi igual). `leer()` del notebook pasa a booleana `supera_guia` si pandas 2 la lee como texto.
 
 - `python -m src.etl`: verifica el crudo → `dbt build` (en subproceso, desde `dbt/`) → export de gold a `data/final/`
   (solo CSV, `order by all` para que sea idempotente) → corre `sql/99` (solo lectura) → genera
@@ -66,6 +70,10 @@ fuentes que hace Sweetviz. Se revisaron con capturas de Chromium/Playwright.
   abrió en Power BI Desktop. Lee los CSV con `Csv.Document` + tipos en-US. El tema base
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT); el tema propio está en
   `src/recursos/powerbi_tema.json`. No regenera si ya hay gráficos.
+- `presentacion/presentacion_tp_aire_oms.pptx` (21 slides, guion en las notas): generada con pptxgenjs desde un script
+  que no está en el repo (scratchpad de Claude). Tema propio con Calibri, NO₂ con el carácter ₂ (no con subíndice:
+  desparejaba el interlineado), motivo de escalones OMS (IT1 → guía) en portada y cierre, figuras de `reports/figures`.
+  Revisada contra los datos en noviembre 2026. Si el equipo la edita en PowerPoint, no regenerarla.
 - `python -m src.extract`: baja `calidad-aire.csv` de la CDN de BA Data
   (`cdn.buenosaires.gob.ar/datosabiertos/datasets/agencia-de-proteccion-ambiental/calidad-aire/`), con reintentos, y
   verifica el encabezado. Desde la nube de Claude funciona con `cdn.buenosaires.gob.ar` en los hosts permitidos del
