@@ -24,7 +24,8 @@ flowchart LR
         OUT["8 tablas<br/>CSV"]
     end
 
-    PBI["Power BI<br/>dashboard"]
+    LK["dashboard/looker<br/>5 tablas planas"]
+    LS["Looker Studio<br/>dashboard"]
     NB["notebooks/eda.ipynb<br/>EDA + figuras"]
     SQL["sql/99<br/>consultas de análisis"]
 
@@ -35,7 +36,8 @@ flowchart LR
     BR --> GO
     GO --> OUT
     GO --> SQL
-    OUT --> PBI
+    OUT --> LK
+    LK --> LS
     OUT --> NB
 ```
 
@@ -47,6 +49,7 @@ flowchart LR
 | 1 | **Extract** | `src/etl.py` | `data/raw/calidad-aire.csv` | Verifica que esté el crudo; los controles sobre su contenido los hacen los tests de dbt y las consultas A1 a A4 de `sql/99` |
 | 2 | **Transform + Load** | dbt (`dbt build`) | raw + reference → DuckDB | **bronze:** carga el CSV como texto y las referencias (seeds). **silver:** UNPIVOT a formato largo, tipos, reglas de calidad por hora, valor diario según el promedio de cada contaminante. **gold:** dimensiones, guías OMS, grilla completa diaria con conversión de unidades y outliers, NO2 horario, indicadores por año (2010-2026) y últimos 12 meses con la regla del 75%, resumen de calidad. Corre los 87 tests de datos; si uno de tipo error falla, el ETL se detiene |
 | 3 | **Export** | `src/etl.py` | gold → `data/final/` | Las 8 tablas de gold en CSV (UTF-8, separador `,`, decimal `.`), ordenadas para que dos corridas den archivos idénticos |
+| 3b | **Tablas para Looker Studio** | `src/generar_looker.py` | `data/final/` → `dashboard/looker/` | Une dimensiones y guías a cada hecho y arma 5 tablas planas (Looker Studio no tiene relaciones entre tablas). No recalcula reglas |
 | 4 | **Análisis SQL** | `src/etl.py` | `sql/99_consultas_analisis.sql` | Ejecuta las consultas de análisis (son de solo lectura) para verificar que todas corran |
 | 5 | **Documentar** | `src/diccionario.py` | descripciones de dbt → `docs/diccionario_datos.md` | Genera el diccionario de datos desde los `.yml` de dbt |
 

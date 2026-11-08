@@ -1,0 +1,18 @@
+contaminante,categoria,n_valores,proporcion,n_dias,primera_fecha,ultima_fecha
+Dióxido de nitrógeno,fila_en_cero,3,0.0,1,20250917,20250917
+Dióxido de nitrógeno,fuera_de_rango,1,0.0,1,20250813,20250813
+Dióxido de nitrógeno,hora_invalida,108,0.0015,36,20240215,20260915
+Dióxido de nitrógeno,sin_dato_fuente,10715,0.1513,573,20240101,20260930
+Dióxido de nitrógeno,texto_invalido,83,0.0012,3,20240517,20251201
+Dióxido de nitrógeno,valido,59902,0.8459,997,20240101,20260930
+Material particulado PM10,fila_en_cero,3,0.0,1,20250917,20250917
+Material particulado PM10,hora_invalida,108,0.0015,36,20240215,20260915
+Material particulado PM10,sin_dato_fuente,7431,0.1049,347,20240125,20260930
+Material particulado PM10,texto_invalido,72,0.001,2,20240517,20240518
+Material particulado PM10,valido,63198,0.8925,997,20240101,20260930
+Monóxido de carbono,fila_en_cero,3,0.0,1,20250917,20250917
+Monóxido de carbono,fuera_de_rango,2,0.0,1,20260601,20260601
+Monóxido de carbono,hora_invalida,108,0.0015,36,20240215,20260915
+Monóxido de carbono,sin_dato_fuente,7118,0.1005,291,20240101,20260930
+Monóxido de carbono,texto_invalido,72,0.001,2,20240517,20240518
+Monóxido de carbono,valido,63509,0.8969,990,20240101,20260930

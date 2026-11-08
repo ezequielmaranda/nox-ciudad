@@ -7,7 +7,7 @@
 -- Los umbrales nunca se escriben a mano en el SQL: siempre salen de esta tabla o de la seed.
 --
 -- La seed viene en formato ancho (una columna por nivel); acá se pasa a formato largo con
--- UNPIVOT (SQL estándar), que es cómo se usa en el notebook y en Power BI (una línea de
+-- UNPIVOT (SQL estándar), que es cómo se usa en el notebook y en Looker Studio (una línea de
 -- referencia por nivel). Los niveles vacíos (NULL) no generan fila.
 -- =====================================================================================
 with largo as (

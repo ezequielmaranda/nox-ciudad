@@ -1,10 +1,10 @@
-"""ETL del TP: del CSV crudo de calidad del aire a las tablas finales para Power BI.
+"""ETL del TP: del CSV crudo de calidad del aire a las tablas finales para Looker Studio.
 
     EXTRACT    verifica que esté data/raw/calidad-aire.csv (el CSV horario de BA Data)
     TRANSFORM  dbt build en arquitectura medallón: bronze (el CSV tal cual y las referencias)
     + LOAD     -> silver (valores horarios limpios y valor diario) -> gold (modelo estrella e
                indicadores), todo dentro de data/warehouse/aire.duckdb, con los tests de dbt
-    EXPORT     capa gold -> data/final/*.csv
+    EXPORT     capa gold -> data/final/*.csv, y de ahí las tablas planas de dashboard/looker/
     ANALIZAR   ejecuta sql/99_consultas_analisis.sql (verifica que todas las consultas corran)
     DOCUMENTAR docs/diccionario_datos.md a partir de las descripciones de dbt
 
@@ -22,7 +22,7 @@ import time
 
 import duckdb
 
-from src import config, diccionario
+from src import config, diccionario, generar_looker
 
 log = logging.getLogger("etl")
 
@@ -60,6 +60,7 @@ def exportar() -> None:
         filas = con.execute(f"select count(*) from {tabla}").fetchone()[0]
         log.info("  %-28s %7s filas -> data/final/%s.csv", nombre, diccionario.miles(filas), nombre)
     con.close()
+    generar_looker.generar()  # tablas planas para Looker Studio, a partir de los CSV recién exportados
 
 
 def ejecutar_consultas_analisis() -> None:
