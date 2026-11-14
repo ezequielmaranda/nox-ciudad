@@ -132,7 +132,7 @@ El crudo de BA Data viene en formato **ancho**: una columna por estación y cont
 
 - **El JOIN con la OMS es por contaminante:** `fact JOIN oms USING (id_contaminante)` resuelve todos los
   contaminantes con la misma consulta. En formato ancho habría que escribir una comparación por columna.
-- **En el dashboard** un solo control elige el contaminante y todos los campos calculados sirven para todos.
+- **En Power BI** un solo segmentador elige el contaminante y todas las medidas DAX sirven para todos.
 - **Agregar un contaminante** (por ejemplo, O3) no cambia la estructura de ninguna tabla.
 - Es la forma estándar de una tabla de hechos en un esquema estrella.
 
@@ -143,7 +143,7 @@ fila por estación y día). Cuando hace falta, se pivotea en el momento (el note
 
 La fact tiene todas las combinaciones calendario × estación × contaminante, aunque no haya dato. Así:
 los días faltantes se cuentan con un `COUNT` (no hay que "buscar lo que no está"), la completitud es un promedio
-de `tiene_dato` (también la mensual, que se calcula en el momento) y el dashboard puede mostrar huecos en las series.
+de `tiene_dato` (también la mensual, que se calcula en el momento) y Power BI puede mostrar huecos en las series.
 El costo es tener filas con valor nulo (16% de la fact), marcadas con `tiene_dato = false` y su motivo. Para
 calcular indicadores se filtra `tiene_dato`.
 
@@ -191,6 +191,6 @@ resultado de la comparación (`supera_guia`, `nivel_oms`).
 
 ## 4. Verificación del dashboard
 
-Looker Studio no se conecta a la base: lee las 5 tablas planas de `dashboard/looker/`, que `src/generar_looker.py` arma
-uniendo los CSV de `data/final/` (sin recalcular reglas). La parte D de `sql/99_consultas_analisis.sql` calcula en SQL
-lo mismo que los campos calculados del dashboard y sirve para verificar que muestre los números correctos.
+Power BI importa los CSV de `data/final/` (no se conecta a la base). La parte D de
+`sql/99_consultas_analisis.sql` calcula en SQL lo mismo que las medidas DAX del modelo de Power BI y sirve para
+verificar que el dashboard muestre los números correctos.

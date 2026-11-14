@@ -25,7 +25,7 @@
 -- en dim_contaminante.unidad_masa. La guía de 24 h, en gold.guia_oms.
 --
 -- Por qué formato largo y no ancho (una columna por contaminante): el JOIN con la OMS es por
--- contaminante, en el dashboard un solo control elige el contaminante y agregar uno nuevo no
+-- contaminante, en Power BI un solo segmentador elige el contaminante y agregar uno nuevo no
 -- cambia la estructura. Ver docs/modelo_datos.md.
 -- =====================================================================================
 with grilla as (

@@ -1,0 +1,130 @@
+/// Un registro por día del período de estudio (2024-01-01 a 2026-09-30), haya o no datos.
+table dim_calendario
+	lineageTag: ef1cf36a-a8bf-5c7b-8996-8811af3577ab
+
+	/// Fecha (clave).
+	column fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 491f3e6b-8a20-5a31-a51d-fba11e8c54fb
+		summarizeBy: none
+		sourceColumn: fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Año.
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 7abbad3b-a171-52b6-b9a4-e783bd5b8b23
+		summarizeBy: none
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = User
+
+	/// Mes (1-12).
+	column mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 8b31633a-2cc7-5f70-ae9f-746969d34900
+		summarizeBy: none
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = User
+
+	/// Primer día del mes (para ejes y agrupaciones mensuales).
+	column anio_mes
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 02481ac1-5fb5-55df-b67b-a1f4952bbc11
+		summarizeBy: none
+		sourceColumn: anio_mes
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Estación del año (hemisferio sur, meteorológica). Verano = dic, ene y feb.
+	column estacion_del_anio
+		dataType: string
+		lineageTag: f253df7e-0f6d-5baf-b500-0cd6c637850b
+		summarizeBy: none
+		sourceColumn: estacion_del_anio
+		sortByColumn: orden_estacion_del_anio
+
+		annotation SummarizationSetBy = User
+
+	/// 1 = verano … 4 = primavera (para ordenar en Power BI).
+	column orden_estacion_del_anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 41a93c38-2223-5e13-9eb5-387d8476f34f
+		summarizeBy: none
+		sourceColumn: orden_estacion_del_anio
+
+		annotation SummarizationSetBy = User
+
+	/// Día de la semana ISO (1 = lunes … 7 = domingo).
+	column dia_semana
+		dataType: int64
+		formatString: 0
+		lineageTag: bb11fd88-f263-5029-b363-9e3d66a1429b
+		summarizeBy: none
+		sourceColumn: dia_semana
+
+		annotation SummarizationSetBy = User
+
+	/// Nombre del día en castellano.
+	column nombre_dia
+		dataType: string
+		lineageTag: 156b6f26-a8b7-5ef7-9d2a-d38a76f20efa
+		summarizeBy: none
+		sourceColumn: nombre_dia
+		sortByColumn: dia_semana
+
+		annotation SummarizationSetBy = User
+
+	/// Código del tipo de día. Un feriado tiene prioridad sobre sábado o domingo.
+	column tipo_dia
+		dataType: string
+		lineageTag: a8a9eac4-3840-5632-9f8b-9e22ba1e7939
+		summarizeBy: none
+		sourceColumn: tipo_dia
+
+		annotation SummarizationSetBy = User
+
+	/// Etiqueta legible del tipo de día (Hábil, Sábado, Domingo, Feriado).
+	column tipo_dia_etiqueta
+		dataType: string
+		lineageTag: a2944b68-b6f4-5a2f-938c-08694ec762cf
+		summarizeBy: none
+		sourceColumn: tipo_dia_etiqueta
+		sortByColumn: orden_tipo_dia
+
+		annotation SummarizationSetBy = User
+
+	/// 1 = hábil, 2 = sábado, 3 = domingo, 4 = feriado.
+	column orden_tipo_dia
+		dataType: int64
+		formatString: 0
+		lineageTag: 0d30afb4-d3c1-545f-97e7-08562b63f6f4
+		summarizeBy: none
+		sourceColumn: orden_tipo_dia
+
+		annotation SummarizationSetBy = User
+
+	partition dim_calendario = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_calendario.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"anio", Int64.Type}, {"mes", Int64.Type}, {"anio_mes", type date}, {"estacion_del_anio", type text}, {"orden_estacion_del_anio", Int64.Type}, {"dia_semana", Int64.Type}, {"nombre_dia", type text}, {"tipo_dia", type text}, {"tipo_dia_etiqueta", type text}, {"orden_tipo_dia", Int64.Type}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

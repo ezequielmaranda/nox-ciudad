@@ -43,7 +43,7 @@ Bronze (`dbt/models/bronze/calidad_aire.sql`) carga el CSV tal cual, todo como t
 | Texto en una celda numérica | `#REF!` (error de fórmula de la planilla de origen, 17 y 18/05/2024 en todas las columnas), `x/d` (tipeo de `s/d`, NO2 de La Boca el 01/12/2025) | `estado_valor = 'invalido'`, valor nulo |
 | Categorías en el nombre de la columna | `NO2_LA_BOCA` | Se separan en `id_contaminante = 'no2'` e `id_estacion = 'la_boca'` (snake_case sin tildes); etiquetas legibles en las dimensiones |
 | Variables redundantes | La unidad depende del contaminante; el promedio móvil de 24 h de la hora 24 repite información de las horas anteriores | La unidad pasa a `dim_contaminante`. De cada promedio móvil se usa solo el valor que cierra el bloque (sección 2.4) |
-| Codificación y formato | BOM de UTF-8 al inicio del archivo; tildes y símbolos (`µg/m³`, `Córdoba`) | DuckDB lee UTF-8 con BOM; identificadores sin tildes ni espacios y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (Looker Studio y pandas los leen sin configuración regional) |
+| Codificación y formato | BOM de UTF-8 al inicio del archivo; tildes y símbolos (`µg/m³`, `Córdoba`) | DuckDB lee UTF-8 con BOM; identificadores sin tildes ni espacios y etiquetas legibles aparte. Exportación con separador `,` y decimal `.` (el modelo de Power BI los importa con configuración regional inglés) |
 
 ### 2.3 Reglas de validación sobre cada valor horario
 

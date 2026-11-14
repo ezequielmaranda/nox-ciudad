@@ -2,7 +2,7 @@ version: 2
 
 # Capa GOLD: lo que se analiza. Modelo estrella (dimensiones + dos tablas de hechos), la tabla de
 # guías OMS, los indicadores anuales y el resumen de calidad. Son las tablas que se exportan a
-# data/final/ y que leen el notebook y Looker Studio (vía dashboard/looker/).
+# data/final/ y que leen el notebook y Power BI.
 models:
   - name: dim_estacion
     description: Una fila por estación de monitoreo de la APrA.
@@ -68,7 +68,7 @@ models:
               arguments:
                 values: ["verano", "otoño", "invierno", "primavera"]
       - name: orden_estacion_del_anio
-        description: 1 = verano … 4 = primavera (para ordenar en los gráficos).
+        description: 1 = verano … 4 = primavera (para ordenar en Power BI).
       - name: dia_semana
         description: Día de la semana ISO (1 = lunes … 7 = domingo).
       - name: nombre_dia

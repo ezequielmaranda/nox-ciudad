@@ -1,0 +1,90 @@
+/// Qué pasó con cada valor horario del período de estudio, por contaminante: válido o el motivo por el que se descartó, con en cuántos días y entre qué fechas aparece.
+table calidad_resumen
+	lineageTag: 6c67153c-0133-56d4-9444-0f11486a52a3
+
+	/// Contaminante.
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 5886a201-e96a-5a0b-96fc-1f1481a579ce
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// valido o el motivo por el que se descartó (silver.medicion_horaria.motivo_invalido).
+	column categoria
+		dataType: string
+		lineageTag: 1e2f23a2-6ad7-5fcf-b2fb-e27e4a370bb1
+		summarizeBy: none
+		sourceColumn: categoria
+
+		annotation SummarizationSetBy = User
+
+	/// Cantidad de valores horarios (celdas del CSV).
+	column n_valores
+		dataType: int64
+		formatString: 0
+		lineageTag: 9bcf2b7d-ee2b-55f5-acd3-df3096271de6
+		summarizeBy: none
+		sourceColumn: n_valores
+
+		annotation SummarizationSetBy = User
+
+	/// Proporción dentro del contaminante (0 a 1).
+	column proporcion
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 267159bb-02bb-5f3a-b5bf-81f37855d850
+		summarizeBy: none
+		sourceColumn: proporcion
+
+		annotation SummarizationSetBy = User
+
+	/// Días en los que aparece la categoría.
+	column n_dias
+		dataType: int64
+		formatString: 0
+		lineageTag: 91b7d775-878f-5224-83b7-cf329a58ab9b
+		summarizeBy: none
+		sourceColumn: n_dias
+
+		annotation SummarizationSetBy = User
+
+	/// Primer día en que aparece.
+	column primera_fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 76390c41-e3ad-57a2-829a-dd53fe7fb6fe
+		summarizeBy: none
+		sourceColumn: primera_fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Último día en que aparece.
+	column ultima_fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: e649b16a-960c-56e0-ac89-55aa503c419a
+		summarizeBy: none
+		sourceColumn: ultima_fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition calidad_resumen = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "calidad_resumen.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_contaminante", type text}, {"categoria", type text}, {"n_valores", Int64.Type}, {"proporcion", type number}, {"n_dias", Int64.Type}, {"primera_fecha", type date}, {"ultima_fecha", type date}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

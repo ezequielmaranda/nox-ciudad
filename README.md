@@ -3,7 +3,7 @@
 Trabajo Práctico Integrador de **Análisis de Datos** (Licenciatura en Ciencia de Datos). Flujo completo: datos
 públicos horarios de calidad del aire (BA Data) → extracción → ETL con dbt sobre DuckDB en arquitectura medallón
 (bronze: el crudo · silver: limpieza y calidad · gold: modelo estrella e indicadores) → consultas SQL → EDA en
-Python → dashboard en Looker Studio.
+Python → dashboard en Power BI.
 
 **Rol:** equipo de datos de una agencia de calidad ambiental. **Público:** funcionarios, prensa y ciudadanía.
 
@@ -117,11 +117,11 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 | 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
 | 7. EDA en Python | [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (Sweetviz + pandas, matplotlib y seaborn) |
 | 8. Visualizaciones e indicadores | `reports/figures/`, `gold.fact_medicion_diaria` (cumplimiento diario) y `gold.agg_anual` (anual, escalones, rachas, contexto) |
-| 9. Dashboard en Looker Studio | [`dashboard/looker/`](dashboard/looker/) (5 tablas planas listas para cargar) + [`docs/looker_spec.md`](docs/looker_spec.md) (campos calculados y qué gráficos van en cada página) |
+| 9. Dashboard en Power BI | [`dashboard/AireOMS.pbip`](dashboard/) (modelo, relaciones y medidas DAX listos) + [`docs/powerbi_spec.md`](docs/powerbi_spec.md) (qué gráficos van en cada página) |
 | 10. Hallazgos, conclusiones y limitaciones | Secciones [Hallazgos](#hallazgos) y [Limitaciones](#limitaciones), notebook §12 y presentación |
 
-**Entregables:** dashboard (Looker Studio), notebook, scripts (`src/`, `dbt/`), consultas SQL, archivos procesados
-(`data/final/`), diagrama del ETL, documentación del proceso (`docs/`), dataset final para el dashboard y presentación
+**Entregables:** dashboard (Power BI), notebook, scripts (`src/`, `dbt/`), consultas SQL, archivos procesados
+(`data/final/`), diagrama del ETL, documentación del proceso (`docs/`), dataset final para Power BI y presentación
 (`presentacion/`).
 
 ## Cómo correrlo
@@ -140,7 +140,7 @@ python -m venv .venv
 | ETL: crudo → DuckDB → `data/final/` (unos 10 segundos) | `.venv\Scripts\python -m src.etl` |
 | Tests de pytest | `.venv\Scripts\python -m pytest -q` |
 | Notebook de EDA (regenera `reports/figures/`) | `.venv\Scripts\python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb` |
-| Tablas planas para Looker Studio (el ETL ya las regenera; solo hace falta si no se corrió el ETL) | `.venv\Scripts\python -m src.generar_looker` |
+| Proyecto de Power BI (no correrlo si ya hay gráficos armados) | `.venv\Scripts\python -m src.generar_pbip` |
 | Volver a bajar el CSV horario de BA Data (opcional: el crudo ya está en el repo; sirve para sumar meses nuevos) | `.venv\Scripts\python -m src.extract` |
 
 Para ver la documentación de dbt con el linaje de las tablas (después del ETL, en http://localhost:8080):
@@ -164,7 +164,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── raw/calidad-aire.csv       CSV horario de BA Data tal como se publica (2009-2026, no se modifica a mano)
 │   ├── reference/                 tablas mantenidas a mano: guías OMS, estaciones, contaminantes, feriados
 │   ├── warehouse/aire.duckdb      base generada por el ETL (fuera de git)
-│   └── final/                     las 8 tablas de gold en CSV, para el EDA y para armar las de Looker Studio
+│   └── final/                     las 8 tablas de gold en CSV, para Power BI y el EDA
 ├── dbt/                           transformaciones SQL (dbt + DuckDB), arquitectura medallón
 │   ├── models/bronze/             el CSV tal cual (todo texto) + las tablas de referencia (seeds)
 │   ├── models/silver/             valores horarios limpios (UNPIVOT, tipos, reglas) y valor diario
@@ -176,11 +176,12 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   ├── extract.py                 descarga: BA Data → data/raw/calidad-aire.csv
 │   ├── etl.py                     orquesta extract → dbt build → export → consultas → diccionario
 │   ├── diccionario.py             genera docs/diccionario_datos.md
-│   └── generar_looker.py          arma las 5 tablas planas para Looker Studio (dashboard/looker/)
+│   ├── generar_pbip.py            genera el proyecto de Power BI (dashboard/)
+│   └── recursos/                  temas de Power BI que usa generar_pbip.py (colores del TP y tema base)
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
-├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Looker Studio
-├── dashboard/looker/              5 CSV planos para cargar en Looker Studio (los genera el ETL)
+├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
+├── dashboard/AireOMS.pbip         proyecto de Power BI: modelo, relaciones y medidas listos (se abre con Power BI Desktop)
 ├── presentacion/                 presentación (.pptx, 21 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)
@@ -221,14 +222,14 @@ flowchart LR
     C -- "dbt" --> D["silver<br/>de ancho a largo<br/>reglas por hora<br/>horas → día"]
     D -- "dbt" --> E["gold<br/>modelo estrella<br/>indicadores OMS"]
     E -- "src/etl.py" --> F["data/final<br/>CSV"]
-    F --> G["dashboard/looker<br/>Looker Studio"]
+    F --> G["Power BI"]
     F --> H["EDA<br/>notebook"]
 ```
 
 Detalle de cada paso: [`docs/diagrama_etl.md`](docs/diagrama_etl.md). Modelo y decisiones:
 [`docs/modelo_datos.md`](docs/modelo_datos.md). Calidad: [`docs/calidad_datos.md`](docs/calidad_datos.md).
 Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
-[`docs/looker_spec.md`](docs/looker_spec.md).
+[`docs/powerbi_spec.md`](docs/powerbi_spec.md).
 
 ## Decisiones técnicas clave
 
@@ -240,7 +241,7 @@ Columnas: [`docs/diccionario_datos.md`](docs/diccionario_datos.md). Dashboard:
 | **DuckDB** | Base analítica en un archivo, sin servidor, que lee CSV y usa SQL estándar. Lo específico de DuckDB está comentado para portar a otro motor |
 | **dbt** para las transformaciones | Cada tabla es un `SELECT` en un `.sql` legible; dbt las corre en orden, ejecuta 87 tests de calidad en cada build y documenta el linaje. Es una librería de Python, no infraestructura |
 | **Arquitectura medallón:** bronze → silver → gold, 11 tablas en 3 schemas | Cada capa responde una pregunta: qué llegó (bronze, sin tocar), qué es válido (silver, limpio y en formato largo) y qué se analiza (gold, lo único que se exporta). Si un número sorprende, se puede seguir hacia atrás capa por capa hasta el texto original del CSV |
-| **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Looker Studio un control elige el contaminante; agregar uno no cambia la estructura |
+| **Esquema estrella, fact en formato largo** | El JOIN con la OMS es por contaminante; en Power BI un segmentador elige el contaminante; agregar uno no cambia la estructura |
 | **dbt prueba los datos, pytest el código** | Los tests de datos viven en un solo lugar (dbt). pytest cubre lo que dbt no puede: idempotencia del pipeline, que las consultas de `sql/99` corran sin modificar la base y la verificación de formato del extractor |
 | **El valor diario según cómo publica cada contaminante** | NO₂ horario: promedio con 18 de 24 horas (criterio de la UE); PM10 (móvil de 24 h): el valor de la hora 24; CO (móvil de 8 h): los tres bloques de 8 h. Promediar las 24 horas de un promedio móvil daría otra cosa |
 | **Dos tablas de hechos** (diaria y horaria de NO₂) | La guía de 24 h usa el día; el perfil horario necesita la hora. Solo el NO₂ es horario de verdad: CO y PM10 no van a la fact horaria |
@@ -286,7 +287,7 @@ Presentación: [`presentacion/presentacion_tp_aire_oms.pptx`](presentacion/prese
 | 3. Dataset | CSV horario de BA Data, grano, período, limitaciones iniciales | `docs/calidad_datos.md` §1 | Integrante 1 |
 | 4-5. Flujo técnico y calidad | Descarga, dbt en capas bronze → silver → gold, esquema estrella, reglas por hora, de horas a días, regla del 75%, heatmap | `docs/diagrama_etl.md`, `docs/modelo_datos.md`, figura 01 | Integrante 2 |
 | 6. EDA | Distribuciones, series, tipo de día, perfil horario, estacionalidad, efecto de los huecos, contexto 2010-2025 | `notebooks/eda.ipynb` | Integrante 3 |
-| 7-8. Dashboard e insights | Las 3 páginas de Looker Studio y los hallazgos | `docs/looker_spec.md` | Integrante 4 |
+| 7-8. Dashboard e insights | Las 3 páginas de Power BI y los hallazgos | `docs/powerbi_spec.md` | Integrante 4 |
 | 9. Limitaciones y mejoras | Sección anterior | este README | Integrante 4 |
 
 Cualquier integrante tiene que poder explicar cualquier parte: cada archivo SQL y Python está comentado en español

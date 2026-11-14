@@ -1,0 +1,103 @@
+/// Una fila por estación de monitoreo de la APrA.
+table dim_estacion
+	lineageTag: fe67e3c1-5087-5f44-a04f-98903a9a44bd
+
+	/// Clave de la estación ('centenario', 'cordoba', 'la_boca').
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 1fb2492f-2747-5fdd-911c-96017479c953
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Nombre legible para mostrar.
+	column nombre
+		dataType: string
+		lineageTag: 9d09b345-860d-5ba5-ad4b-33c72d44da37
+		summarizeBy: none
+		sourceColumn: nombre
+		sortByColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	/// Tipo de zona según la APrA (residencial-comercial, mixta).
+	column entorno
+		dataType: string
+		lineageTag: c8a0cc87-7bd8-5d9d-b9fd-b817f044de90
+		summarizeBy: none
+		sourceColumn: entorno
+
+		annotation SummarizationSetBy = User
+
+	/// Flujo vehicular de la zona según la APrA (alto, medio, medio-bajo).
+	column flujo_vehicular
+		dataType: string
+		lineageTag: 5a27844e-bb15-5998-886d-1188af897f21
+		summarizeBy: none
+		sourceColumn: flujo_vehicular
+
+		annotation SummarizationSetBy = User
+
+	/// Incidencia de fuentes fijas (industrias, puerto) según la APrA.
+	column fuentes_fijas
+		dataType: string
+		lineageTag: cffbc9c5-913e-5d9b-9286-6138cf68add6
+		summarizeBy: none
+		sourceColumn: fuentes_fijas
+
+		annotation SummarizationSetBy = User
+
+	/// Latitud de la estación (BA Data, estaciones-ambientales.csv).
+	column latitud
+		dataType: double
+		lineageTag: dee541f0-1550-5c7b-9828-01d697725794
+		dataCategory: Latitude
+		summarizeBy: none
+		sourceColumn: latitud
+
+		annotation SummarizationSetBy = User
+
+	/// Longitud de la estación (BA Data, estaciones-ambientales.csv).
+	column longitud
+		dataType: double
+		lineageTag: 165773e9-5497-5318-98aa-d1ea9816f76b
+		dataCategory: Longitude
+		summarizeBy: none
+		sourceColumn: longitud
+
+		annotation SummarizationSetBy = User
+
+	/// Para qué zona es representativa la estación.
+	column descripcion
+		dataType: string
+		lineageTag: c1861342-3662-5538-bc10-8735f4aa4f2b
+		summarizeBy: none
+		sourceColumn: descripcion
+
+		annotation SummarizationSetBy = User
+
+	/// Orden alfabético para gráficos.
+	column orden
+		dataType: int64
+		formatString: 0
+		lineageTag: 60ee57a8-8d80-5a3b-9ddd-861da4b26a0a
+		summarizeBy: none
+		sourceColumn: orden
+
+		annotation SummarizationSetBy = User
+
+	partition dim_estacion = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "dim_estacion.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"id_estacion", type text}, {"nombre", type text}, {"entorno", type text}, {"flujo_vehicular", type text}, {"fuentes_fijas", type text}, {"latitud", type number}, {"longitud", type number}, {"descripcion", type text}, {"orden", Int64.Type}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

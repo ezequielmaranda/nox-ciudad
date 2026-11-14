@@ -1,0 +1,40 @@
+relationship 086ae4bc-a94f-5f7d-9286-256d996a590a
+	fromColumn: fact_medicion_diaria.fecha
+	toColumn: dim_calendario.fecha
+
+relationship 5db8a9f1-26a5-567f-9a91-00033efe9bf1
+	fromColumn: fact_medicion_diaria.id_estacion
+	toColumn: dim_estacion.id_estacion
+
+relationship f0776e8d-d3d3-5183-a4f8-ee40fda14e0d
+	fromColumn: fact_medicion_diaria.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+
+relationship b3264a03-e45a-5af5-8471-7e3271d3ab50
+	fromColumn: fact_medicion_horaria.fecha
+	toColumn: dim_calendario.fecha
+
+relationship 08bb3dce-edf8-505b-8082-eb76d5928634
+	fromColumn: fact_medicion_horaria.id_estacion
+	toColumn: dim_estacion.id_estacion
+
+relationship 1729176a-6503-55b9-adb4-c24ab58f0880
+	fromColumn: fact_medicion_horaria.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+
+relationship 5b543e07-1c84-5e08-b0ae-35186752943c
+	fromColumn: agg_anual.id_estacion
+	toColumn: dim_estacion.id_estacion
+
+relationship e24e3cf1-9bd4-57c8-b551-cd8391e0a8a4
+	fromColumn: agg_anual.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+
+relationship b2ecf45a-5f67-590a-a81a-05672fe1b013
+	fromColumn: guia_oms.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+
+relationship 1f634fea-fd77-5496-83b9-b34657a80a4b
+	fromColumn: calidad_resumen.id_contaminante
+	toColumn: dim_contaminante.id_contaminante
+

@@ -1,0 +1,133 @@
+/// Tabla de hechos en formato largo. Grano: fecha × estación × contaminante, con el promedio de 24 h comparado con la guía OMS de 24 h. Grilla completa del período de estudio: incluye los días sin dato, marcados con tiene_dato = falso y el motivo en motivo_sin_dato.
+table fact_medicion_diaria
+	lineageTag: 60270a43-8adc-5fa6-9797-00fb0bffa232
+
+	/// Fecha (clave hacia dim_calendario).
+	column fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 40b9d0f1-9c6c-5de1-a73f-7eb02a952809
+		summarizeBy: none
+		sourceColumn: fecha
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Estación (clave hacia dim_estacion).
+	column id_estacion
+		dataType: string
+		isHidden
+		lineageTag: 42bdb3ef-eddd-5fa5-b9a1-71571c790da7
+		summarizeBy: none
+		sourceColumn: id_estacion
+
+		annotation SummarizationSetBy = User
+
+	/// Contaminante (clave hacia dim_contaminante).
+	column id_contaminante
+		dataType: string
+		isHidden
+		lineageTag: 278e5752-0e16-5c07-92c9-128cb6b80d76
+		summarizeBy: none
+		sourceColumn: id_contaminante
+
+		annotation SummarizationSetBy = User
+
+	/// Horas con valor válido ese día (0 a 24). Para el NO2 hacen falta 18 para el promedio diario.
+	column n_horas_validas
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c7898a2-2b2e-5bf1-a252-158ae5ab59f1
+		summarizeBy: none
+		sourceColumn: n_horas_validas
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si hay promedio de 24 h válido.
+	column tiene_dato
+		dataType: boolean
+		lineageTag: 24a6d8a9-e25c-5368-8b0e-ce56e99ad161
+		summarizeBy: none
+		sourceColumn: tiene_dato
+
+		annotation SummarizationSetBy = User
+
+	/// Por qué no hay dato (vacío si tiene_dato): 'sin_fila', 'sin_dato_fuente' o 'incompleto'.
+	column motivo_sin_dato
+		dataType: string
+		lineageTag: 5efb56a0-2b6b-56da-90cd-6bf2a6f27797
+		summarizeBy: none
+		sourceColumn: motivo_sin_dato
+
+		annotation SummarizationSetBy = User
+
+	/// Promedio de 24 h en la unidad original, la de dim_contaminante.unidad_medicion (solo si tiene_dato).
+	column valor
+		dataType: double
+		lineageTag: 908ccc53-67da-5613-bd49-084a29645f50
+		summarizeBy: none
+		sourceColumn: valor
+
+		annotation SummarizationSetBy = User
+
+	/// Promedio de 24 h en la unidad de la guía OMS, la de dim_contaminante.unidad_masa (µg/m³; mg/m³ para CO). Solo si tiene_dato.
+	column valor_masa
+		dataType: double
+		lineageTag: 4cb8e37f-a063-5a8c-910b-0e97b56950ec
+		summarizeBy: none
+		sourceColumn: valor_masa
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si valor_masa supera la guía de 24 h (vacío si no hay dato).
+	column supera_guia
+		dataType: boolean
+		lineageTag: 8a67fd29-7db3-524b-ab40-862716d2728f
+		summarizeBy: none
+		sourceColumn: supera_guia
+
+		annotation SummarizationSetBy = User
+
+	/// Escalón OMS de 24 h del día: AQG (cumple la guía), IT4 … IT1 o '> IT1'. Vacío si no hay dato.
+	column nivel_oms
+		dataType: string
+		lineageTag: fba9124f-0e3c-5777-b2c8-d4593e08868a
+		summarizeBy: none
+		sourceColumn: nivel_oms
+		sortByColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// 1 = cumple la guía … 6 = no cumple ni el IT1 (para ordenar).
+	column orden_nivel_oms
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b4e2974-d3ac-5c9d-af8f-eb17c8595ce9
+		summarizeBy: none
+		sourceColumn: orden_nivel_oms
+
+		annotation SummarizationSetBy = User
+
+	/// Verdadero si valor > Q3 + 3·IQR de su estación × contaminante. Se marca, no se borra.
+	column es_outlier
+		dataType: boolean
+		lineageTag: ff448b89-abbb-53ea-aa78-e2c4ea2860d2
+		summarizeBy: none
+		sourceColumn: es_outlier
+
+		annotation SummarizationSetBy = User
+
+	partition fact_medicion_diaria = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaDatos & "fact_medicion_diaria.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    SinVacios = Table.ReplaceValue(Encabezados, "", null, Replacer.ReplaceValue, Table.ColumnNames(Encabezados)),
+				    Tipos = Table.TransformColumnTypes(SinVacios, {{"fecha", type date}, {"id_estacion", type text}, {"id_contaminante", type text}, {"n_horas_validas", Int64.Type}, {"tiene_dato", type logical}, {"motivo_sin_dato", type text}, {"valor", type number}, {"valor_masa", type number}, {"supera_guia", type logical}, {"nivel_oms", type text}, {"orden_nivel_oms", Int64.Type}, {"es_outlier", type logical}}, "en-US")
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+
