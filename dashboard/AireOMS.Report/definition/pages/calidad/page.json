@@ -4,5 +4,12 @@
   "displayName": "Calidad de datos",
   "displayOption": "FitToPage",
   "height": 720,
-  "width": 1280
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "98a5f7eae88897edcaa6",
+      "target": "7919843335d70736e3d1",
+      "type": "DataFilter"
+    }
+  ]
 }

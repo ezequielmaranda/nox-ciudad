@@ -22,3 +22,5 @@ ref table fact_medicion_horaria
 ref table agg_anual
 ref table calidad_resumen
 
+ref cultureInfo es-AR
+

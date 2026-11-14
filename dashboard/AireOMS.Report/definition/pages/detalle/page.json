@@ -4,5 +4,17 @@
   "displayName": "Detalle",
   "displayOption": "FitToPage",
   "height": 720,
-  "width": 1280
+  "width": 1280,
+  "pageBinding": {
+    "name": "9b1c651151a04e8a33dd",
+    "type": "Default",
+    "parameters": []
+  },
+  "visualInteractions": [
+    {
+      "source": "1858e6aeb6853500daed",
+      "target": "b7c59ed53ceaa129cad5",
+      "type": "NoFilter"
+    }
+  ]
 }

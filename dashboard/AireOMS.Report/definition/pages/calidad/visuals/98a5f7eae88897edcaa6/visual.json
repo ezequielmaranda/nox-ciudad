@@ -1,0 +1,254 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "98a5f7eae88897edcaa6",
+  "position": {
+    "x": 0,
+    "y": 499.33042212518194,
+    "z": 4002,
+    "height": 219.85443959243085,
+    "width": 732.22707423580778,
+    "tabOrder": 4002
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_estacion"
+                    }
+                  },
+                  "Property": "nombre"
+                }
+              },
+              "queryRef": "dim_estacion.nombre",
+              "nativeQueryRef": "Estación",
+              "displayName": "Estación"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_contaminante"
+                    }
+                  },
+                  "Property": "nombre"
+                }
+              },
+              "queryRef": "dim_contaminante.nombre",
+              "nativeQueryRef": "Contaminante",
+              "displayName": "Contaminante"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "agg_anual"
+                    }
+                  },
+                  "Property": "periodo"
+                }
+              },
+              "queryRef": "agg_anual.periodo",
+              "nativeQueryRef": "periodo"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "agg_anual"
+                    }
+                  },
+                  "Property": "n_dias_con_dato"
+                }
+              },
+              "queryRef": "agg_anual.n_dias_con_dato",
+              "nativeQueryRef": "días con dato",
+              "displayName": "días con dato"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "agg_anual"
+                    }
+                  },
+                  "Property": "n_dias_periodo"
+                }
+              },
+              "queryRef": "agg_anual.n_dias_periodo",
+              "nativeQueryRef": "días total ",
+              "displayName": "días total "
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "agg_anual"
+                    }
+                  },
+                  "Property": "completitud"
+                }
+              },
+              "queryRef": "agg_anual.completitud",
+              "nativeQueryRef": "completitud"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_contaminante"
+                  }
+                },
+                "Property": "nombre"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "149.50127163691792D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "agg_anual.periodo"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "159.76855961871507D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "dim_contaminante.nombre"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2cc2dbc5ad7d21d40e8d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_estacion"
+              }
+            },
+            "Property": "nombre"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "aeceedd51635dcd14a6c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_contaminante"
+              }
+            },
+            "Property": "nombre"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "ec4d128800b3216d7da9",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "agg_anual"
+              }
+            },
+            "Property": "periodo"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "57315a5ac8524467ac1c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "agg_anual"
+              }
+            },
+            "Property": "n_dias_con_dato"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "646353a6c0b8d9eed8c7",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "agg_anual"
+              }
+            },
+            "Property": "n_dias_periodo"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "c35df8e5dc00db3da430",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "agg_anual"
+              }
+            },
+            "Property": "completitud"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

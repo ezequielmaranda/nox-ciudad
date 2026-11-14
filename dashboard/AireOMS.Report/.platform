@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "AireOMS"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "08522847-3abc-4259-98e9-21babce218d5"
+  }
+}
