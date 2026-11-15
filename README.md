@@ -111,7 +111,7 @@ Detalle: [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (EDA y conclusiones) y
 |---|---|
 | 1. Problema, pregunta e hipótesis | Este README (pregunta, subpreguntas, hipótesis, rol y público) |
 | 2. Selección, recolección y comprensión del dataset | Sección [Datos](#datos) y [`docs/calidad_datos.md`](docs/calidad_datos.md) §1 (fuente, formato, registros, columnas, granularidad, período, limitaciones) |
-| 3. Almacenamiento y modelado | DuckDB + [`docs/modelo_datos.md`](docs/modelo_datos.md) (qué representa cada tabla, claves, relaciones, decisiones) |
+| 3. Almacenamiento y modelado | DuckDB + [`docs/modelo_datos.md`](docs/modelo_datos.md) (qué representa cada tabla, claves, relaciones, decisiones) y [`docs/dbt_modelos_y_tests.md`](docs/dbt_modelos_y_tests.md) (qué hace cada modelo y cada test de dbt) |
 | 4. Consultas SQL | [`sql/99_consultas_analisis.sql`](sql/99_consultas_analisis.sql) (cada consulta dice qué responde, por qué y qué técnica usa) y los modelos de `dbt/models/` |
 | 5. Limpieza, calidad y normalización | [`docs/calidad_datos.md`](docs/calidad_datos.md) (nulos, duplicados, tipos, fechas, categorías, atípicos, redundancias, formato, unidades) y `dbt/models/silver/` |
 | 6. Flujo ETL | [`docs/diagrama_etl.md`](docs/diagrama_etl.md), `src/extract.py`, `src/etl.py` y `dbt/` |
@@ -180,9 +180,9 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 │   └── recursos/                  temas de Power BI que usa generar_pbip.py (colores del TP y tema base)
 ├── notebooks/eda.ipynb            EDA ordenado por subpregunta
 ├── tests/test_etl.py              tests de pytest: idempotencia, sql/99 y extractor (los de datos están en dbt)
-├── docs/                          diagrama ETL, modelo de datos, calidad, diccionario, spec de Power BI
+├── docs/                          diagrama ETL, modelo de datos, modelos y tests de dbt, calidad, diccionario, spec de Power BI
 ├── dashboard/AireOMS.pbip         proyecto de Power BI: modelo, relaciones y medidas listos (se abre con Power BI Desktop)
-├── presentacion/                 presentación (.pptx, 21 slides) con el guion de cada integrante en las notas
+├── presentacion/                 presentación (.pptx, 22 slides) con el guion de cada integrante en las notas
 └── reports/
     ├── figures/                   figuras del EDA (PNG)
     └── sweetviz_*.html            perfil automático del EDA (Sweetviz)
@@ -197,7 +197,7 @@ CLI de DuckDB, y correr `sql/99_consultas_analisis.sql`.
 | **Volumen** | 147.470 filas (fecha × hora, de octubre de 2009 a octubre de 2026) → 1,3 millones de valores horarios en formato largo → fact diaria de 9.036 filas (1.004 días × 3 estaciones × 3 contaminantes) y fact horaria de NO₂ de 70.704 filas |
 | **Variables** | NO₂ (ppb, promedio horario), CO (ppm, promedio móvil de 8 h) y PM10 (µg/m³, promedio móvil de 24 h) de las estaciones Parque Centenario, Córdoba y La Boca |
 | **Granularidad** | estación × hora; el análisis usa el promedio de 24 h (estación × día) y, para el NO₂, también la hora |
-| **Período** | 2024-01-01 a 2026-09-30 (2026 parcial); 2010-2025 solo como contexto |
+| **Período** | 2024-01-01 a 2026-09-30 (2026 parcial); 2010-2025 solo como contexto. El recorte responde a la pregunta, que es por el presente (cuán lejos estamos hoy): los últimos años reflejan las fuentes y los equipos actuales. La serie larga no se descarta: queda en `gold.agg_anual` como contexto. El cierre en septiembre de 2026 es el último mes completo antes del corte del CSV (26/10/2026). El recorte también deja afuera los años de pandemia (2020-2021) |
 | **Validación** | El valor diario coincide con los informes mensuales en PDF de la APrA en el 94% al 98% de los días (`docs/calidad_datos.md` §2.5) |
 | **Referencia** | Guías OMS 2021 (`data/reference/oms_2021.csv`), usadas siempre vía JOIN |
 | **Complementos** | Guías OMS, estaciones, contaminantes y feriados: ver abajo |

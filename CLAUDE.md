@@ -71,7 +71,7 @@ Pearson casi igual). `leer()` del notebook pasa a booleana `supera_guia` si pand
   `src/recursos/Fluent2-CY26SU08.json` viene de microsoft/fabric-toolbox (MIT); el tema propio está en
   `src/recursos/powerbi_tema.json`. No regenera si ya hay gráficos. Reemplazó a Looker Studio (CSV planos,
   `generar_looker`, spec) el 14/11/2026: está en la historia de git (commit `4200626`).
-- `presentacion/presentacion_tp_aire_oms.pptx` (21 slides, guion en las notas): generada con pptxgenjs desde un script
+- `presentacion/presentacion_tp_aire_oms.pptx` (22 slides, guion en las notas): generada con pptxgenjs desde un script
   que no está en el repo (scratchpad de Claude). Tema propio con Calibri, NO₂ con el carácter ₂ (no con subíndice:
   desparejaba el interlineado), motivo de escalones OMS (IT1 → guía) en portada y cierre, figuras de `reports/figures`.
   Revisada contra los datos en noviembre 2026. Si el equipo la edita en PowerPoint, no regenerarla.

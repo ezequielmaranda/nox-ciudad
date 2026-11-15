@@ -10,7 +10,7 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBI_QueryOrder = ["RutaDatos", "_Medidas", "dim_estacion", "dim_contaminante", "dim_calendario", "guia_oms", "fact_medicion_diaria", "fact_medicion_horaria", "agg_anual", "calidad_resumen"]
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
 
 ref table _Medidas
 ref table dim_estacion
