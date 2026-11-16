@@ -140,6 +140,7 @@ python -m venv .venv
 | ETL: crudo → DuckDB → `data/final/` (unos 10 segundos) | `.venv\Scripts\python -m src.etl` |
 | Tests de pytest | `.venv\Scripts\python -m pytest -q` |
 | Notebook de EDA (regenera `reports/figures/`) | `.venv\Scripts\python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb` |
+| Notebook de EDA en Google Colab (sin instalar nada) | Abrir `notebooks/eda.ipynb` desde GitHub en Colab (*Archivo → Abrir cuaderno → GitHub*) y ejecutar todo: la primera celda baja el repo e instala Sweetviz. Las figuras quedan en la sesión de Colab |
 | Proyecto de Power BI (no correrlo si ya hay gráficos armados) | `.venv\Scripts\python -m src.generar_pbip` |
 | Volver a bajar el CSV horario de BA Data (opcional: el crudo ya está en el repo; sirve para sumar meses nuevos) | `.venv\Scripts\python -m src.extract` |
 

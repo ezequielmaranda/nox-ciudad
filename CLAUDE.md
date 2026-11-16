@@ -62,6 +62,9 @@ Pearson casi igual). `leer()` del notebook pasa a booleana `supera_guia` si pand
 - `python -m pytest -q`: 4 tests de pytest (~20 s). División: **dbt prueba los datos; pytest, el código y el pipeline**
   (idempotencia, `sql/99` corre en conexión de solo lectura, verificación de formato del extractor). No duplicar tests de datos en pytest. El
   EDA se ejecuta con `python -m jupyter nbconvert --to notebook --execute --inplace notebooks/eda.ipynb`.
+  La primera celda de código es para Google Colab: si `google.colab` está cargado, clona el repo en
+  `/content/nox-ciudad`, hace `chdir` ahí (el notebook busca `data/final/` desde la carpeta de trabajo) e instala lo
+  que falte (Sweetviz, DuckDB); fuera de Colab no hace nada.
 - `python -m src.generar_pbip`: genera `dashboard/AireOMS.pbip` (modelo TMDL con las 8 tablas de gold + `_Medidas`,
   10 relaciones, 18 medidas DAX, orden de columnas, lat/long como categoría de mapa, descripciones de dbt, tema;
   informe PBIR con 3 páginas vacías; lee los CSV con configuración regional en-US).
